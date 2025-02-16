@@ -15,6 +15,7 @@ body{
     justify-content: center;
     align-items: center;
     background-color: rgb(206, 233, 255);
+    overflow: hidden;
 }
 section{
     margin-top: 1%;
@@ -231,13 +232,10 @@ input:checked + .display label .circle .ri-moon-fill{
 .search input:focus{
     outline: none;
 }
-/* Container for the doctors section */
 .doctors {
     width:85%;
     padding: 10px;
 }
-
-/* Title for the doctors section */
 .doctors h5 {
     font-weight: 700;
     font-size: 1.2rem;
@@ -247,16 +245,12 @@ input:checked + .display label .circle .ri-moon-fill{
     border-bottom: 1px solid #c56eff;
     padding-bottom: 5px;
 }
-
-/* Container for doctor profile cards that scrolls horizontally */
 .doctor-profiles {
     display: flex;
     gap: 10px;
     overflow-x: auto;
-    padding-bottom: 10px;
+    padding: 10px;
 }
-
-/* Each doctor profile card */
 .doctor-profile {
     flex: 0 0 auto;
     width: 120px;  /* Adjust the width as needed */
@@ -268,8 +262,6 @@ input:checked + .display label .circle .ri-moon-fill{
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
     border-radius: 10px;
 }
-
-/* Doctor profile image */
 .doctor-profile img {
     height: 50px;
     width: 50px;
@@ -277,8 +269,6 @@ input:checked + .display label .circle .ri-moon-fill{
     object-fit: cover;
     margin-bottom: 5px;
 }
-
-/* Doctor name style */
 .doctor-profile h4 {
     font-weight: 400;
     text-align: center;
@@ -403,8 +393,8 @@ input:checked + .display label .circle .ri-moon-fill{
     font-weight: 700;
     font-size: 1.5rem;
     color: #8d8d8d;
-    width:100%;
-    text-align: center;
+    width:80%;
+    text-align: left;
     padding-bottom: 5px;
 }
 .message {
@@ -413,20 +403,15 @@ input:checked + .display label .circle .ri-moon-fill{
     border-radius: 8px;
     max-width: 60%;
 }
-
-/* Additional styling for content, adjust as needed */
 .message-content {
     font-size: 14px;
 }
-
 .sent-message {
     color: #fff;
 }
-
 .received-message {
     color: #333;
 }
-
 .chat-history {
     display: flex;
     flex-direction: column;
@@ -435,7 +420,6 @@ input:checked + .display label .circle .ri-moon-fill{
     height: 80%;
     overflow-y: auto;
 }
-
 .message {
     max-width: 70%;
     margin-bottom: 10px;
@@ -443,8 +427,6 @@ input:checked + .display label .circle .ri-moon-fill{
     border-radius: 10px;
     word-wrap: break-word;
 }
-
-/* Style for messages sent by the current user (right side) */
 .sent {
     background: linear-gradient(45deg, #6eccc3, #c56eff);
     align-self: flex-end;
@@ -452,8 +434,6 @@ input:checked + .display label .circle .ri-moon-fill{
     margin-left: auto;
     color: #fff;
 }
-
-/* Style for messages received from others (left side) */
 .received {
     align-self: flex-start;
     text-align: left;
@@ -472,7 +452,6 @@ input:checked + .display label .circle .ri-moon-fill{
     position: relative;
     color: #6eccc3; /* Base text color */
 }
-
 .received::before {
     content: "";
     position: absolute;
@@ -493,11 +472,6 @@ input:checked + .display label .circle .ri-moon-fill{
     color: transparent;
     background-image: linear-gradient(45deg, #6eccc3, #c56eff);
 }
-
-/* Optional additional styling for the message content */
-.message-content {
-    font-size: 14px;;
-}
 .date-separator {
     text-align: center;
     font-size: 14px;
@@ -509,32 +483,22 @@ input:checked + .display label .circle .ri-moon-fill{
     border-radius: 10px;
     display: inline-block;
 }
-/* Ensure the chat container allows scrolling */
 #message-container {
     max-height: 100%;
     overflow-y: auto;
 }
-
-/* Webkit (Chrome, Safari, Edge) */
 #message-container::-webkit-scrollbar {
     width: 10px; /* Ensure scrollbar is visible */
 }
-
-/* Gradient scrollbar track */
 #message-container::-webkit-scrollbar-track {
     background: linear-gradient(245deg, #6eccc3, #c56eff);
     border-radius: 2px;
 }
-
-/* White scrollbar thumb */
 #message-container::-webkit-scrollbar-thumb {
     background: white;
     border-radius: 2px;
     border: 2px solid transparent; /* Outline for visibility */
 }
-
-
-/* Ensure scrolling is smooth */
 html {
     scroll-behavior: smooth;
 }
@@ -592,4 +556,44 @@ html {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     cursor: pointer;
+}
+section:has(#toggle:checked) .sent .message-content{
+    background: linear-gradient(45deg, #6eccc3, #c56eff);
+}
+section:has(#toggle:checked) .received .message-content{
+    color:#fff
+}
+section:has(#toggle:checked) .patient-profile{
+    box-shadow: 0px 0px 3px rgb(255 255 255 / 49%);
+    color: #fff;
+}
+section:has(#toggle:checked) .doctor-profile{
+    box-shadow: 0px 0px 3px rgb(255 255 255 / 49%);
+    color: #fff;
+}
+section:has(#toggle:checked) .doctor-profile h4{
+    color: #fff;
+}
+section:has(#toggle:checked) .patient-profile h4{
+    color: #fff;
+}
+section:has(#toggle:checked) .doctor-profile img{
+    border: 2px solid #fff;
+}
+section:has(#toggle:checked) .patient-profile img{
+    border: 2px solid #fff;
+}
+section:has(#toggle:checked) .chatname{
+    box-shadow: 0px 0px 3px rgb(255 255 255 / 49%);
+    color: #fff;
+}
+section:has(#toggle:checked) .navicons a i{
+    color: #fff;
+}
+section:has(#toggle:checked) .user img{
+    border: 2px solid #fff;
+}
+section:has(#toggle:checked) .search{
+    box-shadow: 0px 0px 3px rgb(255 255 255 / 49%);
+    color: #fff;
 }
