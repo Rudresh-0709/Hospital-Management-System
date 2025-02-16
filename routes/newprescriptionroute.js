@@ -154,13 +154,13 @@ function sendEmailWithPDF(patient_name, patient_email, pdfPath) {
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
-            user: 'chauhanrudresh2005@gmail.com',
-            pass: 'kemn rqkk hebi wzoc',
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS,
         },
     });
 
     const mailOptions = {
-        from: 'chauhanrudresh2005@gmail.com',
+        from:process.env.EMAIL_USER,
         to: patient_email,
         subject: 'Your Prescription Report',
         text: `Dear ${patient_name},\n\nAttached is your prescription report.`,

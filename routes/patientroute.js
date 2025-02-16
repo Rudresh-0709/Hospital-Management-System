@@ -7,6 +7,7 @@ const nodemailer = require('nodemailer');
 const QRCode = require('qrcode');
 const fs = require('fs');
 const path = require('path');
+require('dotenv').config();
 
 app.use(
     session({
@@ -166,13 +167,13 @@ app.post("/new_patient", (req, res) => {
                                             const transporter = nodemailer.createTransport({
                                                 service: 'gmail',
                                                 auth: {
-                                                    user: 'chauhanrudresh2005@gmail.com',
-                                                    pass: 'kemn rqkk hebi wzoc',
+                                                    user: process.env.EMAIL_USER,
+                                                    pass: process.env.EMAIL_PASS,
                                                 },
                                             });
 
                                             const mailOptions = {
-                                                from: 'chauhanrudresh2005@gmail.com',
+                                                from: process.env.EMAIL_USER,
                                                 to: email,
                                                 subject: 'Admission Confirmation with Badge QR Codes',
                                                 text: `Dear ${first_name} ${last_name},\n\nYou have been successfully admitted for ${reason_for_admission}. Your assigned doctor is ${doctor_assigned}, and your room is ${room_number} in the ${ward_preference} ward. Please find attached your visitor badges with QR codes.\n\nBest regards,\nHospital Management`,
