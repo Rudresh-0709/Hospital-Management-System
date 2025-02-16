@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Settings</title>
+    <link href="https://fonts.googleapis.com/css2?family=Exo:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
+</head>
+
+<body>
+    <div class="settings-container">
+        <h2>Chat Settings</h2>
+
+        <!-- Profile Picture Section -->
+        <div class="profile-section">
+            <h3>Change Profile Picture</h3>
+            <div class="profile-picture">
+                <img src="/profile-pictures/<%= user.profilePicture.split('/').pop() %>" alt="Profile Picture" id="profilePic">
+
+            </div>
+            <!-- <input type="file" id="fileInput" accept="image/*"> -->
+            <div class="submitsection">
+                <input type="file" id="fileInput" style="display: none;">
+    
+                <!-- Custom Styled Button -->
+                <label for="fileInput" class="custom-file-btn">Choose File</label>
+                
+                <!-- Display Selected File Name -->
+                <span id="statusMessage">No file chosen</span>
+                <button id="uploadBtn">Upload</button>
+            </div>
+            <p id="statusMessage"></p>
+        </div>
+
+        <!-- Back to Chat -->
+        <a href="/chat" class="back-btn">Back to Chat</a>
+    </div>
+
+    <script>
+        
+        document.addEventListener("DOMContentLoaded", async () => {
+            let userId = null;
+        
+            try {
+                const response = await fetch("/chat/api/current-user");
+                const userData = await response.json();
+                if (userData.userId) {
+                    userId = userData.userId;
+                    localStorage.setItem("userId", userId);
+                } else {
+                    throw new Error("User ID not found.");
+                }
+            } catch (err) {
+                alert("User not found. Redirecting to login.");
+                window.location.href = "/login";
+                return;
+            }
+        
+            console.log("User ID:", userId); // Debugging
+        
+            const profilePic = document.getElementById("profilePic");
+            const fileInput = document.getElementById("fileInput");
+            const uploadBtn = document.getElementById("uploadBtn");
+            const statusMessage = document.getElementById("statusMessage");
+        
+            if (!profilePic || !fileInput || !uploadBtn || !statusMessage) {
+                console.error("❌ One or more elements are missing in the DOM.");
+                return;
+            }
+            // Detect file selection and update text
+            // Detect file selection, update text & preview image
+            fileInput.addEventListener("change", function () {
+                const file = this.files[0];
+
+                if (file) {
+                    statusMessage.textContent = file.name; // Show file name
+
+                    // Create a URL for the selected image and update the profile picture preview
+                    const imageUrl = URL.createObjectURL(file);
+                    profilePic.src = imageUrl;
+                } else {
+                    statusMessage.textContent = "No file chosen";
+                }
+            });
+
+
+            // ✅ Fetch and display the user's profile picture correctly
+            try {
+                const userResponse = await fetch(`/chat/api/user/${userId}`);
+                const userInfo = await userResponse.json();
+        
+                if (userInfo.profilePicture) {
+                    profilePic.src = `/profile-pictures/${result.profilePicture.split('/').pop()}?t=${new Date().getTime()}`
+                        ? userInfo.profilePicture
+                        : `/${userInfo.profilePicture}`; // ✅ Ensure correct path
+                } else {
+                    console.warn("⚠ No profile picture found for user.");
+                }
+            } catch (err) {
+                console.error("❌ Error fetching profile:", err);
+            }
+        
+            // ✅ Upload profile picture event listener
+            uploadBtn.addEventListener("click", async () => {
+                const file = fileInput.files[0];
+                if (!file) {
+                    statusMessage.textContent = "Please select a file.";
+                    return;
+                }
+        
+                const formData = new FormData();
+                formData.append("profilePic", file);
+        
+                try {
+                    const uploadResponse = await fetch(`/chat/upload-profile/${userId}`, { 
+                        method: "POST",
+                        body: formData
+                    });
+        
+                    const result = await uploadResponse.json(); // ✅ Avoids using undefined variable
+                    
+                    console.log("📷 Upload response:", result); // Debugging
+        
+                    if (result.success) {
+                        profilePic.src = `/${result.profilePicture}`;
+                        statusMessage.textContent = "Profile updated successfully!";
+
+                        setTimeout(() => {
+                            window.location.href = "/chat";
+                        }, 1000);
+                    } else {
+                        statusMessage.textContent = "Upload failed.";
+                        console.error("❌ Upload failed:", result);
+                    }
+                } catch (error) {
+                    console.error("❌ Error uploading profile picture:", error);
+                    statusMessage.textContent = "Upload failed.";
+                }
+            });
+        });
+    </script>
+        
+</body>
+<style>
+    html{
+        height:100vh;
+        font-family: "Exo", sans-serif;
+    }
+    body{
+        height: 100%;
+        display: flex;
+    }
+    .settings-container {
+        width: 50%;
+        margin: auto;
+        text-align: center;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+        background: white;
+    }
+    .settings-container h2{
+        color: rgb(84, 84, 84);
+        width:90%;
+        text-align: start;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #6eccc3;
+    }
+    .profile-section {
+        color: #6eccc3;
+        gap:10px;
+    }
+
+    .profile-picture img {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #6eccc3;
+        margin-bottom: 10px;
+    }
+    input#file-upload-button{
+        padding: 8px 16px;
+        background: linear-gradient(45deg, #6eccc3, #006d62);
+        color: white;
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+    }
+    .submitsection{
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+    }
+    .custom-file-btn {
+        padding: 8px 16px;
+        color: #006d62;
+        border: 1px solid #006d62;
+        cursor: pointer;
+        border-radius: 5px;
+  }
+
+    button {
+        padding: 8px 16px;
+        background: linear-gradient(45deg, #6eccc3, #006d62);
+        color: white;
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+    }
+
+    button:hover {
+        opacity: 0.8;
+    }
+
+    .back-btn {
+        display: block;
+        margin-top: 20px;
+        text-decoration: none;
+        background: linear-gradient(345deg, #6eccc3, #006d62);
+        color: white;
+        padding: 8px 12px;
+        border-radius: 5px;
+    }
+</style>
+
+</html>

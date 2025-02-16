@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+        integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"   />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Eagle+Lake&family=Montserrat+Alternates:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Ruslan+Display&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/stylesheets/newpatient.css">
+    <script src="/javascripts/patientadmit.js"></script>
+    <title>New patient</title>
+</head>
+<body>
+    <section>
+        <div class="heading">
+            <i class="fa-solid fa-angles-left" onclick="backtoadmin()"></i>
+            <h1>New Patient</h1>
+        </div>
+        <form action="/new_patient" method="POST">
+            <div class="patientdiv">
+                <h3>Patient details</h3>
+                <div class="name">
+                    <div class="firstname">
+                        <label for="firstname">First name:</label>
+                        <input type="text" id="firstname" name="first_name" required>
+                    </div>
+                    <div class="lastname">
+                        <label for="lastname">Last name:</label>
+                        <input type="text" id="lastname" name="last_name" required>
+                    </div>
+                </div>
+
+                <label for="dob">Date of Birth:</label>
+                <input type="date" id="dob" name="dob" required>
+
+                <label for="gender">Gender:</label>
+                <select id="gender" name="gender">
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                </select>
+                
+                <label for="contact_number">Contact Number:</label>
+                <input type="tel" id="contact_number" name="contact_number" required>
+
+                <label for="email">Email Address:</label>
+                <input type="email" id="email" name="email" required>
+
+                <label for="address">Address:</label>
+                <textarea id="address" name="address" rows="3" required></textarea>
+            </div>
+            <div class="emergency">
+                <h3>Emergency Contact</h3>
+                <label for="emergency_name">Contact Name:</label>
+                <input type="text" id="emergency_name" name="emergency_name" required>
+
+                <label for="relationship">Relationship:</label>
+                <input type="text" id="relationship" name="relationship" required>
+
+                <label for="emergency_contact">Contact Number:</label>
+                <input type="tel" id="emergency_contact" name="emergency_contact" required>
+            </div>
+            <!-- <div class="medicaldiv">
+
+                <h3>Medical Information</h3>
+                <label for="blood_group">Blood Group:</label>
+                <input type="text" id="blood_group" name="blood_group" required>
+
+                <label for="allergies">Known Allergies:</label>
+                <input type="text" id="allergies" name="allergies">
+
+                <label for="medications">Current Medications:</label>
+                <textarea id="medications" name="medications" rows="2"></textarea>
+
+                <label for="conditions">Existing Conditions:</label>
+                <textarea id="conditions" name="conditions" rows="2"></textarea>
+            </div>
+            <div class="insurancediv">
+                <h3>Insurance Information</h3>
+                <label for="insurance_provider">Provider:</label>
+                <input type="text" id="insurance_provider" name="insurance_provider">
+
+                <label for="policy_number">Policy Number:</label>
+                <input type="text" id="policy_number" name="policy_number">
+
+                <label for="policy_expiry">Policy Expiry Date:</label>
+                <input type="date" id="policy_expiry" name="policy_expiry">
+            </div> -->
+            <div class="admissiondiv">
+                <h3>Admission Details</h3>
+                <label for="reason_for_admission">Reason for Admission:</label>
+                <textarea id="reason_for_admission" name="reason_for_admission" rows="2" required></textarea>
+    
+                <label for="doctor_assigned">Doctor Assigned:</label>
+                <select name="doctor_assigned"  required>
+                    <% if(doctors.length>0){ %>
+                        <% for(var i=0;i<doctors.length;i++){ %>
+                            <option value="<%=doctors[i].doctor_name%>"><%=doctors[i].doctor_name%></option>
+                        <% } %>
+                    <% } else{%>
+                            <option value="No Doctors found" >No Doctors available at this moment</option>
+                    <% } %>
+                </select>
+                <!-- <input type="text" id="doctor_assigned" name="doctor_assigned" required> -->
+    
+                <label for="ward_preference">Ward Preference:</label>
+                <select id="ward_preference" name="ward_preference">
+                    <option value="General">General</option>
+                    <option value="Private">Private</option>
+                    <option value="ICU">ICU</option>
+                </select>
+    
+                <label for="room_number">Room Number:</label>
+                <select name="room_number"  required>
+                    <% if(rooms.length>0){ %>
+                        <% for(var i=0;i<rooms.length;i++){ %>
+                            <option value="<%=rooms[i].room_number%>"><%=rooms[i].room_number%></option>
+                        <% } %>
+                    <% } else{%>
+                            <option value="No Rooms available" >No Rooms available at this moment</option>
+                    <% } %>
+                </select>
+            </div>
+
+            <input type="submit" id="newpatientsubmit" value="Admit Patient">
+        </form>
+        
+        <% if (flashMessage) { %>
+            <div class="popup" id="popup">
+                <div class="alert alert-<%= flashMessage.type %> ">
+                    <span><%= flashMessage.message %></span>
+                    <button id="close-popup">Close</button>
+                </div>
+            </div>
+        <% } %>
+    </section>
+    
+</body>
+
+</html>

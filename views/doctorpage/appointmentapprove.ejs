@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pending Appointments</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+        integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"   />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Eagle+Lake&family=Montserrat+Alternates:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Ruslan+Display&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/stylesheets/patientHistory.css">
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="mb-4">Pending Appointments</h1>
+        <% if (appointments.length > 0) { %>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Patient Name</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Purpose</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% appointments.forEach(appointment => { %>
+                        <tr>
+                            <td><%= appointment.appointee_name %></td>
+                            <td><%= appointment.appointment_date %></td>
+                            <td><%= appointment.appointment_time %></td>
+                            <td><%= appointment.purpose %></td>
+                            <td>
+                                <!-- Approve Button -->
+                                <form action="/doctor/approve_appointment" method="POST" class="d-inline">
+                                    <input type="hidden" name="appointment_id" value="<%= appointment.appointment_id %>">
+                                    <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                                </form>
+                                <!-- Reject Button -->
+                                <form action="/doctor/reject_appointment" method="POST" class="d-inline">
+                                    <input type="hidden" name="appointment_id" value="<%= appointment.appointment_id %>">
+                                    <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        <% } else { %>
+            <p>No pending appointments at the moment.</p>
+        <% } %>
+    </div>
+</body>
+</html>

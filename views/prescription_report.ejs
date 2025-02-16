@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Prescription Report</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            color: #333;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #4ca1af;
+            padding-bottom: 10px;
+        }
+        .header h1 {
+            font-size: 28px;
+            color: #2c3e50;
+        }
+        .details {
+            margin-bottom: 20px;
+        }
+        .details h2 {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #4ca1af;
+        }
+        .details p {
+            margin: 5px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #4ca1af;
+            color: #fff;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 14px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Prescription Report</h1>
+    </div>
+    <div class="details">
+        <h2>Patient Details</h2>
+        <p><strong>Name:</strong> <%= prescription.patient_name %></p>
+        <p><strong>Type:</strong> <%= prescription.patient_type %></p>
+        <% if (prescription.appointment_id) { %>
+            <p><strong>Appointment ID:</strong> <%= prescription.appointment_id %></p>
+        <% } else { %>
+            <p><strong>Patient ID:</strong> <%= prescription.patient_id %></p>
+        <% } %>
+        <p><strong>Email:</strong> <%= prescription.patient_email %></p>
+    </div>
+    <div class="medicines">
+        <h2>Medicines Prescribed</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Medicine Name</th>
+                    <th>Dosage</th>
+                    <th>Time of Intake</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if(medicines && medicines.length > 0) { %>
+                    <% medicines.forEach(function(med) { %>
+                        <tr>
+                            <td><%= med.name %></td>
+                            <td><%= med.dosage %></td>
+                            <td><%= med.time %></td>
+                        </tr>
+                    <% }); %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="3">No medicines found.</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+    <div class="footer">
+        <p>Generated on <%= new Date().toLocaleDateString() %></p>
+        <p>Hospital - All rights reserved.</p>
+    </div>
+</body>
+</html>

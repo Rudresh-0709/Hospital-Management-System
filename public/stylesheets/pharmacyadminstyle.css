@@ -1,0 +1,229 @@
+* {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-family: "Poppins";
+    overflow-x: hidden;
+}
+
+html {
+    height: 100%;
+    width: 100%;
+}
+
+body {
+    background-image: url(../png/adminpng/pexels-pixabay-208512.jpg);
+    background-size: 100%;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    height: 100%;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.344);
+}
+
+.section {
+    background-color: rgba(0, 0, 0, 0.438);
+    z-index: 1;
+    ;
+
+}
+
+.sidenav {
+    position: absolute;
+    left: 0;
+    height: 100%;
+    width: 15%;
+    background-color: rgba(0, 0, 0, 0.584);
+    color: aliceblue;
+    top: 0;
+}
+
+h4 {
+    padding: 20px 10px;
+    text-align: center;
+    font-family: "Montserrat Alternates";
+}
+
+li {
+    padding: 20px 10px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 20px;
+    border-top: 0.1px solid rgba(240, 248, 255, 0.229);
+    border-bottom: 0.1px solid rgba(240, 248, 255, 0.229);
+}
+
+i {
+    margin-right: 10px;
+    padding: 15px;
+    border: 0.1px solid rgba(240, 248, 255, 0.229);
+    border-radius: 50%;
+}
+
+a {
+    text-decoration: none;
+    color: aliceblue;
+    font-family: "Montserrat Alternates";
+}
+
+.topnav {
+    height: 7%;
+    top: 0px;
+    padding-top: 10px;
+    position: fixed;
+    width: 85%;
+    left: 15%;
+    padding-left: 10px;
+    padding-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    background-color: rgba(0, 0, 0, 0.584);
+    z-index: 20;
+}
+
+.leftnav,
+.rightnav {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding-right: 30px;
+}
+
+.leftnav i,
+.rightnav i {
+    color: aliceblue;
+    background-color: rgba(255, 255, 255, 0.152);
+    cursor: pointer;
+}
+
+input {
+    color: aliceblue;
+    padding: 7px 15px;
+    border: 0.1px solid rgba(240, 248, 255, 0.229);
+    border-radius: 40px;
+    height: 30px;
+    width: 200px;
+    background-color: rgba(255, 255, 255, 0.152);
+}
+
+.chartpharmacy {
+    display: flex;
+    justify-content: center;
+    width:85%;
+    height: 30em;
+    background-color: rgba(255, 255, 255, 0.318);
+    margin-left: 15%;
+    margin-top: 7%;
+    padding: 20px;
+    z-index: 1;
+}
+
+.productsection {
+    width: 85%;
+    margin-left: 15%;
+    height: fit-content;
+    margin-top: 20px;
+}
+
+.productcard a {
+    background-color: rgba(255, 255, 255, 0.318);
+    padding: 40px;
+    border-radius: 20px;
+}
+
+img {
+    height: 250px;
+    mix-blend-mode: color-burn;
+}
+
+.productcard {
+    margin-top: 30px;
+    margin-left: 15%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+
+h2 {
+    text-align: center;
+    padding-top: 10px;
+    font-family: "Montserrat Alternates";
+    color: black;
+}
+
+.producttable,
+.customertable {
+    width: 85%;
+    margin-left: 15%;
+    height: fit-content;
+    margin-top: 20px;
+    background-color: rgba(0, 0, 0, 0.455);
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    align-items: center;
+}
+
+h3 {
+    text-align: start;
+    color: aliceblue;
+    font-family: "Montserrat Alternates";
+    padding: 10px 0px;
+    height: fit-content;
+}
+
+table {
+    width: 90%;
+    border-spacing: 0;
+    margin: 20px 0;
+    font-size: 18px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    border-radius: 20px;
+    overflow: hidden;
+    background-color: rgba(0, 0, 0, 0.584);
+}
+
+th,
+td {
+    padding: 12px 15px;
+    border: 0.1px solid rgba(240, 248, 255, 0.229);
+    color: rgba(255, 255, 255, 0.559)
+}
+
+th {
+    font-family: "Montserrat Alternates";
+    color: rgba(255, 255, 255, 0.722);
+    font-size: larger;
+    font-weight: bold;
+}
+
+.tabletop {
+    width: 90%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 3px solid rgba(240, 248, 255, 0.229);
+}
+
+.tabletop a {
+    padding: 5px;
+    background-color: rgba(255, 255, 255, 0.386);
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar {
+    width: 5px;
+    z-index: 999;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f11f;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #000000db;
+}

@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pharmacy Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+        integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"   />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Eagle+Lake&family=Montserrat+Alternates:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Ruslan+Display&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/stylesheets/pharmacyadminstyle.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Fetch the data from the server
+        fetch('/get-total-amounts')
+            .then(response => response.json())
+            .then(totalAmounts => {
+                // Extract the dates and total sales from the response data
+                const labels = totalAmounts.map(item => item.date);  // Extract dates for the X-axis
+                const data = totalAmounts.map(item => item.total_sales);  // Extract sales totals for the Y-axis
+
+                const formattedLabels = labels.map(label => {
+                    // You can adjust the format here if necessary, e.g. display only the month or year
+                    const date = new Date(label);
+                    return date.toLocaleDateString(); // Defaults to MM/DD/YYYY, change as needed
+                });
+
+                // Create the chart with the fetched data
+                var ctx = document.getElementById('salespharmacy').getContext('2d');
+                var chart = new Chart(ctx, {
+                    type: 'bar', // You can change this to 'line' for a line chart
+                    data: {
+                        labels: formattedLabels, // Date labels on the X-axis
+                        datasets: [{
+                            label: 'Total Sales Amounts', // Chart title/label
+                            data: data, // Total sales data
+                            borderWidth: 1,
+                            backgroundColor: ' rgba(0, 0, 0, 0.8)', // Light blue color for bars
+                            borderColor: 'rgba(0,0,0, 1)', // Blue color for bar borders
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                ticks: {
+                                    color: 'rgba(0, 0, 0, 0.8)',
+
+                                },
+                                beginAtZero: true, // Ensures Y-axis starts at 0
+                                title: {
+                                    display: true,
+                                    text: 'Total Sales ($)',
+                                    color: 'rgba(0,0,0,1)',
+                                    font: {
+                                        size: 19, // Optional: Change font weight
+                                    },
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    color: 'rgba(0, 0, 0, 0.8)',
+
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Date', // X-axis label
+                                    color: 'rgba(0,0,0,1)',
+                                    font: {
+                                        size: 19, // Optional: Change font weight
+                                    },
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                        }
+                    }
+                });
+            })
+            .catch(error => console.error('Error fetching total amounts:', error));
+    </script>
+</head>
+
+<body>
+    <div class="section">
+
+        <section>
+            <div class="topnav">
+                <div class="leftnav">
+                    <i class="fa-solid fa-bars-staggered"></i>
+                    <form action="">
+                        <input type="text" name="search" placeholder="Search">
+                    </form>
+                </div>
+                <div class="rightnav">
+                    <i class="fa-regular fa-bell"></i>
+                    <i class="fa-regular fa-envelope"></i>
+                    <i class="fa-regular fa-user"></i>
+                    <i class="fa-solid fa-gear"></i>
+                </div>
+            </div>
+            <div class="sidenav">
+                <h4>HyperNav</h4>
+                <ul>
+                    <li>
+                        <i class="fa-solid fa-tablets"></i>
+                        <a href="">All consumer</a>
+                    </li>
+                    <li>
+                        <i class="fa-regular fa-handshake"></i>
+                        <a href="">Customer Transactions</a>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-cart-plus"></i>
+                        <a href="">Supplier Transactions</a>
+
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-file-invoice"></i>
+                        <a href="">Revenue Report</a>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-house-user"></i>
+                        <a href="/admin">Home</a>
+                    </li>
+                </ul>
+            </div>
+        </section>
+        <section class="chartpharmacy">
+            <canvas id="salespharmacy"></canvas>
+
+        </section>
+        <section>
+            <div class="productcard">
+                <a href="">
+                    <img src="/png/pharmacyadminpng/medicine (1).png" alt="">
+                    <h2>New Product</h5>
+                </a>
+                <a href="">
+                    <img src="/png/pharmacyadminpng/drug (1).png" alt="">
+                    <h2>Edit Product</h5>
+                </a>
+                <a href="">
+                    <img src="/png/pharmacyadminpng/bag (1).png" alt="">
+                    <h2>Remove Product</h5>
+                </a>
+            </div>
+        </section>
+        <div class="producttable">
+            <div class="tabletop">
+                <h3>Recently added products</h3>
+                <a href="">View all</a>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product Name</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (products && products.length> 0) { %>
+                        <% for (let i=products.length - 1; i>= Math.max(0, products.length - 5); i--) { %>
+                            <% if (products[i]) { %>
+                                <tr>
+                                    <td>
+                                        <%= products[i].product_name %>
+                                    </td>
+                                    <td>
+                                        <%= products[i].category %>
+                                    </td>
+                                    <td>
+                                        <%= products[i].price_per_unit %>
+                                    </td>
+                                    <td>
+                                        <%= products[i].stock %>
+                                    </td>
+                                </tr>
+                                <% } %>
+                                    <% } %>
+                                        <% } else { %>
+                                            <tr>
+                                                <td colspan="4">No products available to display.</td>
+                                            </tr>
+                                            <% } %>
+                </tbody>
+
+            </table>
+        </div>
+        <div class="customertable">
+            <div class="tabletop">
+                <h3>Recent Customers</h3>
+                <a href="">View all</a>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Customer Name</th>
+                        <th>Customer Type</th>
+                        <th>Contact Number</th>
+                        <th>Email</th>
+                        <th>Address</th>
+                        <th>Product ID</th>
+                        <th>Quantity</th>
+                        <th>Total Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (consumer && consumer.length> 0) { %>
+                        <% for (let i=consumer.length - 1; i>= Math.max(0, consumer.length - 5); i--) { %>
+                            <% if (consumer[i]) { %>
+                                <tr>
+                                    <td>
+                                        <%= consumer[i].consumer_name%>
+                                    </td>
+                                    <td>
+                                        <%= consumer[i].consumer_type%>
+                                    </td>
+                                    <td>
+                                        <%= consumer[i].contact_number%>
+                                    </td>
+                                    <td>
+                                        <%= consumer[i].email%>
+                                    </td>
+                                    <td>
+                                        <%= consumer[i].address%>
+                                    </td>
+                                    <td>
+                                        <%= consumer[i].product_id%>
+                                    </td>
+                                    <td>
+                                        <%= consumer[i].quantity%>
+                                    </td>
+                                    <td>
+                                        <%= consumer[i].total_amount%>
+                                    </td>
+                                </tr>
+                                <% } %>
+                                    <% } %>
+                                        <% } else { %>
+                                            <tr>
+                                                <td colspan="4">No consumer available to display.</td>
+                                            </tr>
+                                            <% } %>
+                </tbody>
+
+            </table>
+        </div>
+        
+    </div>
+
+</body>
+
+</html>

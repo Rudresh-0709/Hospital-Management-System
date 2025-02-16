@@ -1,0 +1,137 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    font-family: "Poppins", 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: white;
+}
+
+h2 {
+    color: #091d34;
+    font-size: 40px;
+    height: 2em;
+    font-family: "Montserrat Alternates", sans-serif;
+    margin-top: 1em;
+    width: 100%;
+    text-align: center;
+}
+
+.form-group{
+    width:550px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 2em;
+    gap:20px
+}
+
+section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 90%;
+    margin-top: 2em;
+}
+
+h3 {
+    width: 100%;
+    color: #2e5668;
+    font-size: 25px;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    text-align: start;
+    border-bottom: 0.2px solid #2e5668;
+}
+
+label {
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    font-size: 20px;
+    text-align: start;
+    color: #3c7284;
+}
+
+input,
+select,
+textarea,
+option {
+    width: 350px;
+    height: 2.5em;
+    background-color: #c3c7b347;
+    border-color: transparent;
+    border-radius: 7px;
+    color: #3a6592;
+    padding: 3px 10px;
+    font-size: large;
+}
+
+textarea {
+    height: 5em;
+    padding-top: 7px;
+}
+
+#newpatientsubmit {
+    width: 200px;
+    height: 4em;
+    margin-top: 1em;
+    font-size: larger;
+    background-color: #3a6592;
+    color: #ffffff;
+    cursor: pointer;
+    box-shadow: 0px 0px 3px 0.01px rgba(0, 0, 0, 0.434);
+}
+
+/* New Equipment and Update Equipment form styles */
+form {
+    width: 80%;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: #f4f6f9;
+    border-radius: 8px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+h3 {
+    font-size: 28px;
+    color: #2e5668;
+    margin-bottom: 20px;
+}
+
+label {
+    font-size: 18px;
+    color: #2e5668;
+}
+
+/* input,
+select {
+    width: 100%;
+    height: 2.5em;
+    padding: 0 15px;
+    border-radius: 5px;
+    border: 1px solid #d1d1d1;
+    font-size: 16px;
+    color: #3c7284;
+    margin-bottom: 1.5em;
+} */
+
+button {
+    width:200px;
+    height:4em;
+    margin-top: 1em;
+    font-size: larger;
+    background-color:#3a6592;
+    color: #ffffff;
+    cursor: pointer;
+}
+
+

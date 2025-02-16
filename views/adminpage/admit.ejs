@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+        integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"   />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Eagle+Lake&family=Montserrat+Alternates:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Ruslan+Display&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/stylesheets/newpatient.css">
+    <script src="/javascripts/patientadmit.js"></script>
+    <title>Admit Patient</title>
+</head>
+<body>
+    <section>
+        <div class="heading">
+            <i class="fa-solid fa-angles-left" onclick="backtoadmin()"></i>
+            <h1>Admit Patient</h1>
+        </div>
+        <form action="/admit_patient" method="POST">
+            <div class="admissiondiv">
+                <h3>Admission Details</h3>
+                <div class="name">
+                    <div class="firstname">
+                        <label for="firstname">First name:</label>
+                        <select name="first_name" id="firstname" required>
+                            <% if(patients.length>0){ %>
+                                <% for(var i=0;i<patients.length;i++){ %>
+                                    <option value="<%=patients[i].first_name%>"><%=patients[i].first_name%></option>
+                                <% } %>
+                            <% } else{%>
+                                    <option value="No Patient found" >No patient found</option>
+                            <% } %>
+                        </select>
+                    </div>
+                    <div class="lastname">
+                        <label for="lastname">Last name:</label>
+                        <select name="last_name" id="lastname" required>
+                            <% if(patients.length>0){ %>
+                                <% for(var i=0;i<patients.length;i++){ %>
+                                    <option value="<%=patients[i].last_name%>"><%=patients[i].last_name%></option>
+                                <% } %>
+                            <% } else{%>
+                                    <option value="No Patient found" >No patient found</option>
+                            <% } %>
+                        </select>
+                    </div>
+                </div>
+
+                <label for="reason_for_admission">Reason for Admission:</label>
+                <textarea id="reason_for_admission" name="reason_for_admission" rows="2" required></textarea>
+    
+                <label for="doctor_assigned">Doctor Assigned:</label>
+                <select name="doctor_assigned"  required>
+                    <% if(doctors.length>0){ %>
+                        <% for(var i=0;i<doctors.length;i++){ %>
+                            <option value="<%=doctors[i].doctor_name%>"><%=doctors[i].doctor_name%></option>
+                        <% } %>
+                    <% } else{%>
+                            <option value="No Doctors found" >No Doctors available at this moment</option>
+                    <% } %>
+                </select>
+    
+                <label for="ward_preference">Ward Preference:</label>
+                <select id="ward_preference" name="ward_preference">
+                    <option value="general">General</option>
+                    <option value="private">Private</option>
+                </select>
+                <label for="room_number">Room Number:</label>
+                <select name="room_number"  required>
+                    <% if(rooms.length>0){ %>
+                        <% for(var i=0;i<rooms.length;i++){ %>
+                            <option value="<%=rooms[i].room_number%>"><%=rooms[i].room_number%></option>
+                        <% } %>
+                    <% } else{%>
+                            <option value="No Rooms available" >No Rooms available at this moment</option>
+                    <% } %>
+                </select>
+            </div>
+
+            <input type="submit" id="newpatientsubmit" value="Admit Patient">
+        </form>
+        <% if (flashMessage) { %>
+            <div class="popup" id="popup">
+                <div class="alert alert-<%= flashMessage.type %> ">
+                    <span><%= flashMessage.message %></span>
+                    <button id="close-popup">Close</button>
+                </div>
+            </div>
+        <% } %>
+        
+    </section>
+</body>
+
+</html>

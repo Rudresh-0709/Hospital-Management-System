@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Eagle+Lake&family=Montserrat+Alternates:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Ruslan+Display&display=swap"
+        rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Login</title>
+    <script src="/javascripts/patientadmit.js"></script>
+</head>
+<style>
+    html{
+        margin:0;
+        overflow: hidden;
+        background-color: #a7d2f4;
+        height:100%;
+    }
+    body{
+        height: 100%;
+        display:flex;
+        align-items: center;
+        justify-content: space-between;
+        margin:0;
+    }
+    .container{
+        height: 100%;
+        width:30%;
+        display:flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .login-container{
+        background-size: cover;
+        background-image: url("/png/patientpng/wave.png");
+        z-index: 1000;
+        height:60%;
+        width:95%;
+        border:1px solid rgba(255, 255, 255, 0.426);
+        border-radius: 10px;
+    }
+    .loginimg{
+        height: 100%;
+        width:70%;
+        background-size: cover;
+        background-image: url("/png/patientpng/freepik__retouch__52603.png");
+    }
+    form{
+        height:100%;
+        width:100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+    .form-group{
+        margin: 0;
+        height:25%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items:center;
+    }
+    .form-button{
+        height:25%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    h2{
+        font-family:"Montserrat Alternates";
+        text-shadow: 1px 1px 1px #089cff;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items:center;
+        height:20%;
+        margin-top:20px;
+        margin-bottom:0;
+        font-size: 40px;
+        color: aliceblue;
+    }
+    label{
+        font-family:"Montserrat Alternates";
+        font-size: 20px;
+        width:100%;
+        color:aliceblue;
+        text-align: start;
+    }
+    .form-group input {
+        width: 90%;
+        padding:10px 15px 10px 15px;
+        color:rgba(0, 0, 0, 0.581);
+        border: 2px solid #e1e1e1;
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-group input:focus {
+        outline: none;
+        border-color: #089cff;
+        box-shadow: 0 0 0 4px rgba(0, 169, 247, 0.1);
+    }
+    .form-group{
+        width:70%;
+    }
+    button{
+        font-family:"Montserrat Alternates";
+        font-size:20px;
+        padding:10px 50px 10px 50px;
+        border-radius: 5px;
+        border-color: rgba(255, 255, 255, 0.1);
+        background-color: #a6d8fa6f;
+        cursor: pointer;
+        color:white;
+    }
+    .flash-message {
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 500px;
+    background-color: #4caf50; /* Success background color */
+    color: #fff; /* Text color */
+    font-size: 1rem;
+    padding: 15px 20px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.flash-message.error {
+    background-color: #f44336; /* Error background color */
+}
+
+.flash-message.warning {
+    background-color: #ff9800; /* Warning background color */
+}
+
+.flash-message.info {
+    background-color: #2196f3; /* Info background color */
+}
+
+.flash-message.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+#flash-close {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+#flash-close:hover {
+    color: #ccc;
+}
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+
+.alert-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.alert-danger {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+.alert-error{
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+.alert-warning{
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeeba;
+}
+/* Flash message container */
+.flash-message {
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    animation: fadeOut 5s forwards; /* Auto-hide after 5 seconds */
+}
+
+/* Success message style */
+.flash-message.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+/* Error message style */
+.flash-message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* Warning message style */
+.flash-message.warning {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeeba;
+}
+.popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    min-width: 300px;
+    max-width: max-content;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    display: none;
+    text-align: center;
+    padding: 20px;
+    border-radius: 10px;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.popup-content h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #4caf50;
+}
+
+.popup-content p {
+    font-size: 1rem;
+    color: #555;
+    margin: 10px 0;
+}
+
+#close-popup {
+    background-color: #2196f3;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    border-radius: 5px;
+}
+</style>
+<body>
+    <div class="loginimg">    
+    </div>
+    <div class="container">
+
+        <div class="login-container">
+            <form action="/patientlogin" method="POST">
+                <h2>Patient Login</h2>
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <div class="form-button">
+                    <button type="submit">Login</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <% if (flashMessage) { %>
+        <div class="popup" id="popup">
+            <div class="alert alert-<%= flashMessage.type %> ">
+                <span><%= flashMessage.message %></span>
+                <button id="close-popup">Close</button>
+            </div>
+        </div>
+    <% } %>
+</body>
+
+</html>

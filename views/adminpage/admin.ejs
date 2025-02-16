@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+        integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"   />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Eagle+Lake&family=Montserrat+Alternates:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Ruslan+Display&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/stylesheets/adminstyle.css">
+
+    <title>Admin Dashboard</title>
+</head>
+
+<body>
+    <section class="nav">
+        <div class="infonav">
+            <a href="admin/visitqr">
+                <img src="/png/adminpng/qrcode.png" alt="" style="height: 30px;">
+            </a>
+            <div class="adminhead">
+                <h2>Admin Dashboard</h2>
+                <i onclick=menushow() class="fa-solid fa-bars"></i>
+            </div>
+            <div class="menu">
+                <ul>
+                    <li>
+                        <i class="fa-solid fa-house"></i>
+                        <a href="/">Home</a>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-calendar-check"></i>
+                        <a href="">Appointment List</a>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-warehouse"></i>
+                        <a href="admin/equipment">Inventory</a>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-file-invoice-dollar"></i>
+                        <a href="">Billing</a>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-bed-pulse"></i>
+                        <a href="">Patient List</a>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-user-doctor"></i>
+                        <a href="">Doctor List</a>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-clipboard-user"></i>
+                        <a href="">Staff List</a>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-gear"></i>
+                        <a href="">Settings</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+    <section class="data">
+        hello
+    </section>
+    <section class="patient">
+        <a class="patientlink" href="admin/patient">
+            <img src="/png/adminpng/male-patient-icon.png" alt="">
+            <h2>New Patient</h2>
+        </a>
+        <a class="patientlink" href="admin/admit">
+            <img src="/png/adminpng/ct-scan.png" alt="">
+            <h2>Admit Patient</h2>
+        </a>
+        <a class="patientlink" href="admin/discharge">
+            <img src="/png/adminpng/heal.png" alt="">
+            <h2>Discharge Patient</h2>
+        </a>
+        <a class="patientlink" href="admin/patienthistory">
+            <img src="/png/adminpng/medical-report.png" alt="">
+            <h2>Patient History</h2>
+        </a>
+    </section>
+    <section class="patient">
+        <a class="patientlink" href="admin/newvisitor">
+            <img src="/png/adminpng/friends.png" alt="">
+            <h2>Add Visitor</h2>
+        </a>
+        <a class="patientlink" href="admin/visit-history">
+            <img src="/png/adminpng/visitorlist.png" alt="">
+            <h2>Visitor List</h2>
+        </a>
+        <a class="patientlink" href="admin/newdoctor">
+            <img src="/png/adminpng/doctor.png" alt="">
+            <h2>New Doctor</h2>
+        </a>
+        <a class="patientlink" href="admin/newstaff">
+            <img src="/png/adminpng/staff-setting.png" alt="">
+            <h2>New Staff </h2>
+        </a>
+    </section>
+    <section class="patient">
+        <a class="patientlink" href="admin/nurseallocate">
+            <img src="/png/adminpng/nurse.png" alt="">
+            <h2>Allocate Nurse</h2>
+        </a>
+        <a class="patientlink" href="">
+            <img src="/png/adminpng/experiment.png" alt="">
+            <h2>Lab reports</h2>
+        </a>
+        <a class="patientlink" href="admin/pharmacy">
+            <img src="/png/adminpng/pharmacy.png" alt="">
+            <h2>Pharmacy</h2>
+        </a>
+        <a class="patientlink" href="admin/nurse">
+            <img src="/png/adminpng/nurse.png" alt="">
+            <h2>New Nurse</h2>
+        </a>
+    </section>
+</body>
+<script src="/javascripts/admin.js"></script>
+
+</html>

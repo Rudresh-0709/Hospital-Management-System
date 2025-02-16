@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" href="/stylesheets/newpatient.css">
+    <!-- If you have any other stylesheets you can keep them -->
+    <title>Diagnosis Entry Form</title>
+    <link rel="stylesheet" href="/stylesheets/doctorsidebar.css">
+    <!-- <style>
+        /* Sidebar styling */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 60px;
+            background: #2c3e50;
+            transition: width 0.2s;
+            overflow: hidden;
+            z-index: 1000;
+        }
+
+        .sidebar:hover {
+            width: 200px;
+        }
+
+        .sidebar ul.sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar ul.sidebar-menu li {
+            width: 100%;
+        }
+
+        .sidebar ul.sidebar-menu li a {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            color: #ecf0f1;
+            text-decoration: none;
+        }
+
+        .sidebar ul.sidebar-menu li a i {
+            min-width: 30px;
+            font-size: 20px;
+        }
+
+        .sidebar ul.sidebar-menu li a .menu-text {
+            opacity: 0;
+            transition: opacity 0.2s;
+            white-space: nowrap;
+            margin-left: 10px;
+        }
+
+        .sidebar:hover ul.sidebar-menu li a .menu-text {
+            opacity: 1;
+        }
+
+        /* Adjust main content margin */
+        .main-content {
+            margin-left: 60px;
+            transition: margin-left 0.2s;
+            padding: 20px;
+        }
+
+        .sidebar:hover~.main-content {
+            margin-left: 200px;
+        }
+    </style> -->
+</head>
+
+<body>
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar">
+        <ul class="sidebar-menu">
+            <li><a href="/"><i class="fa fa-home"></i><span class="menu-text">Home</span></a></li>
+            <li class="active"><a href="/diagnosis"><i class="fa fa-stethoscope"></i><span class="menu-text">Diagnosis</span></a></li>
+            <li><a href="/patients"><i class="fa fa-user"></i><span class="menu-text">Patients</span></a></li>
+            <li><a href="/reports"><i class="fa fa-chart-bar"></i><span class="menu-text">Reports</span></a></li>
+            <li><a href="/settings"><i class="fa fa-cog"></i><span class="menu-text">Settings</span></a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <section>
+            <div class="heading">
+                <h1>New Diagnosis Entry</h1>
+            </div>
+
+            <form action="/diagnosis" method="POST" enctype="multipart/form-data">
+                <div class="patientdiv">
+                    <h3>Patient Details</h3>
+                    <label for="patient">Patient Name:</label>
+                    <select id="patient" name="patient" required>
+                        <option value="">Select a Patient</option>
+                        <% patient.forEach(patient => { %>
+                            <option value="<%= patient.patient_id %>">
+                                <%= patient.patient_name %> (<%= patient.patient_type %>)
+                            </option>
+                        <% }) %>
+                    </select>
+                    <label for="patient_type">Patient type:</label>
+                    <select name="patient_type" id="patient_type">
+                        <option value="appointment">Appointment</option>
+                        <option value="admitted">Admitted</option>
+                    </select>
+                    <!-- Hidden input for doctor_id -->
+                    <input type="hidden" name="doctor_id" value="<%= doctor_id %>">
+
+                    <label for="diagnosisDate">Diagnosis Date:</label>
+                    <input type="date" id="diagnosisDate" name="diagnosis_date" required>
+                </div>
+
+                <div class="medicaldiv">
+                    <h3>Diagnosis Details</h3>
+                    <label for="diagnosisName">Diagnosis Name:</label>
+                    <input type="text" id="diagnosisName" name="diagnosis_name" required>
+
+                    <label for="severity">Severity:</label>
+                    <select id="severity" name="severity">
+                        <option value="Mild">Mild</option>
+                        <option value="Moderate">Moderate</option>
+                        <option value="Severe">Severe</option>
+                    </select>
+
+                    <label for="symptoms">Symptoms:</label>
+                    <textarea id="symptoms" name="symptoms" rows="3" required></textarea>
+
+                    <h3>Exercise Recommendations</h3>
+                    <div class="name">
+                        <div class="firstname">
+                            <label for="walking">Walk:</label>
+                            <div class="logoinput">
+                                <i class="fa-solid fa-person-walking"></i>
+                                <input type="text" id="walking" name="walking">
+                            </div>
+                        </div>
+                        <div class="lastname">
+                            <label for="running">Run:</label>
+                            <div class="logoinput">
+                                <i class="fa-solid fa-person-running"></i>
+                                <input type="text" id="running" name="running">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="name">
+                        <div class="firstname">
+                            <label for="swimming">Swim:</label>
+                            <div class="logoinput">
+                                <i class="fa-solid fa-person-swimming"></i>
+                                <input type="text" id="swimming" name="swimming">
+                            </div>
+                        </div>
+                        <div class="lastname">
+                            <label for="cycling">Cycling:</label>
+                            <div class="logoinput">
+                                <i class="fa-solid fa-person-biking"></i>
+                                <input type="text" id="cycling" name="cycling">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="name">
+                        <div class="firstname">
+                            <label for="yoga">Yoga:</label>
+                            <div class="logoinput">
+                                <span class="material-symbols-outlined">self_improvement</span>
+                                <input type="text" id="yoga" name="yoga">
+                            </div>
+                        </div>
+                        <div class="lastname">
+                            <label for="diet_plan">Diet Plan:</label>
+                            <div class="logoinput">
+                                <i class="ri-restaurant-2-fill"></i>
+                                <input type="text" id="diet_plan" name="diet_plan">
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3>Additional Information</h3>
+                    <label for="diagnosisDetails">Diagnosis Details:</label>
+                    <textarea id="diagnosisDetails" name="diagnosis_details" rows="4" required></textarea>
+
+                    <label for="attached_reports">Attach Reports:</label>
+                    <input type="file" id="attached_reports" name="attached_reports" accept=".pdf,.jpg,.png"
+                        style="padding:10px">
+
+                    <label for="follow_up_date">Follow-up Date:</label>
+                    <input type="date" id="follow_up_date" name="follow_up_date">
+
+                    <label for="notes">Additional Notes:</label>
+                    <textarea id="notes" name="notes" rows="3"></textarea>
+                </div>
+
+                <button type="submit" id="newpatientsubmit">Submit Diagnosis</button>
+            </form>
+
+            <div class="popup" id="successPopup">
+                <div class="popup-content">
+                    <h3>Success!</h3>
+                    <p>Diagnosis submitted successfully.</p>
+                    <button id="close-popup">OK</button>
+                </div>
+            </div>
+
+        </section>
+    </div>
+
+    <script>
+        // Example popup handling
+        document.getElementById("diagnosisForm")?.addEventListener("submit", function (event) {
+            event.preventDefault();
+            document.getElementById("successPopup").style.display = "block";
+            this.reset();
+        });
+
+        document.getElementById("close-popup")?.addEventListener("click", function () {
+            document.getElementById("successPopup").style.display = "none";
+        });
+    </script>
+
+    <style>
+        label {
+            margin-bottom: 10px;
+        }
+
+        .name {
+            gap: 10px
+        }
+
+        .logoinput {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-evenly;
+            margin-bottom: 2em;
+            gap: 5px
+        }
+
+        .material-symbols-outlined {
+            height: 30px;
+        }
+
+        .logoinput i {
+            font-size: 24px;
+            height: fit-content;
+        }
+
+        .logoinput input,
+        .logoinput label {
+            width: 85%;
+            margin-bottom: 0;
+        }
+    </style>
+
+</body>
+
+</html>

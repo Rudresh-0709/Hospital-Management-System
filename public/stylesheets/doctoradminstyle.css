@@ -1,0 +1,769 @@
+* {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    font-family: "Poppins";
+}
+
+html {
+    height: 100%;
+    width: 100%;
+}
+
+body {
+    height: 100%;
+    width: 100%;
+}
+
+.namediv {
+    width: 100%;
+    height: 80%;
+    background-image: url("../png/doctorpng/doctor-6701410.jpg");
+    background-size: cover;
+    background-position-x: left;
+    background-position: left;
+}
+
+.overlayname {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(to right, rgba(5, 103, 85, 0.452), rgba(5, 103, 85, 0.885));
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.hello {
+    height: fit-content;
+    width: fit-content;
+    margin-left: 40%;
+}
+
+.doctorh1 {
+    color: white;
+    font-size: 75px;
+    font-family: "Exo";
+    text-shadow: 2px 2px 3px rgb(0, 61, 50);
+}
+
+.helloh1 {
+    color: rgb(0, 61, 50);
+    /* color: rgba(207, 251, 243, 0.834); */
+    font-size: 65px;
+    font-family: "Exo";
+    text-shadow: 2px 2px 3px rgb(0, 168, 137);
+}
+.mynav>h2 {
+    color: rgb(0, 61, 50);
+    font-size: 25px;
+    font-family: "Montserrat Alternates";
+    padding-right: 5%;
+    text-align: center;
+}
+::-webkit-scrollbar {
+    width: 5px;
+    z-index: 999;
+}
+::-webkit-scrollbar-track {
+    background: rgba(0, 61, 50, 0.289);
+}
+::-webkit-scrollbar-thumb {
+    background: rgb(0, 61, 50);
+}
+.mynav {
+    width: 100%;
+    height: 3.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.notify {
+    display: flex;
+    width: fit-content;
+    justify-content: space-around;
+    align-items: center;
+    margin-right: 7px;
+    gap: 10px;
+}
+.notify i {
+    font-size: larger;
+    padding: 5px;
+    cursor: pointer;
+}
+
+.search {
+    display: flex;
+    align-items: center;
+    background-color: rgb(202, 249, 241);
+    height: 30px;
+    border-radius: 5px;
+    gap: 5px;
+}
+
+.search i {
+    padding-left: 5px;
+}
+
+.search input {
+    padding: 5px;
+    border-radius: 5px;
+    background-color: rgb(202, 249, 241);
+}
+.mynavheading{
+    display:flex;
+    align-items: center;
+}
+.mynavheading i{
+    padding:7px;
+    cursor: pointer;
+}
+.mynav h2 {
+    margin-left: 10px;
+}
+.todayappointment{
+    transition: all 0.3s ease-in-out;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+#appointmentTable {
+    display: none;
+}
+
+.notify i:hover ,.mynavheading i:hover{
+    color: rgb(0, 61, 50);
+    background-color: rgb(202, 249, 241);
+    border-radius: 50%;
+    transition: 1s;
+}
+
+.section2 {
+    height: 20%;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 20px 0px 20px 0px;
+}
+
+.section2>div {
+    height: 80%;
+    width: 23%;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    border-radius: 10px;
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+
+}
+
+.section2 div img {
+    height: 40%;
+}
+
+.suminfo {
+    width: 60%
+}
+
+.suminfo h2 {
+    font-size: large;
+}
+
+.suminfo h1 {
+    color: rgba(70, 70, 70, 0.737);
+}
+
+.section3 {
+    padding: 20px 0px 20px 0px;
+    height:45%;
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+}
+
+.PatientsChart {
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+    width: 40%;
+    height: 100%;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.appointmenttable {
+    width: 55%;
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+    border-radius: 10px;
+    background-color: #fff;
+    padding: 10px;
+}
+
+/* Individual Appointment Styling */
+.appointment {
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+    height: fit-content;
+    width: 95%;
+    display: flex;
+    padding: 10px;
+    margin: 10px;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 10px;
+    background-color: white;
+}
+
+/* Appointment Heading */
+.appointmentheading {
+    display: flex;
+    justify-content: space-between;
+    color: rgb(0, 61, 50);
+    margin: 15px;
+    padding-bottom: 10px;
+    border-bottom: 0.1px solid rgba(0, 125, 25, 0.3);
+    align-items: center;
+}
+
+/* View All Link */
+.appointmentheading a {
+    text-decoration: none;
+    padding: 8px 15px;
+    background-color: rgb(202, 249, 241);
+    color: rgb(0, 61, 50);
+    border-radius: 10px;
+    font-weight: bold;
+    transition: 0.3s ease-in-out;
+}
+
+.appointmentheading a:hover {
+    background-color: rgb(0, 61, 50);
+    color: white;
+}
+
+/* Appointee Details */
+.appointee {
+    width: 60%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 15px;
+    font-family: 'DM Sans';
+}
+
+.appointee i {
+    font-size: x-large;
+    border-radius: 15px;
+    padding: 10px;
+    color: #5b38007f;
+    background-color: #fff3e0;
+}
+
+.appointee h3 {
+    color: rgba(74, 74, 74, 0.9);
+}
+
+/* Appointment Time */
+.appointmenttime {
+    width: 25%;
+}
+
+.appointmenttime h4 {
+    font-family: 'DM Sans';
+    font-size: small;
+    color: rgba(75, 75, 75, 0.7);
+}
+
+/* Button Actions */
+.appointmentactions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    width:15%;
+}
+
+/* Common Button Styling */
+.appointmentactions button,
+.appointmentactions a {
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    font-size: 18px;
+    transition: 0.3s ease-in-out;
+}
+.ri-check-double-line{
+    color:green;
+}
+.ri-close-circle-line{
+    color:red
+}
+#calendar-btn{
+    background-color: #fff;
+    color: orange;
+}
+/* Schedule Button */
+.appointmentactions .schedule {
+    color: #ff9800;
+    background-color: rgba(255, 152, 0, 0.2);
+}
+
+.appointmentactions .schedule:hover {
+    background-color: #ff9800;
+    color: white;
+}
+
+/* Finish Button */
+.appointmentactions .finish {
+    color: #4caf50;
+    background-color: rgba(76, 175, 80, 0.2);
+}
+
+.appointmentactions .finish:hover {
+    background-color: #4caf50;
+    color: white;
+}
+
+/* Reject Button */
+.appointmentactions .reject {
+    color: #f44336;
+    background-color: rgba(244, 67, 54, 0.2);
+}
+
+.appointmentactions .reject:hover {
+    background-color: #f44336;
+    color: white;
+}
+
+/* View Button */
+.appointmentactions .view {
+    color: #2196f3;
+    background-color: rgba(33, 150, 243, 0.2);
+}
+.appointmentactions .view:hover {
+    background-color: #2196f3;
+    color: white;
+}
+
+.section4,.section1{
+    height: fit-content;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 20px 10px 20px 10px;
+}
+.section1{
+    align-items: flex-start;
+}
+.patienttable {
+    padding:15px;
+    width:70%;
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+    border-radius: 10px;
+}
+.patienttable table{
+    width: 100%;
+    border-radius: 10px;
+    border: 2px solid rgb(202, 249, 241);
+}
+.patienttable thead{
+    background-color:rgb(202, 249, 241);
+}
+.patienttable h2{
+    color: rgb(0, 61, 50);
+    padding-bottom: 10px;
+}
+.patienttable th{
+    padding: 10px;
+    width:21%;
+    text-align: start;
+}
+.patienttable td{
+    padding: 10px;
+    width:21%;
+    text-align: start;
+    border-bottom: 1px solid rgb(202, 249, 241);
+}
+.patienttable tr:last-child td {
+    border-bottom: none;
+}
+.dropdown {
+    float: left;
+    position: relative;
+}
+
+/* Dropdown button */
+.dropdown button {
+    background-color: white;
+    color: rgb(0, 61, 50);
+    padding: 14px 16px;
+    border: none;
+    cursor: pointer;
+}
+
+.dropdown button:hover {
+    background-color: white;
+    color: black;
+}
+
+/* Dropdown content */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: white;
+    min-width: 160px;
+    z-index: 1;
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+}
+
+.dropdown-content a {
+    color: rgb(0, 61, 50);
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+.dropdown-content a:hover {
+    background-color:#caf9f1;
+    color: rgb(0, 61, 50);
+}
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+.nurses h3{
+    padding: 10px;
+    width:95%;
+    border-bottom: 0.1px solid rgba(0, 125, 25, 0.3);
+    color: rgb(0, 61, 50);
+}
+.nurses{
+    width: 40%;
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+    border-radius: 10px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.nurselist{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.nurse {
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+    height: fit-content;
+    width: 95%;
+    display: flex;
+    padding: 10px;
+    margin: 10px 0;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 10px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.nursestart{
+    display: flex;
+}
+.nurse:hover {
+    transform: scale(1.02);
+    box-shadow: rgba(149, 157, 165, 0.4) 0px 8px 24px;
+    background-color: rgba(0, 125, 25, 0.05); /* Light hover effect */
+}
+
+.nursephoto {
+    font-size: 2rem;
+    color: rgba(0, 125, 25, 0.8);
+    margin-right: 10px;
+}
+
+.nursename h5 {
+    display: flex;
+    align-items: center;
+    gap: 5px; /* Space between icon and text */
+}
+
+.nurseinfo h5 {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.nurseinfo {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.nurse h5 {
+    color: rgba(75, 75, 75, 0.75);
+}
+
+.nurse[role="Head Nurse"] h5 {
+    color: rgb(34, 139, 34); /* Green for Head Nurse */
+}
+
+.nurse.shift-morning h5 {
+    background-color: #fff8cd; /* Light yellow for morning */
+    padding: 3px 8px;
+    border-radius: 5px;
+}
+.nurse.shift-evening h5 {
+    background-color: #ffe4b5; /* Light orange for evening */
+    padding: 3px 8px;
+    border-radius: 5px;
+}
+.nurse.shift-night h5 {
+    background-color: #cce7ff; /* Light blue for night */
+    padding: 3px 8px;
+    border-radius: 5px;
+}
+.notificationTable {
+    max-height: 20rem; /* Maximum height for the table */
+    width: 53%; /* Adjust width as needed */
+    padding: 1rem;
+    border-radius: 8px;
+    background-image: url("../png/doctorpng/stacked-waves-haikei.png");
+    margin-bottom: 1rem;
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+    overflow-y: auto; /* Enables vertical scrolling when content overflows */
+}
+
+
+.notificationHeading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #fff;
+}
+
+.notificationHeading h2 {
+    font-size: 1.5rem;
+    margin: 0;
+    color: white;
+    text-shadow: 0.1px 0.1px 1px rgba(0, 0, 0, 0.381);
+}
+
+.notificationHeading a {
+    text-decoration: none;
+    color: #007bff;
+    font-weight: bold;
+}
+
+.notification {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #ffffff;
+    padding: 1rem 0;
+}
+
+.notification:last-child {
+    border-bottom: none;
+}
+
+.notificationIcon {
+    width: 45px; /* Slightly larger for better visibility */
+    height: 45px; /* Matching the width */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem; /* Larger icons for more emphasis */
+    border-radius: 50%;
+    color: #fff; /* Icon color remains white */
+    margin-right: 1.5rem; /* Increased margin for better spacing */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transition for hover effect */
+}
+
+/* Hover effect for interaction */
+.notificationIcon:hover {
+    transform: scale(1.1); /* Slight scale effect on hover */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Slightly bigger shadow */
+}
+
+.notificationIcon i{
+    padding:5px;
+    border-radius: 30px;
+}
+.notificationMessage {
+    flex: 1;
+}
+
+.notificationMessage h3 {
+    font-size: medium;
+    margin: 0 0 0.5rem 0;
+    color: white;
+    text-shadow: 0.1px 0.1px 1px rgba(0, 0, 0, 0.367);
+}
+
+.notificationMessage h4 {
+    font-size: 0.875rem;
+    color: rgb(0, 184, 154);
+    margin: 0;
+    text-shadow: 0.1px 0.1px 1px rgba(255, 255, 255, 0.347);
+}
+
+.notificationAction {
+    display: flex;
+    gap: 0.5rem;
+}
+.ri-user-add-line {
+    background-color: #00bcd4; /* Cyan for New Patient Admission */
+    color: white;
+}
+
+.ri-file-list-3-line {
+    background-color: #9c27b0; /* Purple for Test Results Available */
+    color: white;
+}
+
+.ri-calendar-check-line {
+    background-color: #ff5722; /* Deep Orange for Appointment Reminder */
+    color: white;
+}
+
+.ri-error-warning-line {
+    background-color: #e91e63; /* Pink for Critical Patient Update */
+    color: white;
+}
+
+.ri-notification-3-line {
+    background-color: #8bc34a; /* Light Green for Default Notifications */
+    color: white;
+}
+/* Style for the form buttons */
+.notificationAction form {
+    display: inline-block;
+    margin-right: 10px; /* Space between the buttons */
+}
+
+.notificationAction button {
+    background-color: white; /* White background for the buttons */
+    border: 1px solid #ddd; /* Subtle border */
+    padding: 8px 12px; /* Slightly larger padding for better click area */
+    border-radius: 30px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor to indicate clickability */
+    transition: all 0.3s ease; /* Smooth transition on hover */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Hover effect for the buttons */
+.notificationAction button:hover {
+    background-color: #f0f0f0; /* Light grey background on hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Slight shadow on hover */
+}
+
+/* Style the icon color inside the buttons */
+.notificationAction .ri-checkbox-circle-line {
+    color: green;  /* Slightly larger icon size */
+}
+
+.notificationAction .ri-delete-bin-line {
+    color: red; /* Slightly larger icon size */
+}
+.notificationTable::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.711); /* Scrollbar color */
+    border-radius: 10px; /* Rounded corners */
+}
+
+.notificationTable::-webkit-scrollbar-track {
+    background-color: #3ac4765a; /* Track background color */
+    border-radius: 10px; /* Rounded corners */
+}
+
+.calendar-btn {
+    background-color: #ffffff;
+    color: #003d32;
+    padding: 12px 18px;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    border-radius: 6px;
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+}
+
+/* Button hover effect */
+.calendar-btn:hover {
+    background-color: #f1f1f1;
+    color: #000000;
+}
+
+/* Hidden by default, the dropdown content */
+.appointment-dropdown-content {
+    display: none;
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 70px; /* Adjust this value depending on the height of your navbar */
+    background-color: #ffffff;
+    width: 70%;
+    z-index: 1;
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+    border-radius: 6px;
+    padding: 1rem;
+    max-height: 30rem;
+    overflow-y: auto;
+    transition: all 0.3s ease-in-out;
+}
+.appointment-table {
+    padding: 15px;
+    width: 100%;
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+    border-radius: 10px;
+    background-color: #ffffff; /* White background for the appointment table */
+}
+
+.appointment-table table {
+    width: 100%;
+    border-radius: 10px;
+    border: 2px solid rgb(202, 249, 241);
+}
+
+.appointment-table thead {
+    background-color: rgb(202, 249, 241);
+}
+
+.appointment-table h3 {
+    color: rgb(0, 61, 50);
+    padding-bottom: 10px;
+}
+
+.appointment-table th {
+    padding: 10px;
+    width: 21%;
+    text-align: start;
+    color: rgb(0, 61, 50);
+}
+
+.appointment-table td {
+    padding: 10px;
+    width: 21%;
+    text-align: start;
+    border-bottom: 1px solid rgb(202, 249, 241);
+}
+
+.appointment-table tr:last-child td {
+    border-bottom: none;
+}
+
+.appointment-table tr:hover {
+    background-color: #f9f9f9; /* Slight hover effect for rows */
+}
+
+.appointment-table .status {
+    font-weight: bold;
+    color: #ff5722; /* Change status color (like Pending) */
+}
+
+.appointment-table .no-appointment {
+    color: #607d8b;
+    font-style: italic;
+}

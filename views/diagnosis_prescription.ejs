@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+        integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@400;700&family=Poppins:wght@400;500;600&display=swap"
+        rel="stylesheet" />
+    <title>Diagnosis & Prescription Report</title>
+    <style>
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            background: #f4f7f9;
+            color: #333; 
+            margin: 0;
+            padding: 20px;
+        }
+        .header { 
+            font-family: 'Montserrat Alternates', sans-serif;
+            text-align: center; 
+            font-weight: 700;
+            padding: 20px;
+            background: linear-gradient(135deg, #2c3e50, #4ca1af);
+            color: #fff;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: rgb(0, 9, 75);
+            font-size: x-large;
+        }
+        /* Updated h2 style with gradient text and matching border */
+        h2 {
+            background: -webkit-linear-gradient( #6dd5fa, #2980b9);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            border-bottom: 2px solid #6dd5fa;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        /* Added box shadow, padding, and border radius to section divs */
+        .section {
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .container { 
+            display: flex; 
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .left-column, .right-column {
+            flex: 1;
+            min-width: 300px;
+        }
+        .info p {
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+        .info p strong {
+            color: #555;
+        }
+        .physical-activities {
+            list-style: none;
+            padding: 0;
+        }
+        .physical-activities li {
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+        .physical-activities li i {
+            margin-right: 8px;
+            color: #4ca1af;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .table th, .table td {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        .table th {
+            background: #f2f2f2;
+            font-weight: 500;
+        }
+        .table tr:nth-child(even) {
+            background: #fafafa;
+        }
+        .footer {
+            text-align: center;
+            font-size: 14px;
+            color: #777;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Hospital Diagnosis & Prescription Report</h1>
+    </div>
+
+    <!-- Diagnosis Details Section -->
+    <div class="section diagnosis">
+        <h2>Diagnosis Details</h2>
+        <div class="container">
+            <!-- Left Column: Primary Details -->
+            <div class="left-column">
+                <p><strong>Patient Name:</strong> <%= diagnosis.patient_name %></p>
+                <p><strong>Doctor:</strong> <%= diagnosis.doctor_name %></p>
+                <p><strong>Diagnosis Date:</strong> <%= new Date(diagnosis.diagnosis_date).toDateString() %></p>
+                <p><strong>Diagnosis:</strong> <%= diagnosis.diagnosis_name %></p>
+                <p><strong>Details:</strong> <%= diagnosis.diagnosis_details %></p>
+                <p><strong>Severity:</strong> <%= diagnosis.severity %></p>
+                <p><strong>Symptoms:</strong> <%= diagnosis.symptoms %></p>
+                <% if (diagnosis.attached_reports) { %>
+                    <p><strong>Report:</strong> <a href="<%= diagnosis.attached_reports %>">Download Report</a></p>
+                <% } %>
+                <p><strong>Follow-up Date:</strong> <%= diagnosis.follow_up_date ? new Date(diagnosis.follow_up_date).toDateString() : 'N/A' %></p>
+            </div>
+            <!-- Right Column: Notes, Diet Plan & Physical Activities -->
+            <div class="right-column">
+                <p><strong>Notes:</strong> <%= diagnosis.notes %></p>
+                <p><strong>Diet Plan:</strong> <%= diagnosis.diet_plan %></p>
+                <p><strong>Physical Activities:</strong></p>
+                <ul class="physical-activities">
+                    <li><i class="fa-solid fa-person-running"></i> Running: <%= diagnosis.running %></li>
+                    <li><i class="fa-solid fa-person-walking"></i> Walking: <%= diagnosis.walking %></li>
+                    <li><i class="fa-solid fa-person-swimming"></i> Swimming: <%= diagnosis.swimming %></li>
+                    <li><i class="fa-solid fa-person-biking"></i> Cycling: <%= diagnosis.cycling %></li>
+                    <li><i class="fa-solid fa-person-digging"></i> Yoga: <%= diagnosis.yoga %></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Prescription Details Section -->
+    <div class="section prescription">
+        <h2>Prescription Details</h2>
+        <table class="table">
+            <tr>
+                <th>#</th>
+                <th>Medicine Name</th>
+                <th>Dosage</th>
+                <th>Time</th>
+            </tr>
+            <% medicines.forEach((med, index) => { %>
+                <tr>
+                    <td><%= index + 1 %></td>
+                    <td><%= med.name %></td>
+                    <td><%= med.dosage %></td>
+                    <td><%= med.time %></td>
+                </tr>
+            <% }) %>
+        </table>
+    </div>
+
+    <div class="footer">Generated by Hospital Management System</div>
+</body>
+</html>

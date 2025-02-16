@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+        integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"   />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Exo:ital,wght@0,100..900;1,100..900&family=Montserrat+Alternates:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/stylesheets/doctoradminstyle.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <nav class="mynav">
+        <div class="mynavheading">
+            <button class="calendar-btn" onclick="toggleAppointmentsDropdown()">
+                <i class="ri-calendar-line"></i>
+            </button>
+            <h2>Dashboard</h2>
+        </div>
+        <div class="notify">
+            <i class="ri-notification-2-line"></i>
+            
+            <a href="/chat" style="color: black;"><i class="ri-mail-ai-line"></i></a>
+            
+            <div class="search">
+                <i class="ri-search-2-line"></i>
+                <input type="text" name="doctorsearch" placeholder="Search">
+            </div>
+            <div class="dropdown">
+                <button><i class="ri-menu-3-line"></i></button>
+                <div class="dropdown-content">
+                    <a href="#">Review Patient</a>
+                    <a href="#">Change Timing</a>
+                    <a href="/doctoradmin/diagnosis">Diagnosis</a>
+                    <a href="/doctoradmin/newprescription">Prescription</a>
+                    <a href="#">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <% if (locals.flash && locals.flash.success) { %>
+        <% flash.success.forEach(function(msg) { %>
+          <div style="padding: 15px; background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; margin-bottom: 20px;">
+            <%= msg %>
+          </div>
+        <% }) %>
+      <% } %>
+      <% if (locals.flash && locals.flash.error) { %>
+        <% flash.error.forEach(function(msg) { %>
+          <div style="padding: 15px; background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; margin-bottom: 20px;">
+            <%= msg %>
+          </div>
+        <% }) %>
+      <% } %>
+    <div class="appointment-dropdown-content" id="appointmentDropdown">
+        <div class="appointment-table">
+            <h3>Today's Appointments</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Time Slot</th>
+                        <th>Patient Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% const timeSlots=[ { start: "12:00" , end: "13:00" }, { start: "13:00" , end: "14:00" }, {
+                        start: "14:00" , end: "15:00" }, { start: "15:00" , end: "16:00" }, { start: "16:00" ,
+                        end: "17:00" }, { start: "17:00" , end: "18:00" }, { start: "18:00" , end: "19:00" }, {
+                        start: "19:00" , end: "20:00" } ]; %>
+
+                        <% timeSlots.forEach(slot=> { %>
+                            <tr>
+                                <td>
+                                    <%= slot.start %> - <%= slot.end %>
+                                </td>
+                                <% let appointment=appointments.find(appointment=> {
+                                    const appointmentTime = appointment.appointment_time.split(":");
+                                    const hour = parseInt(appointmentTime[0]);
+                                    const minute = parseInt(appointmentTime[1]);
+                                    const startHour = parseInt(slot.start.split(":")[0]);
+                                    const endHour = parseInt(slot.end.split(":")[0]);
+                                    return hour >= startHour && hour < endHour; }); %>
+                                        <td>
+                                            <% if (appointment) { %>
+                                                <%= appointment.appointee_name %>
+                                                    <% } else { %>
+                                                        No appointment
+                                                        <% } %>
+                                        </td>
+                            </tr>
+                            <% }); %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="namediv">
+        <div class="overlayname">
+            <div class="hello">
+                <h1 class="helloh1">Welcome</h1>
+                <h1 class="doctorh1">Dr. <%= doctordetails.doctor_name %>
+                </h1>
+            </div>
+        </div>
+    </div>
+    <div class="section2" id="demo">
+        <div class="patientcount" style="background-color:#C8E6C9;">
+            <div class="suminfo">
+                <h2 style="color: #01430185;">Total Patients</h2>
+                <h1>
+                    <%= patientdetails.length %>
+                </h1>
+            </div>
+            <img src="../png/doctorpng/icons8-patient-96.png" alt="">
+        </div>
+        <div class="todayappointment" style="background-color:#BBDEFB;">
+            <div class="suminfo">
+                <h2 style="color: #01254388;">Today's Appointments</h2>
+                <h1>
+                    <%= appointments.length %>
+                </h1>
+            </div>
+            <img src="../png/doctorpng/icons8-appointment-96.png" alt="">
+        </div>
+        <div class="patienthealed" style="background-color:#FFF9C4;">
+            <div class="suminfo">
+                <h2 style="color: #59500193;">Healed Patients</h2>
+                <h1>10</h1>
+            </div>
+            <img src="../png/doctorpng/icons8-medical-cross-96.png" alt="">
+        </div>
+        <div class="surgerytoday" style="background-color:#E1BEE7;">
+            <div class="suminfo">
+                <h2 style="color: #4e015c8b;">Today's Surgeries</h2>
+                <h1>2</h1>
+            </div>
+            <img src="../png/doctorpng/icons8-surgery-96.png" alt="">
+        </div>
+    </div>
+    <div class="section3">
+        <div class="PatientsChart">
+            <canvas id="admittedPatientsChart"></canvas>
+        </div>
+        <div class="appointmenttable">
+            <div class="appointmentheading">
+                <h2>Appointments</h2>
+                <a href="/doctor/all_appointments">View All</a>
+            </div>
+        
+            <% if (appointments.length > 0) { %>
+                <% appointments.slice(0, 3).forEach(appointment => { %>
+                    <div class="appointment">
+                        <div class="appointee">
+                            <i class="ri-user-heart-line"></i>
+                            <h3><%= appointment.appointee_name %></h3>
+                        </div>
+                        <div class="appointmenttime">
+                            <h4>
+                                <%= new Date(appointment.appointment_date).toDateString().slice(4) %>
+                                <%= appointment.appointment_time %>
+                            </h4>
+                            <h4 class="status"><%= appointment.status %></h4>
+                        </div>
+        
+                        <!-- Actions -->
+                        <div class="appointmentactions">
+                            <!-- Schedule Button -->
+                            <% if (appointment.status === "Pending") { %>
+                                <form action="/doctor/schedule_appointment" method="POST" class="d-inline">
+                                    <input type="hidden" name="appointment_id" value="<%= appointment.appointment_id %>">
+                                    <button type="submit" class="btn btn-warning btn-sm">
+                                        <i class="ri-calendar-check-line" id="calendar-btn"></i>
+                                    </button>
+                                </form>
+                            <% } %>
+        
+                            <!-- Finish Button (Only if Scheduled) -->
+                            <% if (appointment.status === "Scheduled") { %>
+                                <form action="/doctor/finish_appointment" method="POST" class="d-inline">
+                                    <input type="hidden" name="appointment_id" value="<%= appointment.appointment_id %>">
+                                    <button type="submit" class="btn btn-success btn-sm">
+                                        <i class="ri-check-double-line"></i>
+                                    </button>
+                                </form>
+                            <% } %>
+        
+                            <!-- Reject Button (Only if NOT Scheduled) -->
+                            <% if (appointment.status !== "Scheduled") { %>
+                                <form action="/doctor/reject_appointment" method="POST" class="d-inline">
+                                    <input type="hidden" name="appointment_id" value="<%= appointment.appointment_id %>">
+                                    <button type="submit" class="btn btn-danger btn-sm">
+                                        <i class="ri-close-circle-line"></i>
+                                    </button>
+                                </form>
+                            <% } %>
+        
+                            <!-- View Button -->
+                            <a href="/doctor/view_appointment/<%= appointment.appointment_id %>" class="btn btn-info btn-sm">
+                                <i class="ri-eye-line"></i>
+                            </a>
+                        </div>
+                    </div>
+                <% }); %>
+            <% } else { %>
+                <p>No pending appointments at the moment.</p>
+            <% } %>
+        </div>   
+    </div>
+    <div class="section4">
+        <div class="patienttable">
+            <h2>Recent Patients</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="border-top-left-radius: 10px;">Patient Name</th>
+                        <th>Reason</th>
+                        <th>Room Number</th>
+                        <th>Ward</th>
+                        <th style="border-top-right-radius: 10px;">Gender</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (patientdetails && patientdetails.length> 0) { %>
+                        <% for (let i=patientdetails.length - 1; i>= Math.max(0, patientdetails.length - 5); i--) { %>
+                            <% if (patientdetails[i]) { %>
+                                <tr>
+                                    <td>
+                                        <%= patientdetails[i].first_name%>
+                                            <%= patientdetails[i].last_name%>
+                                    </td>
+                                    <td>
+                                        <%= patientdetails[i].reason_for_admission%>
+                                    </td>
+                                    <td>
+                                        <%= patientdetails[i].room_number%>
+                                    </td>
+                                    <td>
+                                        <%= patientdetails[i].ward_preference%>
+                                    </td>
+                                    <td>
+                                        <%= patientdetails[i].gender%>
+                                    </td>
+                                </tr>
+                                <% } %>
+                                    <% } %>
+                                        <% } else { %>
+                                            <tr>
+                                                <td colspan="4">No Patient available to display.</td>
+                                            </tr>
+                                            <% } %>
+                </tbody>
+            </table>
+        </div>
+        <div class="admitpatientchart">
+            <canvas id="admittedDischargedChart" width="400" height="400"></canvas>
+        </div>
+    </div>
+    <div class="section1">
+        <div class="nurses">
+            <h3>Nurse List</h3>
+            <div class="nurselist">
+                <% nurses.forEach(nurse=> { %>
+                    <% if(nurse.available==1){ %>
+                        <div class="nurse">
+                            <div class="nursestart">
+                                <div class="nursephoto">
+                                    <i class="ri-user-heart-line"></i>
+                                </div>
+                                <div class="nursename">
+                                    <h4>
+                                        <%= nurse.name %>
+                                    </h4>
+                                    <h5>
+                                        <i class="ri-stethoscope-line"></i>
+                                        <%= nurse.specialization %>
+                                    </h5>
+                                </div>
+                            </div>
+                            <div class="nurseinfo">
+                                <h5>
+                                    <i class="ri-shield-user-line"></i>
+                                    <%= nurse.role %>
+                                </h5>
+                                <h5>
+                                    <i class="ri-time-line"></i>
+                                    <%= nurse.shift %>
+                                </h5>
+                            </div>
+                        </div>
+                        <% } %>
+                            <% }) %>
+            </div>
+
+            <!-- <div class="nurselist">
+                <% nurses.forEach(nurse => { %>
+                    <% if(nurse.available == 1){ %>
+                    <div class="nurse">
+                        <div class="nursestart">
+
+                            <div class="nursename">
+                                <h4><%= nurse.name %></h4>
+                                <h5><%= nurse.specialization %></h5>
+                            </div>
+                        </div>
+                        <div class="nurseinfo">
+                            <h5 style="color: rgba(75,75,75);"><%= nurse.role %></h5>
+                            <h5><%= nurse.shift %></h5>
+                        </div>
+                    </div>
+                    <% } %>
+                <% }) %>
+            </div> -->
+        </div>
+        <div class="notificationTable">
+            <div class="notificationHeading">
+                <h2>Notifications</h2>
+                <a href="/notifications">View All</a>
+            </div>
+            <% if (notifications.length> 0) { %>
+                <% notifications.slice(0, 3).forEach(notification=> { %>
+                    <div class="notification">
+                        <div class="notificationIcon">
+                            <i class="<%= notification.type === 'New Patient Admission' ? 'ri-user-add-line' : 
+                                         notification.type === 'Test Results Available' ? 'ri-file-list-3-line' : 
+                                         notification.type === 'Appointment Reminder' ? 'ri-calendar-check-line' : 
+                                         notification.type === 'Critical Patient Update' ? 'ri-error-warning-line' : 
+                                         'ri-notification-3-line' %>"></i>
+                        </div>
+
+                        <div class="notificationMessage">
+                            <h3>
+                                <%= notification.message %>
+                            </h3>
+                            <h4>
+                                <%= new Date(notification.created_at).toDateString().slice(4) %>
+                            </h4>
+                        </div>
+                        <% if (!notification.is_read) { %>
+                            <div class="notificationAction">
+                                <!-- Mark as Read -->
+                                <form action="/notifications/mark-as-read" method="POST" class="d-inline">
+                                    <input type="hidden" name="notification_id"
+                                        value="<%= notification.notification_id %>">
+                                    <button type="submit" class="btn btn-success btn-sm"
+                                        style="background-color: white;">
+                                        <i class="ri-checkbox-circle-line" style="color: green;"></i>
+                                    </button>
+                                </form>
+                                <!-- Delete Notification -->
+                                <form action="/notifications/delete" method="POST" class="d-inline">
+                                    <input type="hidden" name="notification_id"
+                                        value="<%= notification.notification_id %>">
+                                    <button type="submit" class="btn btn-danger btn-sm"
+                                        style="background-color: white;">
+                                        <i class="ri-delete-bin-line" style="color: red;"></i>
+                                    </button>
+                                </form>
+                            </div>
+                            <% } %>
+                    </div>
+                    <% }); %>
+                        <% } else { %>
+                            <p>No new notifications at the moment.</p>
+                            <% } %>
+        </div>
+
+
+    </div>
+    
+</body>
+<script src="/javascripts/doctoradmin.js"></script>
+</html>

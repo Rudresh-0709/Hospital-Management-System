@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Eagle+Lake&family=Montserrat+Alternates:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Ruslan+Display&display=swap" rel="stylesheet">
+    <title>QR Code Scanner - Upload</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Montserrat Alternates', sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: url("/png/adminpng/pexels-pixabay-278430.jpg");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: #333;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.8); /* Light, semi-transparent white background for modern look */
+            padding: 40px;
+            width: 450px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.15); /* Soft shadow for depth */
+            backdrop-filter: blur(10px);
+            border: 1px solid #d1d8e0; /* Soft border to match the hospital theme */
+        }
+
+        h1 {
+            font-size: 40px;
+            margin-bottom: 25px;
+            color: #2c3e50; /* Dark blue-gray for a professional look */
+            font-family: 'Montserrat Alternates', sans-serif;
+        }
+
+        input[type="file"] {
+            padding: 12px;
+            font-size: 16px;
+            width: 80%;
+            margin-bottom: 25px;
+            border-radius: 8px;
+            border: 2px solid #AAB7B8; /* Light gray border */
+            background-color: #f4f6f7; /* Subtle background color for input */
+            color: #7f8c8d; /* Slightly muted color for text inside the input */
+        }
+
+        button {
+            background-color: #3498db; /* Soft blue color for the button */
+            color: white;
+            padding: 15px 25px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #2980b9; /* Slightly darker blue for hover effect */
+        }
+
+        #status {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        #status.success {
+            color: #27ae60; /* Green for success */
+        }
+
+        #status.error {
+            color: #e74c3c; /* Red for error */
+        }
+
+        /* Add responsive styles */
+        @media (max-width: 600px) {
+            .container {
+                width: 90%;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>QR Visit</h1>
+        <form id="uploadForm" enctype="multipart/form-data">
+            <input type="file" id="qrImage" accept="image/*" required />
+            <button type="button" onclick="processQRCode()">Upload & Decode</button>
+        </form>
+        <p id="status"></p>
+    </div>
+
+    <script>
+        async function processQRCode() {
+            const qrImage = document.getElementById('qrImage').files[0];
+            if (!qrImage) {
+                document.getElementById('status').innerText = "Please select an image.";
+                document.getElementById('status').classList.add('error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('qrImage', qrImage);
+
+            try {
+                const response = await fetch('/api/decode-qr', {
+                    method: 'POST',
+                    body: formData,
+                });
+                const data = await response.json();
+                document.getElementById('status').innerText = data.message;
+                document.getElementById('status').classList.remove('error');
+            } catch (err) {
+                console.error("Error:", err);
+                document.getElementById('status').innerText = "Error decoding QR code.";
+                document.getElementById('status').classList.add('error');
+            }
+        }
+    </script>
+</body>
+</html>

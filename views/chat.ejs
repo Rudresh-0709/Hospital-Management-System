@@ -1,0 +1,440 @@
+<!-- filepath: /d:/DATA/Desktop/project1/views/chat.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Exo:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat+Subrayada:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet" />
+    <link rel="stylesheet" href="/stylesheets/chatstyle.css">
+    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js" integrity="sha384-mkQ3/7FUtcGyoppY6bz/PORYoGqOl7/aSUMn2ymDOJcapfS6PHqxhRTMh1RR0Q6+" crossorigin="anonymous"></script>
+    <title>Chat with Doctor</title>
+</head>
+
+<body>
+    <section>
+        <div class="sidebar">
+            <div class="user">
+                <!-- "https://www.w3schools.com/howto/img_avatar.png" -->
+                <!-- <img src="/<%= currentUser.profilePicture %>" alt="Profile Picture"> -->
+                <img src="/profile-pictures/<%= currentUser.profilePicture.split('/').pop() %>" alt="Profile Picture">
+
+
+                <h3><%= currentUser.name %></h3>
+            </div>
+            <div class="navicons">
+                <a href="#" class="active"><i class="ri-chat-1-line"></i></a>
+                <a href="#"><i class="ri-home-5-line"></i></a>
+                <a href="#"><i class="ri-video-on-ai-line"></i></a>
+                <a href="/chat/setting"><i class="ri-settings-4-line"></i></a>
+                <a href="#"><i class="ri-logout-circle-line"></i></a>
+            </div>
+            <input type="checkbox" id="toggle">
+            <div class="display">
+                <label for="toggle">
+                    <div class="circle">
+                        <i class="ri-sun-fill"></i>
+                        <i class="ri-moon-fill"></i>
+                    </div>
+                </label>
+            </div>
+
+        </div>
+        <div class="chat">
+            <div class="chat-header">
+                <div class="chatname">
+                    <!-- Optionally show conversation partner's name -->
+                    <h3 id="chat-receiver-name"></h3>
+                </div>
+            </div>
+            <div id="message-container" class="chat-history">
+                <!-- Messages will be appended here dynamically -->
+            </div>
+            <div class="chat-input">
+                <form id="message-form">
+                    <input type="text" id="message-input" placeholder="Type your message here..." autocomplete="off"
+                        required />
+                    <button type="submit"><i class="ri-send-plane-line"></i></button>
+                </form>
+            </div>
+        </div>
+        <div class="profiles">
+            <div class="searchbar">
+                <div class="search">
+                    <label for="search"><i class="ri-search-2-line"></i></label>
+                    <input type="text" name="search" id="search" placeholder="Search">
+                </div>
+            </div>
+            <div class="doctors">
+                <h5>Doctors</h5>
+                <div class="doctor-profiles">
+                    <% if (users && users.length) { %>
+                        <% users.filter(u => u.role === 'doctor' && (!currentUser || (currentUser && currentUser._id.toString() !== u._id.toString()))).forEach(doctor => { %>
+                            <a href="/chat/conversation?senderId=<%= currentUser._id %>&receiverId=<%= doctor._id %>" data-user-id="<%= doctor._id %>" class="user-profile">
+                                <div class="doctor-profile" id="doctor-<%= doctor._id %>">
+                                    <div class="avatar-container" style="position: relative;">
+                                        <!-- ✅ Use stored profile picture or default image -->
+                                        <img src="<%= doctor.profilePicture || 'https://us.123rf.com/450wm/yupiramos/yupiramos1603/yupiramos160311572/53591196-person-avatar-design-vector-illustration-graphic.jpg?ver=6' %>" alt="Doctor Avatar">
+                                        
+                                        <% if (doctor.is_online) { %>
+                                            <span class="online-indicator"></span>
+                                        <% } %>
+                                    </div>
+                                    <h4><%= doctor.name %></h4>
+                                </div>
+                            </a>
+                        <% }) %>
+                    <% } else { %>
+                        <p>No doctors found</p>
+                    <% } %>
+                </div>
+                
+            </div>
+            <!-- <img src="https://us.123rf.com/450wm/yupiramos/yupiramos1603/yupiramos160311572/53591196-person-avatar-design-vector-illustration-graphic.jpg?ver=6" alt="Patient Avatar">
+                                 -->
+            <div class="profilenames">
+                <h5>Patients</h5>
+                <div class="patients-profiles">
+                    <% if (users && users.length) { %>
+                        <% users.filter(u => u.role === 'patient' && (!currentUser || (currentUser && currentUser._id.toString() !== u._id.toString()))).forEach(patient => { %>
+                            <a href="/chat/conversation?senderId=<%= currentUser._id %>&receiverId=<%= patient._id %>" data-user-id="<%= patient._id %>" class="user-profile">
+
+                                <div class="patient-profile" id="patient-<%= patient._id %>">
+                                    <div class="avatar-container" style="position: relative;">
+                                        <!-- ✅ Use stored profile picture or default image -->
+                                        <img src="<%= patient.profilePicture || "https://us.123rf.com/450wm/yupiramos/yupiramos1603/yupiramos160311572/53591196-person-avatar-design-vector-illustration-graphic.jpg?ver=6" %>" alt="Patient Avatar">
+                                        
+                                        <% if (patient.is_online) { %>
+                                            <span class="online-indicator"></span>
+                                        <% } %>
+                                    </div>
+                                    <h4><%= patient.name %></h4>
+                                </div>
+                            </a>
+                        <% }) %>
+                    <% } else { %>
+                        <p>No patients found</p>
+                    <% } %>
+                    <form action="/chat/addUser" method="POST">
+                        <input type="hidden" name="currentUserId" value="<%= currentUser._id %>">
+                        <input type="text" name="userId" placeholder="Enter User ID">
+                        <button type="submit">Add User</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div id="currentUser" data-user='<%- JSON.stringify(currentUser || {}) %>' style="display:none;"></div>
+    <!-- Assuming you pass activeReceiver if a conversation is active -->
+    <!-- <div id="activeReceiver" data-user='<%- JSON.stringify(activeReceiver || {}) %>' style="display:none;"></div> -->
+    <div id="activeReceiver" data-user='<%- JSON.stringify(activeReceiver || {}) %>' style="display:none;"></div>
+
+    
+    <script>
+        // ✅ Get current user details
+        const currentUser = JSON.parse(document.getElementById("currentUser").getAttribute("data-user"));
+        
+        let activeReceiver = null; // Stores the selected chat user
+        let socket = io('/chat', { autoConnect: false ,
+            query: { userId: currentUser._id }
+        }); // ✅ Only connect when needed
+    
+        document.addEventListener("DOMContentLoaded", () => {
+            console.log("🚀 Chat page loaded");
+    
+            // ✅ Connect to socket only after the page is loaded
+            if (!socket.connected) {
+                socket.connect();
+            }
+        });
+    
+        // ✅ Handle user profile click to start chat
+        document.querySelectorAll(".user-profile").forEach(profile => {
+            profile.addEventListener("click", (event) => {
+                event.preventDefault();
+                
+                const receiverId = event.currentTarget.getAttribute("data-user-id");
+                console.log("🔹 Clicked User Profile:", receiverId);
+    
+                if (!receiverId) {
+                    console.error("⚠️ No receiverId found!");
+                    return;
+                }
+    
+                activeReceiver = { _id: receiverId };
+                document.getElementById("chat-receiver-name").innerText = event.currentTarget.innerText.trim();
+    
+                startChatWithUser(receiverId);
+            });
+        });
+    
+        function startChatWithUser(receiverId) {
+            if (!receiverId) {
+                console.error("❌ No receiverId provided!");
+                return;
+            }
+    
+            console.log("🔗 Connecting to chat room:", { 
+                userId: currentUser._id, 
+                receiverId 
+            });
+    
+            if (!socket.connected) {
+                socket.connect();
+            }
+    
+            // ✅ Join the chat room
+            socket.emit("joinRoom", { userId: currentUser._id, receiverId });
+    
+            // ✅ Fetch previous messages
+            fetchMessages(receiverId);
+        }
+    
+        function fetchMessages(receiverId) {
+            console.log("📩 Fetching messages for:", receiverId);
+    
+            fetch(`/chat/conversation?senderId=${currentUser._id}&receiverId=${receiverId}`)
+                .then(response => response.json())
+                .then(messages => {
+                    const messageContainer = document.getElementById("message-container");
+                    messageContainer.innerHTML = ""; // ✅ Clear old messages
+    
+                    if (Array.isArray(messages)) {
+                        messages.forEach(renderMessage);
+                    } else {
+                        console.error("Unexpected response format:", messages);
+                    }
+                })
+                .catch(err => console.error("❌ Error fetching messages:", err));
+        }
+    
+        function renderMessage(message) {
+    console.log("📩 Rendering message:", message);
+
+    // ✅ Check if message object is valid
+    if (!message || (!message.sender && !message.senderId)) {  
+        console.error("❌ Error: Message object is missing sender!", message);
+        return; // Stop execution
+    }
+
+    // ✅ Extract sender ID safely
+    let senderId;
+    if (message.sender) {
+        senderId = typeof message.sender === "object" ? message.sender._id : message.sender;
+    } else {
+        senderId = message.senderId; // Fallback if sender is missing but senderId exists
+    }
+
+    // ✅ Ensure senderId is defined
+    if (!senderId) {
+        console.error("❌ Error: Sender ID is missing!", message);
+        return;
+    }
+
+    const messageContainer = document.getElementById("message-container");
+    if (!messageContainer) {
+        console.error("❌ Error: Message container not found!");
+        return;
+    }
+
+    const msgDiv = document.createElement("div");
+    msgDiv.classList.add("message");
+
+    // ✅ Fix: Ensure sender ID is compared correctly
+    const isCurrentUser = senderId.toString() === currentUser._id.toString();
+
+    // ✅ Fix: Ensure timestamp is valid
+    const messageDate = message.timestamp ? new Date(message.timestamp) : new Date();
+    const formattedDate = isNaN(messageDate.getTime()) ? "Invalid Date" : messageDate.toLocaleTimeString();
+
+    msgDiv.classList.add(isCurrentUser ? "sent" : "received");
+    msgDiv.innerHTML = `
+        <div class="message-content ${isCurrentUser ? "sent-message" : "received-message"}">
+            ${message.message || "No message content"}
+            <small>${formattedDate}</small>
+        </div>
+    `;
+
+    messageContainer.appendChild(msgDiv);
+    messageContainer.scrollTop = messageContainer.scrollHeight; // ✅ Auto-scroll
+}
+
+        // ✅ Listen for incoming messages and update the UI in real-time
+        socket.on("message", (message) => {
+            console.log("📩 New message received from server:", message);
+
+            if (!message.sender && !message.senderId) {
+                console.error("🚨 Received message without sender!", message);
+            }
+
+            if (!activeReceiver || activeReceiver._id !== message.senderId) {
+                console.log("🚨 Message is for another chat, ignoring...");
+                return;
+            }
+
+            renderMessage(message);
+        });
+
+    
+        // ✅ Prevent form from refreshing the page on submit
+        // document.getElementById("message-form").addEventListener("submit", function (event) {
+        //     event.preventDefault();
+
+        //     const messageInput = document.getElementById("message-input");
+        //     const messageText = messageInput.value.trim();
+
+        //     if (!messageText || !activeReceiver || !socket.connected) {
+        //         console.warn("⚠️ Cannot send message. Missing data.");
+        //         return;
+        //     }
+
+        //     const messageData = {
+        //         senderId: currentUser._id,  // ✅ Ensure correct ID
+        //         receiverId: activeReceiver._id, // ✅ Ensure correct ID
+        //         message: messageText
+        //     };
+
+        //     console.log("📤 Sending message:", messageData);
+
+        //     // ✅ Emit message
+        //     socket.emit("chatMessage", messageData);
+
+        //     // ✅ Add message to UI instantly
+        //     renderMessage({ ...messageData, timestamp: new Date() });
+
+        //     // ✅ Clear input field
+        //     messageInput.value = "";
+        // });
+        document.getElementById("message-form").addEventListener("submit", function (event) {
+            event.preventDefault();
+            console.log("🛠 Message form submitted!");
+
+            const messageInput = document.getElementById("message-input");
+            const messageText = messageInput.value.trim();
+            const receiverId = activeReceiver ? activeReceiver._id : null;
+
+            console.log("📩 Message data before sending:", {
+                sender: currentUser?._id,
+                receiver: receiverId,
+                message: messageText
+            });
+
+            if (!messageText || !receiverId) {
+                console.warn("⚠️ Cannot send message. Missing data.");
+                return;
+            }
+
+            console.log("🔌 Socket status:", socket.connected);
+            if (!socket.connected) {
+                console.warn("⚠️ Socket is disconnected, attempting to send anyway.");
+            }
+
+            const messageData = {
+                senderId: currentUser._id,  // ✅ Use `senderId` for consistency
+                receiverId: receiverId,
+                message: messageText
+            };
+
+            console.log("📤 Emitting chatMessage event...");
+            socket.emit("chatMessage", messageData, (ack) => {
+                console.log("✅ Server acknowledged:", ack);
+            });
+
+            console.log("🖥 Rendering message:", messageData);
+            renderMessage({ ...messageData, timestamp: new Date() });
+
+            messageInput.value = "";
+        });
+
+                // ✅ Handle online/offline status updates
+
+        // ✅ Handle user going offline
+        // ✅ Receiving Messages (Works Fine)
+        // ✅ Listen for incoming messages in real-time
+        socket.on("chatMessage", (message) => {
+            console.log("📩 New message received:", message);
+
+            // ✅ Only update the UI if it's for the currently active chat
+            if (activeReceiver && activeReceiver._id === message.senderId) {
+                renderMessage(message);
+            }
+        });
+
+
+        // ⚠️ Online/Offline Status (Had Issues Before)
+        socket.on('userOnline', (data) => {
+            console.log(`✅ User Online Event Received:`, data);
+
+            const userElement = document.getElementById("patient-" + data.userId);
+            if (userElement) {
+                const avatarContainer = userElement.querySelector(".avatar-container");
+                if (avatarContainer) {
+                    let indicator = avatarContainer.querySelector(".online-indicator");
+                    if (!indicator) {
+                        indicator = document.createElement("span");
+                        indicator.classList.add("online-indicator");
+                        avatarContainer.appendChild(indicator);
+                    }
+                    indicator.style.backgroundColor = "green"; // ✅ Online
+                }
+            }
+        });
+
+        socket.on('userOffline', (data) => {
+            console.log(`❌ User Offline Event Received:`, data);
+
+            const userElement = document.getElementById("patient-" + data.userId);
+            if (userElement) {
+                const avatarContainer = userElement.querySelector(".avatar-container");
+                if (avatarContainer) {
+                    const indicator = avatarContainer.querySelector(".online-indicator");
+                    if (indicator) {
+                        indicator.style.backgroundColor = "red"; // ❌ Offline
+                    }
+                }
+            }
+        });
+        
+        async function addUser() {
+            let userId = document.getElementById("addUserId").value.trim();
+            const currentUserId = "67ac6e263f8f8f2c00d4a966"; // Ensure this is a valid 24-character ObjectId
+
+            console.log("User ID Entered:", userId);
+            console.log("Current User ID:", currentUserId);
+
+            // Check if the userId is exactly 24 characters
+            if (userId.length !== 24 || !/^[a-fA-F0-9]{24}$/.test(userId)) {
+                alert("Invalid user ID format. Please enter a valid 24-character MongoDB ID.");
+                return;
+            }
+
+            try {
+                const response = await fetch("/chat/addUser", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ userId, currentUserId })
+                });
+
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.message || "Failed to add user.");
+                alert("User added successfully!");
+            } catch (error) {
+                console.error("Error adding user:", error);
+                alert("Error: " + error.message);
+            }
+        }
+
+
+        window.addUser = addUser;
+
+    </script>
+    
+
+</body>
+
+</html>

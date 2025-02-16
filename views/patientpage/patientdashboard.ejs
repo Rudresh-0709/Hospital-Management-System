@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+        integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"   />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Eagle+Lake&family=Montserrat+Alternates:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Ruslan+Display&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/stylesheets/patientdashboardstyle.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+        integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+
+<body>
+    <nav class="nav">
+        <ul class="navlist">
+            <a href="#" class="navlink active-link">
+                <i class="ri-dashboard-2-line"></i>
+                <span class="navname">Dashboard</span>
+            </a>
+            <a href="#" class="navlink">
+                <i class="ri-profile-line"></i>
+                <span class="navname">Profile</span>
+            </a>
+            <a href="/chat" class="navlink">
+                <i class="ri-message-line"></i>
+                <span class="navname">Message</span>
+            </a>
+            <a href="#" class="navlink">
+                <i class="ri-home-gear-line"></i>
+                <span class="navname">Settings</span>
+            </a>
+            <a href="#" class="navlink">
+                <i class="ri-logout-circle-line"></i>
+                <span class="navname">Logout</span>
+            </a>
+        </ul>
+        <div class="navcircle1"></div>
+        <div class="navcircle2"></div>
+        <div class="navsquare1"></div>
+        <div class="navsquare2"></div>
+    </nav>
+    <div class="header">
+        <a href="" class="appointment">
+            Make an Appointment
+        </a>
+
+        <div class="profileheader">
+            <i class="ri-user-6-line"></i>
+            <h4>
+                <%= patient.first_name+" "+patient.last_name %></h4>
+        </div>
+    </div>
+    <div class=" section1">
+        <div class="medication">
+            <div class="medicationheading">
+                <h2>Medication</h2>
+            </div>
+            <ul class="medicationlist">
+                <li>
+                    <h4>Morning</h4>
+                    <div class="medicine">
+                        <i class="ri-capsule-line"></i>
+                        <h3>Telmavas 100mg</h3>
+                    </div>
+                </li>
+                <li>
+                    <h4>Morning</h4>
+                    <div class="medicine">
+                        <i class="ri-capsule-line"></i>
+                        <h3>Telmavas 100mg</h3>
+                    </div>
+                </li>
+                <li>
+                    <h4>Morning</h4>
+                    <div class="medicine">
+                        <i class="ri-capsule-line"></i>
+                        <h3>Telmavas 100mg</h3>
+                    </div>
+                </li>
+                <li>
+                    <h4>Morning</h4>
+                    <div class="medicine">
+                        <i class="ri-capsule-line"></i>
+                        <h3>Telmavas 100mg</h3>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <section class="midsection">
+            <div class="upcomingappointments">
+                <div class="upcomingappointmentsheading">
+                    <h2>Upcoming Appointments</h2>
+                </div>
+                <ul>
+                    <li>
+                        <div class="appointmentsection">
+                            <h4>Thyroid</h4>
+                            <h5>8:00</h5>
+                        </div>
+                        <div class="appointmentdoctor">
+                            <div class="doctorname">
+                                <i class="fa-solid fa-user-doctor"></i>
+                                <h3>Pravin Sisodiya</h3>
+                            </div>
+                            <div class="checkdiv">
+                                <i class="ri-checkbox-circle-line" style="color: green;"></i>
+                                <i class="ri-close-circle-line" style="color: red;"></i>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="appointmentsection">
+                            <h4>Thyroid</h4>
+                            <h5>8:00</h5>
+                        </div>
+                        <div class="appointmentdoctor">
+                            <div class="doctorname">
+                                <i class="fa-solid fa-user-doctor"></i>
+                                <h3>Pravin Sisodiya</h3>
+                            </div>
+                            <div class="checkdiv">
+                                <i class="ri-checkbox-circle-line" style="color: green;"></i>
+                                <i class="ri-close-circle-line" style="color: red;"></i>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="notifications">
+                <div class="upcomingappointmentsheading">
+                    <h2>Notifications</h2>
+                    <ul class="medicationlist" id="notificationlist">
+                        <li>
+                            <div class="message">
+                                <i class="ri-notification-badge-line"></i>
+                                <h3 class="messageinfo">
+                                    Your Visit is Confirmed for the thyroid diagnosis please reach on time
+                                </h3>
+                            </div>
+                            <h4 class="notificationdate">
+                                23rd Jan
+                            </h4>
+                        </li>
+                        <li>
+                            <div class="message">
+                                <i class="ri-notification-badge-line"></i>
+                                <h3 class="messageinfo">
+                                    Your Visit is Confirmed for the thyroid diagnosis please reach on time
+                                </h3>
+                            </div>
+                            <h4 class="notificationdate">
+                                23rd Jan
+                            </h4>
+                        </li>
+                        <li>
+                            <div class="message">
+                                <i class="ri-notification-badge-line"></i>
+                                <h3 class="messageinfo">
+                                    Your Visit is Confirmed for the thyroid diagnosis please reach on time
+                                </h3>
+                            </div>
+                            <h4 class="notificationdate">
+                                23rd Jan
+                            </h4>
+                        </li>
+                        <li>
+                            <div class="message">
+                                <i class="ri-notification-badge-line"></i>
+                                <h3 class="messageinfo">
+                                    Your Visit is Confirmed for the thyroid diagnosis please reach on time
+                                </h3>
+                            </div>
+                            <h4 class="notificationdate">
+                                23rd Jan
+                            </h4>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+        <div class="endsection">
+            <div class="reportsection">
+                <div class="reportheading">
+                    <h2>Report</h2>
+                </div>
+                <div class="reportsort">
+                    <div class="filterreport">
+                        <a href="#">Latest</a>
+                        <select id="filterByType" name="filterByType">
+                            <option value="" disabled selected>Select Type</option>
+                            <option value="Blood Test">Blood Test</option>
+                            <option value="X-Ray">X-Ray</option>
+                            <option value="MRI">MRI</option>
+                            <option value="Pathology">Pathology</option>
+                            <option value="Ultrasound">Ultrasound</option>
+                        </select>
+                    </div>
+                    <div class="allreport">
+                        <a href="#">View All</a>
+                    </div>
+                </div>
+                <ul class="reportfiles">
+                    <li>
+                        <div class="reportname">
+                            <i class="fa-solid fa-droplet"
+                                style="background-color: rgba(255, 0, 0, 0.500);"></i>
+                            <h3>Blood Test</h3>
+                        </div>
+                        <h4 class="reportdate">22 Jan</h4>
+                    </li>
+                    <li>
+                        <div class="reportname">
+                            <i class="fa-solid fa-x-ray"></i>
+                            <h3>X-ray</h3>
+                        </div>
+                        <h4 class="reportdate">22 Jan</h4>
+                    </li>
+                    <li>
+                        <div class="reportname">
+                            <i class="fa-solid fa-brain" style="background-color: rgba(0, 0, 255, 0.500);"></i>
+                            <h3>MRI</h3>
+                        </div>
+                        <h4 class="reportdate">22 Jan</h4>
+                    </li>
+                    <li>
+                        <div class="reportname">
+                            <i class="fa-solid fa-microscope"
+                                style="background-color: rgba(233, 199, 6, 0.500);"></i>
+                            <h3>Pathology</h3>
+                        </div>
+                        <h4 class="reportdate">22 Jan</h4>
+                    </li>
+                    <li>
+                        <div class="reportname">
+                            <i class="ri-surround-sound-line"
+                                style="background-color: rgba(165, 42, 42, 0.500);"></i>
+                            <h3>Ultrasound</h3>
+                        </div>
+                        <h4 class="reportdate">22 Jan</h4>
+                    </li>
+                </ul>
+            </div>
+            <div class="news">
+                <div class="reportheading" >
+                    <h2 style="border-bottom: 0.1px solid rgba(255, 255, 255, 0.8);">
+                        News
+                    </h2>
+                </div>
+                <ul class="newslist">
+                    <li>
+                        <div class="newsinfo">
+                            <h3>Blood donation Camp</h2>
+                            <h4>Our Hospital is organising a Blood Donation camp</h3>
+                        </div>
+                        <h5>23rd Jan</h5>
+                    </li>
+                    <li>
+                        <div class="newsinfo">
+                            <h3>Blood donation Camp</h2>
+                            <h4>Our Hospital is organising a Blood Donation camp</h3>
+                        </div>
+                        <h5>23rd Jan</h5>
+                    </li>
+                    <li>
+                        <div class="newsinfo">
+                            <h3>Blood donation Camp</h2>
+                            <h4>Our Hospital is organising a Blood Donation camp</h3>
+                        </div>
+                        <h5>23rd Jan</h5>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    const navlink = document.querySelectorAll('.navlink');
+    function linkcolor() {
+        navlink.forEach(link => link.classList.remove('active-link'))
+        this.classList.add('active-link')
+    }
+    navlink.forEach(link => link.addEventListener('click', linkcolor))
+</script>
+
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Equipment</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+        integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"   />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Eagle+Lake&family=Montserrat+Alternates:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Ruslan+Display&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/stylesheets/updateeqstyle.css">
+</head>
+
+<body>
+    <h2>Add New Equipment</h2>
+
+    <form action="/add_equipment" method="POST">
+        <div class="form-group">
+            <label for="equipment_name">Equipment Name</label>
+            <input type="text" id="equipment_name" name="equipment_name" required>
+        </div>
+
+        <div class="form-group">
+            <label for="count">Quantity</label>
+            <input type="number" id="count" name="count" min="1" required>
+        </div>
+
+        <div class="form-group">
+            <button type="submit">Add Equipment</button>
+        </div>
+    </form>
+
+</body>
+
+</html>

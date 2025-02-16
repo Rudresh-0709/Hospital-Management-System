@@ -1,0 +1,212 @@
+/* General Styles */
+body {
+    font-family: 'Montserrat Alternates', sans-serif;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 0;
+    color: #343a40;
+}
+
+/* Container */
+h2 {
+    text-align: center;
+    font-size: 2rem;
+    color: #0056b3;
+    font-size: 40px;
+    height:2em;
+    margin-top: 1em;
+    width:90%;
+}
+.flash-message {
+    background-color: #28a745;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 10px 0;
+    text-align: center;
+}
+
+/* Table Styles */
+table {
+    width: 90%;
+    margin: 20px auto;
+    border-collapse: collapse;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #ffffff;
+}
+
+thead {
+    background-color: #007bff;
+    color: #ffffff;
+}
+
+th, td {
+    padding: 15px;
+    text-align: left;
+    border: 1px solid #dee2e6;
+}
+#find{
+    text-align: center;
+}
+th {
+    font-size: 1rem;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+tbody tr:hover {
+    background-color: #e9ecef;
+}
+
+/* Button Styles */
+button {
+    background-color: #007bff;
+    color: #ffffff;
+    border: none;
+    padding: 8px 15px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+button:focus {
+    outline: none;
+}
+
+/* Form */
+form {
+    display: inline;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    table {
+        font-size: 0.9rem;
+    }
+
+    th, td {
+        padding: 10px;
+    }
+}
+.fa-angles-left{
+    border: 1px solid black;
+    border-radius: 50%;
+    padding: 10px;
+    height: 100%;
+    cursor: pointer;
+}
+.flash-message {
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 500px;
+    background-color: #4caf50; /* Success background color */
+    color: #fff; /* Text color */
+    font-size: 1rem;
+    padding: 15px 20px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.flash-message.error {
+    background-color: #f44336; /* Error background color */
+}
+
+.flash-message.warning {
+    background-color: #ff9800; /* Warning background color */
+}
+
+.flash-message.info {
+    background-color: #2196f3; /* Info background color */
+}
+
+.flash-message.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+#flash-close {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+#flash-close:hover {
+    color: #ccc;
+}
+.popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 300px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    display: none;
+    text-align: center;
+    padding: 20px;
+    border-radius: 10px;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.popup-content h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #4caf50;
+}
+
+.popup-content p {
+    font-size: 1rem;
+    color: #555;
+    margin: 10px 0;
+}
+
+#close-popup {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+#close-popup:hover {
+    background-color: #45a049;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+.heading{
+    display:flex;
+    flex-direction:row;
+    align-items: center;
+    width:100%;
+    justify-content: space-around;
+}

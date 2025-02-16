@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+        integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"   />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Eagle+Lake&family=Montserrat+Alternates:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Ruslan+Display&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/stylesheets/newpatient.css">
+    <script src="/javascripts/patientadmit.js"></script>
+    <title>New Visitor</title>
+</head>
+
+<body>
+    <section>
+        <div class="heading">
+            <i class="fa-solid fa-angles-left" onclick="backtoadmin()"></i>
+            <h1>New Visitor</h1>
+        </div>
+        <!-- Form for selecting a patient -->
+        <% if (!badges) { %>
+            <!-- First Step: Patient Search -->
+            <form id="patient-search-form" action="/search_badges" method="POST">
+                <div class="firstname">
+                    <label for="firstname">First name:</label>
+                    <select name="first_name" id="firstname" required>
+                        <% if(patients.length>0){ %>
+                            <% for(var i=0;i<patients.length;i++){ %>
+                                <option value="<%=patients[i].first_name%>"><%=patients[i].first_name%></option>
+                            <% } %>
+                        <% } else{%>
+                                <option value="No Patient found" >No patient found</option>
+                        <% } %>
+                    </select>
+                </div>
+                <div class="lastname">
+                    <label for="lastname">Last name:</label>
+                    <select name="last_name" id="lastname" required>
+                        <% if(patients.length>0){ %>
+                            <% for(var i=0;i<patients.length;i++){ %>
+                                <option value="<%=patients[i].last_name%>"><%=patients[i].last_name%></option>
+                            <% } %>
+                        <% } else{%>
+                                <option value="No Patient found" >No patient found</option>
+                        <% } %>
+                    </select>
+                </div>
+                <button type="submit">Search Badges</button>
+            </form>
+        <% } else { %>
+            <!-- Second Step: Badge Selection -->
+            <form id="badge-selection-form" action="/assign_badge" method="POST">
+                <label for="admit_id" style="visibility: hidden;">Select Admit ID:</label>
+                <select id="admit_id" name="admit_id" required style="visibility: hidden;">
+                    <% badges.forEach(badge => { %>
+                        <option value="<%= admit_id %>">Admit ID: <%= admit_id %></option>
+                    <% }); %>
+                </select>
+                <label for="badge_id">Select Badge ID:</label>
+                <select id="badge_id" name="badge_id" required>
+                    <% badges.forEach(badge => { %>
+                        <option value="<%= badge.badge_id %>">Badge ID: <%= badge.badge_id %></option>
+                    <% }); %>
+                </select>
+
+                <button type="submit">Assign Badge</button>
+            </form>
+        <% } %>
+
+        <% if (flashMessage) { %>
+            <div class="popup" id="popup">
+                <div class="alert alert-<%= flashMessage.type %> ">
+                    <span><%= flashMessage.message %></span>
+                    <button id="close-popup">Close</button>
+                </div>
+            </div>
+        <% } %>
+    </section>
+</body>
+
+</html>

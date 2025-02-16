@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+        integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"   />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Eagle+Lake&family=Montserrat+Alternates:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Ruslan+Display&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/stylesheets/newpatient.css">
+    <script src="/javascripts/patientadmit.js"></script>
+    <title>Doctors Login Page</title>
+</head>
+
+<body>
+    <form action="/doctor_login_form" method="post">
+
+        <div class="admissiondiv">
+            <h3>Doctor Login</h3>
+            <label for="doctor_name">Enter Name:</label>
+            <input type="text" name="doctor_name">
+            <label for="password">Enter Password:</label>
+            <input type="password" name="doctor_password">
+            <input type="submit" id="newpatientsubmit" value="LOGIN">
+        </div>
+
+    </form>
+</body>
+<style>
+    html {
+        height: 100%;
+    }
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        background-image: url("/png/doctorpng/pexels-pixabay-40568.jpg");
+        background-size: cover;
+    }
+    .admissiondiv{
+        background-color: transparent;
+        backdrop-filter: blur(40px);
+        justify-content: center;
+        align-items: center;
+    }
+    input{
+        background-color: rgba(25, 70, 78, 0.5);
+        color:white;
+    }
+    #newpatientsubmit{
+        background-color: rgba(25, 70, 78, 0.8);
+        margin-bottom: 1em;
+    }
+    input:-internal-autofill-selected{
+        background-color: rgba(25, 70, 78, 0.7);
+    }
+
+</style>
+
+</html>

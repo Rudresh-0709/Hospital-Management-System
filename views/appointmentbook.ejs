@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+        integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"   />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Eagle+Lake&family=Montserrat+Alternates:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Ruslan+Display&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/stylesheets/newpatient.css">
+    <script src="/javascripts/patientadmit.js"></script>
+    <title>New patient</title>
+</head>
+
+<body>
+    <section>
+        <div class="heading">
+            <i class="fa-solid fa-angles-left" onclick="backtoadmin()"></i>
+            <h1>Book Appointment</h1>
+        </div>
+        <form action="/new_appointment" method="POST"  enctype="multipart/form-data">
+            <div class="patientdiv">
+                <h3>Appointment Details</h3>
+
+                <label for="appointee_name">Patient Name:</label>
+                <input type="text" id="appointee_name" name="appointee_name" required>
+
+                <label for="appointee_email">Patient Email Address:</label>
+                <input type="email" id="appointee_email" name="appointee_email" required>
+
+                <label for="doctor_name">Doctor Assigned:</label>
+                <select name="doctor_name" required>
+                    <% if(doctors.length> 0) { %>
+                        <% for(var i=0; i < doctors.length; i++) { %>
+                            <option value="<%= doctors[i].doctor_name %>">
+                            <%= doctors[i].doctor_name %>
+                            </option>
+                        <% } %>
+                    <% } else { %>
+                            <option value="No Doctors found">No Doctors available at this moment</option>
+                    <% } %>
+                </select>
+
+                <label for="appointee_contact">Appointee Contact Number:</label>
+                <input type="tel" id="appointee_contact" name="appointee_contact" required>
+
+                <label for="appointment_date">Appointment Date:</label>
+                <input type="date" id="appointment_date" name="appointment_date" required>
+
+                <label for="appointment_time">Appointment Time:</label>
+                <input type="time" id="appointment_time" name="appointment_time" required>
+
+                <label for="purpose">Purpose of Visit:</label>
+                <textarea id="purpose" name="purpose" rows="2" required></textarea>
+
+                <label for="documents">Upload Medical Documents (X-rays, Reports, etc.):</label>
+                <input type="file" id="documents" name="documents" accept=".jpg, .jpeg, .png, .pdf" multiple>
+            </div>
+
+            <input type="submit" id="newpatientsubmit" value="Schedule Appointment">
+        </form>
+        <% if (flashMessage) { %>
+            <div class="popup" id="popup">
+                <div class="alert alert-<%= flashMessage.type %> ">
+                    <span><%= flashMessage.message %></span>
+                    <button id="close-popup">Close</button>
+                </div>
+            </div>
+        <% } %>
+    </section>
+</body>
+<style>
+    #newpatientsubmit{
+        width:fit-content;
+    }
+    #documents{
+        padding: 10px 10px;
+    }
+</style>
+
+</html>

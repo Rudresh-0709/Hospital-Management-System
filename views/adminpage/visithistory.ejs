@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visit History</title>
+    <link rel="stylesheet" href="/stylesheets/patientHistory.css">
+</head>
+<body style="padding: 20px;">
+    <h1>Visit History</h1>
+
+    <!-- Search and Filter Form -->
+    <form method="get" action="/admin/visit-history">
+        <!-- Search by patient name -->
+        <label for="search">Search by Patient Name:</label>
+        <input type="text" name="search" value="<%= search %>" placeholder="Enter patient name">
+
+        <!-- Ward preference filter -->
+        <label for="ward_preference">Ward Preference:</label>
+        <select name="ward_preference" id="ward_preference">
+            <option value="">All</option>
+            <option value="General" <%= ward_preference === 'General' ? 'selected' : '' %>>General</option>
+            <option value="ICU" <%= ward_preference === 'ICU' ? 'selected' : '' %>>ICU</option>
+            <option value="Private" <%= ward_preference === 'Private' ? 'selected' : '' %>>Private</option>
+        </select>
+
+        <!-- Sort by visit time -->
+        <label for="sort">Sort By:</label>
+        <select name="sort" id="sort">
+            <option value="visit_time_asc" <%= sort === 'visit_time_asc' ? 'selected' : '' %>>Visit Time (Ascending)</option>
+            <option value="visit_time_desc" <%= sort === 'visit_time_desc' ? 'selected' : '' %>>Visit Time (Descending)</option>
+        </select>
+
+        <!-- Submit filter -->
+        <button type="submit">Filter</button>
+    </form>
+
+    <!-- Visit History Table -->
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Patient Name</th>
+                <th>Room Number</th>
+                <th>Ward Preference</th>
+                <th>Badge ID</th>
+                <th>Visit Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% if (visits.length > 0) { %>
+                <% visits.forEach(visit => { %>
+                    <tr>
+                        <td><%= visit.patient_name %></td>
+                        <td><%= visit.room_number %></td>
+                        <td><%= visit.ward_preference %></td>
+                        <td><%= visit.badge_id %></td>
+                        <td><%= visit.visit_time %></td>
+                    </tr>
+                <% }) %>
+            <% } else { %>
+                <tr>
+                    <td colspan="5">No visits found</td>
+                </tr>
+            <% } %>
+        </tbody>
+    </table>
+</body>
+</html>

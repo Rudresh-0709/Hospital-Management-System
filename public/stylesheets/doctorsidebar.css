@@ -1,0 +1,101 @@
+/* Sidebar styling */
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 70px;
+    /* Dark bluish gradient background */
+    background: linear-gradient(to right, #1e3c72, #3b6dc3);
+    transition: width 0.2s;
+    overflow: hidden;
+    z-index: 1000;
+}
+
+.sidebar:hover {
+    width: 200px;
+}
+
+.sidebar ul.sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar ul.sidebar-menu li {
+    width: 100%;
+}
+
+.sidebar ul.sidebar-menu li a {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    color: #bdc3c7; /* Lighter text color */
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s;
+}
+
+/* Hover state for entire link */
+.sidebar ul.sidebar-menu li a:hover {
+    background: #76b8ff7b;
+    color: #ffffff;
+}
+
+/* Remove any active background so li isn't highlighted */
+.sidebar ul.sidebar-menu li.active a {
+    background: transparent;
+}
+
+/* Updated active state with circular background and uniform padding */
+.sidebar ul.sidebar-menu li.active a i {
+    background: #fff;
+    color: #1e3c72; /* Dark bluish color from the gradient */
+    padding: 10px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    transition: background 0.2s, color 0.2s;
+    flex-shrink: 0;
+}
+.sidebar:not(:hover) ul.sidebar-menu li a {
+    justify-content: center;
+}
+
+/* Align items to the left when hovered so the text can appear */
+.sidebar:hover ul.sidebar-menu li a {
+    justify-content: flex-start;
+}
+/* Fix the icon so the span doesn't affect its padding */
+.sidebar ul.sidebar-menu li a i {
+    min-width: 30px;
+    font-size: 20px;
+    padding: 6px;
+    line-height: 1.2; /* Adjust as needed */
+    vertical-align: middle;
+    transition: color 0.2s;
+    flex-shrink: 0;
+}
+
+.sidebar ul.sidebar-menu li a .menu-text {
+    opacity: 0;
+    transition: opacity 0.2s;
+    white-space: nowrap;
+    margin-left: 10px;
+}
+
+.sidebar:hover ul.sidebar-menu li a .menu-text {
+    opacity: 1;
+}
+
+/* Adjust main content margin */
+.main-content {
+    margin-left: 60px;
+    transition: margin-left 0.2s;
+    padding: 20px;
+}
+
+.sidebar:hover ~ .main-content {
+    margin-left: 200px;
+}

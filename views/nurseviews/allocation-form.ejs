@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pending Appointments</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+        integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"   />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Eagle+Lake&family=Montserrat+Alternates:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Ruslan+Display&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/stylesheets/nurseallocate.css">
+</head>
+
+<body>
+    <div class="heading">
+        <i class="fa-solid fa-angles-left" onclick="backtoadmin()"></i>
+        <h2>Nurse List</h2>
+    </div>
+    <div>
+        <% if (nurses.length > 0) { %>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nurse Name</th>
+                        <th>Specialization</th>
+                        <th>Shift</th>
+                        <th>Role</th>
+                        <th>Remarks</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% nurses.forEach(nurses => { %>
+                        <tr> 
+                            <td><%= nurses.name%></td>
+                            <td><%= nurses.specialization%></td>
+                            <td><%= nurses.shift%></td>
+                            <td><%= nurses.role%></td>
+                            <td><%= nurses.remarks%></td>
+                            <td id="find">
+                                <form action="/admin/allocatenurse" method="POST">
+                                    <input type="hidden" name="admit_id" value="<%=admit_id %>">
+                                    <input type="hidden" name="nurseid" value="<%= nurses.nurse_id %>">
+                                    <button type="submit" class="btn btn-primary">Allocate</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        <% } else { %>
+            <p>No nurses available at this moment</p>
+        <% } %>
+    </div>
+</body>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const popup = document.getElementById("popup");
+        const closeButton = document.getElementById("close-popup");
+
+        if (popup) {
+            popup.style.display = "block";
+
+            closeButton.addEventListener("click", function () {
+                popup.style.display = "none";
+            });
+        }
+    });
+    function backtoadmin(){
+        window.location.href = "/admin";
+    }
+</script>
+</html>

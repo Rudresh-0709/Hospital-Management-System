@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+        integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"   />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Eagle+Lake&family=Montserrat+Alternates:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Ruslan+Display&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/stylesheets/newpatient.css">
+    <script src="/javascripts/patientadmit.js"></script>
+    <title>New patient</title>
+</head>
+
+<body>
+    <section>
+        <div class="heading">
+            <i class="fa-solid fa-angles-left" onclick="backtoadmin()"></i>
+            <h1>New Nurse</h1>
+        </div>
+        <form action="/new_nurse" method="POST">
+            <div class="patientdiv">
+                <h3>Nurse details</h3>
+                <label for="name">Full Name:</label>
+                <input type="text" id="name" name="name" required>
+
+                <label for="email">Email Address:</label>
+                <input type="email" id="email" name="email" required>
+
+                <label for="phone_number">Phone Number:</label>
+                <input type="tel" id="phone_number" name="phone_number" required>
+
+                <label for="specialization">Specialization:</label>
+                <input type="text" id="specialization" name="specialization" required>
+
+                <label for="shift">Shift:</label>
+                <select name="shift" id="shift">
+                    <option value="Morning">Morning</option>
+                    <option value="Evening">Evening</option>
+                    <option value="Night">Night</option>
+                </select>
+
+                <label for="ward_assigned">Assigned ward:</label>
+                <input type="text" id="ward_assigned" name="ward_assigned">
+
+                <label for="role">Role:</label>
+                <select name="role" id="role">
+                    <option value="Head Nurse">Head Nurse</option>
+                    <option value="Assistant Nurse">Assistant Nurse</option>
+                    <option value="Trainee Nurse">Trainee Nurse</option>
+                </select>
+            </div>
+
+            <input type="submit" id="newpatientsubmit" value="Hire Nurse">
+        </form>
+
+        <% if (flashMessage) { %>
+            <div class="popup" id="popup">
+                <div class="alert alert-<%= flashMessage.type %> ">
+                    <span>
+                        <%= flashMessage.message %>
+                    </span>
+                    <button id="close-popup">Close</button>
+                </div>
+            </div>
+            <% } %>
+    </section>
+</body>
+
+</html>

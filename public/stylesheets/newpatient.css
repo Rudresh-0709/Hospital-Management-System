@@ -1,0 +1,309 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    font-family:"Poppins",'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+body{
+    background-color: white;
+}
+h1{
+    color: #091d34;
+    font-size: 40px;
+    height:2em;
+    font-family: "Montserrat Alternates", sans-serif;
+    margin-top: 1em;
+    width:90%;
+    text-align: center;
+}
+
+section{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+form{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.patientdiv,.emergency,.medicaldiv,.insurancediv,.admissiondiv{
+    height:fit-content;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    border: 1px solid white;
+    width:fit-content;
+    padding:40px;
+    background-color:whitesmoke;
+    border-radius: 8px;
+    box-shadow:0px 0px 3px 0.01px rgba(0, 0, 0, 0.434);
+    margin:0.3em 0.3em 0.3em;
+}
+h3{
+    width:100%;
+    color: #2e5668;
+    font-size: 25px;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    text-align: start;
+    border-bottom: 0.2px solid #2e5668;
+}
+label{
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    font-size: 20px;
+    text-align: start;
+    width:650px;
+    color: #3c7284;
+    margin-bottom: 0.3em;
+}
+input,select,textarea,option{
+    width: 650px;
+    height:2.5em;
+    background-color: #c3c7b347;
+    border-color: transparent;
+    border-radius: 7px;
+    margin-bottom: 2em;
+    color: #7ba3b6;
+    padding:3px 10px;
+    appearance: none;
+    font-size: large;
+}
+
+textarea{
+    height:5em;
+    padding-top: 7px;
+}
+.name{
+    display: flex;
+
+}
+.firstname,.lastname{
+    width:325px;
+    display: flex;
+    flex-direction: column;
+}
+#firstname,#lastname{
+    width:320px;
+}
+#newpatientsubmit{
+    width:200px;
+    height:4em;
+    margin-top: 1em;
+    font-size: larger;
+    background-color:#3a6592;
+    color: #ffffff;
+    cursor: pointer;
+    box-shadow:0px 0px 3px 0.01px rgba(0, 0, 0, 0.434);
+}
+button{
+    width:200px;
+    border-radius: 10px;
+    margin-bottom: 1em;
+    height:4em;
+    margin-top: 1em;
+    font-size: larger;
+    background-color:#3a6592;
+    color: #ffffff;
+    cursor: pointer;
+    box-shadow:0px 0px 3px 0.01px rgba(0, 0, 0, 0.434);
+}
+
+.popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    min-width: 300px;
+    max-width: max-content;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    display: none;
+    text-align: center;
+    padding: 20px;
+    border-radius: 10px;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.popup-content h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #4caf50;
+}
+
+.popup-content p {
+    font-size: 1rem;
+    color: #555;
+    margin: 10px 0;
+}
+
+#close-popup {
+    background-color: #2196f3;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+/* #close-popup:hover {
+    background-color: #45a049;
+} */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.heading{
+    display:flex;
+    flex-direction:row;
+    align-items: center;
+    width:100%;
+    justify-content: space-around;
+}
+.fa-angles-left{
+    border: 1px solid black;
+    border-radius: 50%;
+    padding: 10px;
+    height: 100%;
+    cursor: pointer;
+}
+@media (max-width: 600px) {
+    .admissiondiv {
+        transform: scale(0.75);
+    }
+}
+.flash-message {
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 500px;
+    background-color: #4caf50; /* Success background color */
+    color: #fff; /* Text color */
+    font-size: 1rem;
+    padding: 15px 20px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.flash-message.error {
+    background-color: #f44336; /* Error background color */
+}
+
+.flash-message.warning {
+    background-color: #ff9800; /* Warning background color */
+}
+
+.flash-message.info {
+    background-color: #2196f3; /* Info background color */
+}
+
+.flash-message.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+#flash-close {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+#flash-close:hover {
+    color: #ccc;
+}
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+
+.alert-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.alert-danger {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+.alert-error{
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+.alert-warning{
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeeba;
+}
+/* Flash message container */
+.flash-message {
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    animation: fadeOut 5s forwards; /* Auto-hide after 5 seconds */
+}
+
+/* Success message style */
+.flash-message.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+/* Error message style */
+.flash-message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* Warning message style */
+.flash-message.warning {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeeba;
+}
+
+/* Fade-out animation for auto-hide */
+@keyframes fadeOut {
+    0% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        display: none;
+    }
+}

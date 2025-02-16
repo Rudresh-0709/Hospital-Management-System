@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>patientdetails History</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+        integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"   />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Eagle+Lake&family=Montserrat+Alternates:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Ruslan+Display&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/stylesheets/patientHistory.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="scroll-wrapper">
+
+            <h1>Patient History</h1>
+    
+            <!-- Filter and Sort Options -->
+            <form id="filter-sort-form" action="/admin/patienthistory" method="GET">
+                <label for="filter-gender">Filter by Gender:</label>
+                <select name="gender" id="filter-gender">
+                    <option value="">All</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                </select>
+    
+                <label for="filter-ward">Filter by Ward:</label>
+                <select name="ward_preference" id="filter-ward">
+                    <option value="">All</option>
+                    <option value="general">General</option>
+                    <option value="private">Private</option>
+                </select>
+    
+                <label for="sort">Sort By:</label>
+                <select name="sort" id="sort">
+                    <option value="">Default</option>
+                    <option value="admission_date_asc">Admission Date (Ascending)</option>
+                    <option value="admission_date_desc">Admission Date (Descending)</option>
+                    <option value="discharge_date_asc">Discharge Date (Ascending)</option>
+                    <option value="discharge_date_desc">Discharge Date (Descending)</option>
+                </select>
+    
+                <button type="submit">Apply</button>
+            </form>
+    
+            <table>
+                <thead>
+                    <tr>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Date of Birth</th>
+                        <th>Gender</th>
+                        <th>Contact Number</th>
+                        <th>Email</th>
+                        <th>Address</th>
+                        <th>Emergency Contact Name</th>
+                        <th>Relationship</th>
+                        <th>Emergency Contact</th>
+                        <th>Reason for Admission</th>
+                        <th>Doctor Assigned</th>
+                        <th>Ward Preference</th>
+                        <th>Room Number</th>
+                        <th>Admission Date</th>
+                        <th>Discharge Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% patientdetails.forEach(patientdetails => { %>
+                        <tr>
+                            <td><%= patientdetails.first_name %></td>
+                            <td><%= patientdetails.last_name %></td>
+                            <td><%= patientdetails.dob %></td>
+                            <td><%= patientdetails.gender %></td>
+                            <td><%= patientdetails.contact_number %></td>
+                            <td><%= patientdetails.email %></td>
+                            <td><%= patientdetails.address %></td>
+                            <td><%= patientdetails.emergency_name %></td>
+                            <td><%= patientdetails.relationship %></td>
+                            <td><%= patientdetails.emergency_contact %></td>
+                            <td><%= patientdetails.reason_for_admission %></td>
+                            <td><%= patientdetails.doctor_assigned %></td>
+                            <td><%= patientdetails.ward_preference %></td>
+                            <td><%= patientdetails.room_number %></td>
+                            <td><%= patientdetails.admission_date %></td>
+                            <td><%= patientdetails.discharge_date %></td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+
+
+</html>
