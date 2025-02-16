@@ -35,10 +35,8 @@ chatNamespace.on('connection', async (socket) => {
         console.warn("⚠️ No userId provided for socket connection.");
         return;
     }
-
     socket.join(userId);  // ✅ Join the room with MongoDB _id
     console.log(`📡 User ${userId} connected (Socket ID: ${socket.id})`);
-
     try {
         // ✅ Update user online status in DB
         await User.findByIdAndUpdate(userId, { is_online: true });
@@ -50,30 +48,6 @@ chatNamespace.on('connection', async (socket) => {
         console.error("❌ Error updating user online status:", err);
     }
 
-    // 📨 Handle sending messages
-    // socket.on('chatMessage', async ({ senderId, receiverId, message }) => {
-    //     console.log(`📤 Message from ${senderId} to ${receiverId}:`, message);
-    
-    //     if (!senderId || !receiverId || !message) {
-    //         console.error("⚠️ Missing sender, receiver, or message!");
-    //         return;
-    //     }
-    
-    //     try {
-    //         const newMessage = new ChatMessage({
-    //             sender: senderId,   // ✅ Changed senderId → sender (matches Mongoose model)
-    //             receiver: receiverId, // ✅ Changed receiverId → receiver (matches Mongoose model)
-    //             message: message,
-    //             timestamp: new Date()
-    //         });
-    
-    //         await newMessage.save();
-    
-    //         chatNamespace.to(receiverId).emit('chatMessage', { senderId, message });
-    //     } catch (err) {
-    //         console.error("❌ Error saving message:", err);
-    //     }
-    // });
     socket.on('chatMessage', async ({ senderId, receiverId, message }) => {
         console.log(`📤 Message from ${senderId} to ${receiverId}:`, message);
     
@@ -110,9 +84,6 @@ chatNamespace.on('connection', async (socket) => {
         }
     });
     
-    
-
-    // 🔌 Handle user disconnection
     socket.on('disconnect', async () => {
         console.log(`🔌 User ${userId} disconnected.`);
 
@@ -130,10 +101,6 @@ chatNamespace.on('connection', async (socket) => {
         socket.leave(userId);
     });
 });
-
-
-
-
 
 mongoose.connect('mongodb://localhost:27017/chatdb', {
     useNewUrlParser: true,
@@ -159,6 +126,10 @@ const nurseroute = require('./routes/nurseroute');
 const diagnosisroute = require('./routes/diagnosisroute');
 const prescriptionroute = require('./routes/prescriptionroute');
 const newprescriptionroute = require('./routes/newprescriptionroute');
+app.use('/uploads', express.static(path.join(__dirname, 'routes', 'chat', 'uploads')));
+
+app.use('/profile-pictures', express.static(path.join(__dirname, 'routes/chat/uploads/Profile-pictures')));
+
 
 app.use(express.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
@@ -177,6 +148,7 @@ app.use((req, res, next) => {
     delete req.session.flashMessage;  // Clear the message after displaying it
     next();
 });
+
 const chatRoutes = require('./routes/chat/chatroute');
 app.use('/chat', chatRoutes);
 
@@ -221,8 +193,6 @@ app.get("/admin/patient", (req, res) => {
         }
     })
 })
-app.use('/profile-pictures', express.static(path.join(__dirname, 'routes/chat/uploads/Profile-pictures')));
-
 app.get("/admin/admit", (req, res) => {
     var displayname = "SELECT p.patient_id, p.first_name,p.last_name, MAX(a.discharge_date) AS discharge_date FROM patients p JOIN admit a ON p.patient_id = a.patient_id WHERE a.discharge_date IS NOT NULL GROUP BY p.patient_id, p.first_name, p.last_name;";
     con.query(displayname, function (nameerror, nameresult) {

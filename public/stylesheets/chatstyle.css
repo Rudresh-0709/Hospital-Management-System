@@ -533,3 +533,8 @@ input:checked + .display label .circle .ri-moon-fill{
 html {
     scroll-behavior: smooth;
 }
+.date-heading{
+    text-align: center;
+    background-color: #66666653;
+    color: white;
+}

@@ -89,6 +89,63 @@ router.get('/messages', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+router.post("/upload-file", fileupload.single("file"), async (req, res) => {
+    const { senderId, receiverId } = req.body;
+
+    if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+    }
+
+    try {
+        // ✅ Check if sender exists
+        const sender = await User.findById(senderId);
+        if (!sender) {
+            return res.status(404).json({ message: "Sender not found" });
+        }
+
+        // ✅ Check if receiver exists
+        const receiver = await User.findById(receiverId);
+        if (!receiver) {
+            return res.status(404).json({ message: "Receiver not found" });
+        }
+
+        // ✅ Ensure the receiver is in the sender's allowed users list
+        if (!sender.allowedUsers.includes(receiver.userId)) {
+            return res.status(403).json({ message: "You are not allowed to send files to this user" });
+        }
+
+        
+        const fileUrl = `http://localhost:3000/uploads/chat-files/${req.file.filename}`;
+
+
+        // ✅ Save the message with file details in the database
+        const newMessage = new ChatMessage({
+            sender: senderId,
+            receiver: receiverId,
+            message: "", // Empty text message since it's a file
+            fileUrl: fileUrl,
+            fileType: req.file.mimetype
+        });
+
+        await newMessage.save();
+
+        res.json({
+            message: "File uploaded successfully",
+            fileUrl,
+            fileType: req.file.mimetype,
+        });
+
+    } catch (error) {
+        console.error("❌ Error uploading file:", error);
+        res.status(500).json({ message: "Error saving message", error });
+    }
+});
+
+router.get('/debug/uploads/*', (req, res) => {
+    const filePath = path.join(__dirname, req.path.replace('/debug', ''));
+    console.log("Checking file at:", filePath);
+    res.send({ filePath, exists: fs.existsSync(filePath) });
+});
 
 
 router.post('/message', async (req, res) => {
