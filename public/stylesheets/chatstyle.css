@@ -195,6 +195,7 @@ input:checked + .display label .circle .ri-moon-fill{
     justify-content: center;
     align-items: center;
     width: 100%;
+    border-top-right-radius: 15px;
 }
 .search {
     display: flex;
@@ -352,19 +353,23 @@ input:checked + .display label .circle .ri-moon-fill{
     margin-bottom: 20px;
     justify-content: space-between;
 }
-.chat-input input{
+.chat-input textarea{
     width: 90%;
-    height: 50px;
     border-radius: 10px;
     border: none;
+    padding: 10px;
     background-color: transparent;
     font-size: large;
     background: linear-gradient(45deg, #6eccc3, #c56eff);
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    min-height: 50px; /* Default height */
+    max-height: 100px; /* Double the height */
+    resize: none; /* Prevent manual resizing */
+    overflow-y: auto;
 }
-.chat-input input:focus{
+.chat-input textarea:focus{
     outline: none;
 }
 .chat-input button{
@@ -537,4 +542,54 @@ html {
     text-align: center;
     background-color: #66666653;
     color: white;
+    border-radius: 5px;
+}
+#fileUploadForm{
+    width:15%;
+    gap:2px;
+    justify-content: flex-end;
+}
+#fileUploadForm label{
+    height: fit-content;
+    font-size: larger;
+    border-radius: 15px;
+    border: solid;
+    background: linear-gradient(45deg, #6eccc3, #c56eff);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    padding: 10px;
+    cursor: pointer;
+    border-color: rgb(206, 233, 255);
+}
+.add-user-form{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+.add-user-form input{
+    width: 70%;
+    height: 40px;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid #6eccc3;
+    background-color: transparent;
+    font-size: medium;
+    background: linear-gradient(45deg, #6eccc3, #c56eff);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.add-user-form button{
+    height: fit-content;
+    font-size: xx-large;
+    border: none;
+    border-radius: 15px;
+    background: linear-gradient(45deg, #6eccc3, #c56eff);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    cursor: pointer;
 }

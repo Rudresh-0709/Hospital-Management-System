@@ -48,7 +48,6 @@
         <div class="chat">
             <div class="chat-header">
                 <div class="chatname">
-                    <!-- Optionally show conversation partner's name -->
                     <h3 id="chat-receiver-name"></h3>
                 </div>
             </div>
@@ -56,18 +55,25 @@
                 <!-- Messages will be appended here dynamically -->
             </div>
             <div class="chat-input">
-                <form id="fileUploadForm">
-                    <input type="file" id="fileInput" required>
-                    <button type="submit"></button>
-                </form>
-                <div id="chatMessages"></div>
-                
+                <!-- Message Form -->
                 <form id="message-form">
-                    <input type="text" id="message-input" placeholder="Type your message here..." autocomplete="off"
-                        required />
-                    <button type="submit"><i class="ri-send-plane-line"></i></button>
+                    <textarea type="text" id="message-input" placeholder="Type your message here..." autocomplete="off" ></textarea>
+                    <button type="submit">
+                        <i class="ri-send-plane-line"></i>
+                    </button>
                 </form>
-            </div>
+            
+                <!-- File Upload Form -->
+                <form id="fileUploadForm">
+                    <label for="fileInput" class="custom-file-upload">
+                        <i class="ri-attachment-line"></i>
+                    </label>
+                    <input type="file" id="fileInput" hidden>
+                    <button type="submit">
+                        <i class="ri-upload-cloud-line"></i>
+                    </button>
+                </form>
+            </div> 
         </div>
         <div class="profiles">
             <div class="searchbar">
@@ -124,10 +130,10 @@
                     <% } else { %>
                         <p>No patients found</p>
                     <% } %>
-                    <form action="/chat/addUser" method="POST">
+                    <form action="/chat/addUser" method="POST" class="add-user-form">
                         <input type="hidden" name="currentUserId" value="<%= currentUser._id %>">
-                        <input type="text" name="userId" placeholder="Enter User ID">
-                        <button type="submit">Add User</button>
+                        <input type="number" name="userId" placeholder="Enter User ID">
+                        <button type="submit"><i class="ri-add-box-line"></i></button>
                     </form>
                 </div>
             </div>
