@@ -597,3 +597,9 @@ section:has(#toggle:checked) .search{
     box-shadow: 0px 0px 3px rgb(255 255 255 / 49%);
     color: #fff;
 }
+section:has(#toggle:checked) .doctor-profiles p{
+    color: #fff;
+}
+section:has(#toggle:checked) .patients-profiles p{
+    color: #fff;
+}

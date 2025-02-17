@@ -21,8 +21,11 @@
             <div class="user">
                 <!-- "https://www.w3schools.com/howto/img_avatar.png" -->
                 <!-- <img src="/<%= currentUser.profilePicture %>" alt="Profile Picture"> -->
-                <img src="/profile-pictures/<%= currentUser.profilePicture.split('/').pop() %>" alt="Profile Picture">
-
+                <% if (currentUser.profilePicture=="" ) { %>
+                    <img src="https://us.123rf.com/450wm/yupiramos/yupiramos1603/yupiramos160311572/53591196-person-avatar-design-vector-illustration-graphic.jpg?ver=6" alt="Profile Picture">
+                <% }else{ %>
+                    <img src="/profile-pictures/<%= currentUser.profilePicture.split('/').pop() %>" alt="Profile Picture">
+                <% } %>
 
                 <h3><%= currentUser.name %></h3>
             </div>

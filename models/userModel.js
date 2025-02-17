@@ -18,8 +18,8 @@ const userSchema = new mongoose.Schema({
         default: false
     },
     profilePicture: { 
-        type: String, 
-        default: "https://us.123rf.com/450wm/yupiramos/yupiramos1603/yupiramos160311572/53591196-person-avatar-design-vector-illustration-graphic.jpg?ver=6" 
+        type: String,
+        default:""
     },
     userId: { 
         type: String, 
