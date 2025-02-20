@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>WebRTC App</title>
+  </head>
+  <body>
+    <%if(session.currentUser.role=="patient"){ %>
+        <label for="videocode">Enter Video Code :</label>
+        <input type="number" id="videocode" name="videocode">
+        <button id="join">Join</button>
+    <% }else{ %>
+        <label for="videocode">Enter Video Code :</label>
+        <input type="number" id="videocode" name="videocode">
+        <button id="generatecode">Generate Code</button>
+    <% } %>
+    <script src="/javascripts/videocallscript.js"></script>
+  </body>
+</html>

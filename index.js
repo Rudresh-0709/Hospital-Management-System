@@ -854,6 +854,10 @@ app.get('/chat/setting', async (req, res) => {
         res.status(500).send("Error loading settings page");
     }
 });
+app.get('/video-chat', (req, res) => {
+    console.log("session data",req.session);
+    res.render('videocall',{session:req.session});
+});
 
 
 

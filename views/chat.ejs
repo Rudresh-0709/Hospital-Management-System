@@ -36,7 +36,7 @@
                 <% }else{ %>
                     <a href="/doctoradmin"><i class="ri-home-5-line"></i></a>
                 <% }%>    
-                <a href="#"><i class="ri-video-on-ai-line"></i></a>
+                <a href="/video-chat"><i class="ri-video-on-ai-line"></i></a>
                 <a href="/chat/setting"><i class="ri-settings-4-line"></i></a>
                 <a href="/"><i class="ri-logout-circle-line"></i></a>
             </div>
@@ -283,8 +283,6 @@
         }
     
         let lastDisplayedDate = null;
-
-
         function renderMessage(message) {
             console.log("📩 Rendering message:", message);
 
@@ -370,10 +368,6 @@
             messageContainer.appendChild(msgDiv);
             messageContainer.scrollTop = messageContainer.scrollHeight; 
         }
-
-
-
-
 
         document.getElementById("message-form").addEventListener("submit", function (event) {
             event.preventDefault();

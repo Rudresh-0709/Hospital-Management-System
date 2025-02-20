@@ -338,10 +338,6 @@ router.post("/addUser", async (req, res) => {
     }
 });
 
-
-
-
-
 router.get("/conversation", async (req, res) => {
     try {
         const { senderId, receiverId } = req.query;
