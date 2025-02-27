@@ -467,7 +467,7 @@ app.get('/doctor/appointmentapprove', (req, res) => {
 app.get("/doctoradmin", (req, res) => {
     console.log("Session Data:", req.session);
     if (!req.session.doctor_name) {
-        return res.redirect("/admin/doctor_login_form");
+        return res.redirect("/admin/doctorlogin");
     }
 
     const doctor_name = req.session.doctor_name;
@@ -492,7 +492,7 @@ app.get("/doctoradmin", (req, res) => {
             }
 
             const appointmentQuery = `
-                SELECT * FROM appointments WHERE doctor_name = ?;
+                SELECT * FROM appointments WHERE doctor_name = ? AND appointment_date = NOW();
             `;
 
             con.query(appointmentQuery, [doctor_name], (error, appointments) => {
@@ -523,8 +523,13 @@ app.get("/doctoradmin", (req, res) => {
                         if (error) {
                             throw error;
                         }
-                        const notificationquery = `SELECT * FROM notifications WHERE doctor_id = ? ORDER BY created_at DESC`;
-                        con.query(notificationquery, [doctor_id], (error, notifications) => {
+                        const notificationquery = `SELECT * FROM notifications 
+                            WHERE doctor_id = ? AND is_read = 0 
+                            UNION 
+                            SELECT * FROM notifications 
+                            WHERE doctor_assigned = ? AND is_read = 0 
+                            ORDER BY created_at DESC;`;
+                        con.query(notificationquery, [doctor_id,doctor_name], (error, notifications) => {
                             if (error) {
                                 throw error;
                             }
@@ -937,7 +942,7 @@ app.post('/doctor/approve_appointment', (req, res) => {
 });
 app.post('/doctor/reject_appointment', (req, res) => {
     const { appointment_id } = req.body;
-    const query = `UPDATE appointments SET status = 'Cancelled' WHERE ppointment_id = ?`;
+    const query = `UPDATE appointments SET status = 'Cancelled' WHERE appointment_id = ?`;
     con.query(query, [appointment_id], (err, result) => {
         if (err) {
             console.error("Error rejecting appointment:", err);
@@ -974,6 +979,17 @@ app.post('/new_nurse', nurseroute);
 app.post('/diagnosis', diagnosisroute);
 app.post('/prescription', prescriptionroute);
 app.post('/newprescription', newprescriptionroute);
+app.post('/notifications/mark-as-read',(req,res)=>{
+    const {notification_id}=req.body;
+    const query = `UPDATE notifications SET is_read = 1 WHERE notification_id = ?`;
+    con.query(query, [notification_id], (err, result) => {
+        if (err) {
+            console.error("Error marking notification:", err);
+            return res.status(500).send('Error marking notification');
+        }
+        res.redirect('/doctoradmin');
+    });
+})
 
 server.listen(3000, () => {
     console.log(`Server running on port 3000`);
