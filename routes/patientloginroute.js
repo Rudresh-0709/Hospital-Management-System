@@ -65,7 +65,8 @@ app.post('/patientlogin', (req, res) => {
                 res.send("Internal server error");
             });
       } else {
-        res.send('Incorrect password');
+        res.send('Incorrect password' );
+        console.log(patient.password);
       }
     } else {
       res.send('Patient not found');

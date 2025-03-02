@@ -42,7 +42,7 @@ app.post("/discharge_patient", (req, res) => {
 
         var patient_id = result[0].patient_id;
 
-        var hasrecoveredquery = `SELECT room_number, admit_id FROM admit WHERE patient_id = ? AND discharge_date IS NULL`;
+        var hasrecoveredquery = `SELECT doctor_assigned, room_number, admit_id FROM admit WHERE patient_id = ? AND discharge_date IS NULL`;
         con.query(hasrecoveredquery, [patient_id], function (error, admitResult) {
             if (error) {
                 req.session.flashMessage = {
@@ -60,7 +60,7 @@ app.post("/discharge_patient", (req, res) => {
                 return res.redirect('/admin/discharge');
             }
 
-            var { room_number, admit_id } = admitResult[0];
+            var { room_number, admit_id, doctor_assigned } = admitResult[0];
 
             var dischargequery = `
                 UPDATE admit
@@ -84,13 +84,26 @@ app.post("/discharge_patient", (req, res) => {
                             message: 'Error updating room status.'
                         };
                         return res.redirect('/admin/discharge');
-                    } else {
-                        req.session.flashMessage = {
-                            type: 'success',
-                            message:`Patient ${first_name} ${last_name} discharged successfully, and room ${room_number} is now available.`
-                        };
-                        res.redirect('/admin/discharge');
                     }
+                    // 
+                    const notificationQuery = `INSERT INTO notifications (doctor_assigned, patient_id, type, message, is_read, created_at) VALUES (?, ?, ?, ?, ?, NOW())`;
+
+                    con.query(notificationQuery, [doctor_assigned, patient_id, 'Patient Discharge Update', `Patient ${first_name} ${last_name} has been discharged.`, 0], (NotifErr) => {
+                        if (NotifErr) {
+                            return con.rollback(() => {
+                                console.error("Doctor Notification Error:", NotifErr);
+                                req.session.flashMessage = { type: 'error', message: "Error notifying doctor." };
+                                res.redirect('/admin/admit');
+                            });
+                        }
+                        else {
+                            req.session.flashMessage = {
+                                type: 'success',
+                                message:`Patient ${first_name} ${last_name} discharged successfully, and room ${room_number} is now available.`
+                            };
+                            res.redirect('/admin/discharge');
+                        }
+                    })
                 });
             });
         });

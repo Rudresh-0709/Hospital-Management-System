@@ -66,7 +66,20 @@
                 <h2>Medication</h2>
             </div>
             <ul class="medicationlist">
-                <li>
+                <% if (prescriptions.length> 0) { %>
+                    <% prescriptions.forEach(prescription=> { %>
+                        <li>
+                            <h4><%= prescription.time_of_intake %></h4>
+                            <div class="medicine">
+                                <i class="ri-capsule-line"></i>
+                                <h3><%= prescription.medicine_name %></h3>
+                            </div>
+                        </li>
+                    <% }) %>
+                <% }else{ %>
+
+                <% } %>
+                <!-- <li>
                     <h4>Morning</h4>
                     <div class="medicine">
                         <i class="ri-capsule-line"></i>
@@ -93,7 +106,7 @@
                         <i class="ri-capsule-line"></i>
                         <h3>Telmavas 100mg</h3>
                     </div>
-                </li>
+                </li> -->
             </ul>
         </div>
         <section class="midsection">
@@ -140,50 +153,23 @@
                 <div class="upcomingappointmentsheading">
                     <h2>Notifications</h2>
                     <ul class="medicationlist" id="notificationlist">
-                        <li>
-                            <div class="message">
-                                <i class="ri-notification-badge-line"></i>
-                                <h3 class="messageinfo">
-                                    Your Visit is Confirmed for the thyroid diagnosis please reach on time
-                                </h3>
-                            </div>
-                            <h4 class="notificationdate">
-                                23rd Jan
-                            </h4>
-                        </li>
-                        <li>
-                            <div class="message">
-                                <i class="ri-notification-badge-line"></i>
-                                <h3 class="messageinfo">
-                                    Your Visit is Confirmed for the thyroid diagnosis please reach on time
-                                </h3>
-                            </div>
-                            <h4 class="notificationdate">
-                                23rd Jan
-                            </h4>
-                        </li>
-                        <li>
-                            <div class="message">
-                                <i class="ri-notification-badge-line"></i>
-                                <h3 class="messageinfo">
-                                    Your Visit is Confirmed for the thyroid diagnosis please reach on time
-                                </h3>
-                            </div>
-                            <h4 class="notificationdate">
-                                23rd Jan
-                            </h4>
-                        </li>
-                        <li>
-                            <div class="message">
-                                <i class="ri-notification-badge-line"></i>
-                                <h3 class="messageinfo">
-                                    Your Visit is Confirmed for the thyroid diagnosis please reach on time
-                                </h3>
-                            </div>
-                            <h4 class="notificationdate">
-                                23rd Jan
-                            </h4>
-                        </li>
+                        <% if (notifications.length> 0) { %>
+                            <% notifications.slice(0, 3).forEach(notification=> { %>
+                                <li>
+                                    <div class="message">
+                                        <i class="ri-notification-badge-line"></i>
+                                        <h3 class="messageinfo">
+                                            <%= notification.message %>
+                                        </h3>
+                                    </div>
+                                    <h4 class="notificationdate">
+                                        <%= new Date(notification.created_at).toDateString().slice(4) %>
+                                    </h4>
+                                </li>
+                            <% }) %>
+                        <% } else { %>
+                            <li class="no-notifications">No new notifications.</li>
+                        <% } %>
                     </ul>
                 </div>
             </div>

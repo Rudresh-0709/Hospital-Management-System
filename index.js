@@ -226,7 +226,11 @@ app.get("/admin/admit", (req, res) => {
     })
 })
 app.get("/admin/discharge", (req, res) => {
-    var displayname = `SELECT patients.patient_id, patients.first_name, patients.last_name 
+    var displayname = `SELECT 
+            patients.patient_id, 
+            patients.first_name, 
+            patients.last_name, 
+            admit.doctor_assigned 
         FROM patients 
         INNER JOIN admit ON patients.patient_id = admit.patient_id 
         WHERE admit.discharge_date IS NULL`;
@@ -671,12 +675,21 @@ app.get('/patientdashboard', (req, res) => {
 
     con.query(sql, [req.session.patientId], (err, result) => {
         if (err) throw err;
-        if (result.length > 0) {
-            const patient = result[0];
-            res.render('patientpage/patientdashboard', { patient });
-        } else {
-            res.send('Patient not found');
-        }
+        const patient = result[0];
+        var notificationquery=`SELECT * FROM notifications where patient_id = ?`;
+
+        con.query(notificationquery,[req.session.patientId],(err,notifications)=>{
+            if(err) throw err;
+            else{
+                var prescriptionquery=`SELECT p.* , pm.* FROM prescriptions p JOIN prescription_medicines pm WHERE p.patient_id = ? AND p.prescription_id = pm.prescription_id`;
+                con.query(prescriptionquery,[req.session.patientId],(err,prescriptions)=>{
+                    if(err) throw err;
+                    else{
+                        res.render('patientpage/patientdashboard', { patient, notifications,prescriptions}); 
+                    }
+                })
+            }
+        })
     });
 });
 app.get('/admin/nurse', (req, res) => {
