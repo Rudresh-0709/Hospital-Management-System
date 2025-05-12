@@ -1,7 +1,6 @@
 AI chatbot / AI voice agent to book appointments, etc.
 
 
-
 *patientside
 0)Appointment booking (done)
 6)nurse allocation(done)
