@@ -876,6 +876,9 @@ app.get('/video-chat', (req, res) => {
     console.log("session data",req.session);
     res.render('videocall',{session:req.session});
 });
+app.get('/admin/ai',(req,res)=>{
+    res.render('adminpage/adminai');
+})
 
 
 

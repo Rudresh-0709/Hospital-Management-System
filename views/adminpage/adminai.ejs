@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Ask the AI</title>
+</head>
+<body>
+  <h1>Ask the AI</h1>
+
+  <input type="text" id="question" placeholder="Type your question" />
+  <button onclick="askAI()">Ask</button>
+
+  <div id="response"></div>
+
+  <script>
+    async function askAI() {
+      const question = document.getElementById("question").value;
+
+      const res = await fetch('http://localhost:8000/ai', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ question })
+      });
+
+      const data = await res.json();
+      document.getElementById("response").innerText = data.answer;
+    }
+  </script>
+
+</body>
+</html>
