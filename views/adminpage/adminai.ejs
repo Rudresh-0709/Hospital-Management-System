@@ -12,6 +12,8 @@
   <div id="response"></div>
 
   <script>
+
+    const session_id="user123"
     async function askAI() {
       const question = document.getElementById("question").value;
 
@@ -20,7 +22,10 @@
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ question })
+        body: JSON.stringify({ 
+          question:question,
+          session_id: session_id
+        })
       });
 
       const data = await res.json();

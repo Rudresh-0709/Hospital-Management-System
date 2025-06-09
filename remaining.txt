@@ -223,3 +223,171 @@ Modules like radiology, laboratory, or external APIs for advanced medical tests.
             console.log('Server says:', data);
         });
     </script>
+
+Great — you're moving toward a dynamic UI! ✅
+If you're letting users **select tables via checkboxes** in your EJS frontend, here’s how to collect and send those table names to your backend and use them with LangChain.
+
+---
+
+## ✅ Step-by-Step: Let User Select Tables via Checkboxes
+
+---
+
+### 1. 📄 Render Checkboxes in Your EJS View (`views/ai.ejs`)
+
+Let’s assume you pass a list of table names from Express:
+
+```ejs
+<form id="askForm">
+  <label>Question:</label>
+  <input type="text" id="question" name="question" required />
+
+  <div>
+    <p>Select tables:</p>
+    <% tables.forEach(function(table) { %>
+      <label>
+        <input type="checkbox" name="tables" value="<%= table %>" />
+        <%= table %>
+      </label><br>
+    <% }) %>
+  </div>
+
+  <button type="submit">Ask AI</button>
+</form>
+
+<div id="response"></div>
+
+<script>
+document.getElementById("askForm").addEventListener("submit", async function (e) {
+  e.preventDefault();
+
+  const question = document.getElementById("question").value;
+  const selectedTables = Array.from(document.querySelectorAll('input[name="tables"]:checked'))
+                               .map(cb => cb.value);
+
+  const res = await fetch("/ai", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ question, tables: selectedTables })
+  });
+
+  const data = await res.json();
+  document.getElementById("response").innerText = data.answer;
+});
+</script>
+```
+
+---
+
+### 2. ⚙️ Express Backend Route
+
+In `app.js`:
+
+```js
+const express = require("express");
+const app = express();
+const axios = require("axios");
+
+app.use(express.json());
+app.set("view engine", "ejs");
+
+// Dummy list of tables (you can get this dynamically too)
+const tableList = ["patients", "visits", "appointments"];
+
+app.get("/ai", (req, res) => {
+  res.render("ai", { tables: tableList });
+});
+
+app.post("/ai", async (req, res) => {
+  const { question, tables } = req.body;
+
+  try {
+    // Call FastAPI and send selected tables + question
+    const response = await axios.post("http://localhost:8000/ask", {
+      question,
+      tables
+    });
+
+    res.json({ answer: response.data.answer });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ answer: "Error getting AI response" });
+  }
+});
+```
+
+---
+
+### 3. 🐍 FastAPI Endpoint Example
+
+```python
+from fastapi import FastAPI, Request
+from pydantic import BaseModel
+from langchain.prompts import PromptTemplate
+from langchain.utilities import SQLDatabase
+
+app = FastAPI()
+
+class AskRequest(BaseModel):
+    question: str
+    tables: list[str]
+
+db = SQLDatabase.from_uri("mysql+pymysql://user:pass@localhost/dbname")
+
+@app.post("/ask")
+async def ask_ai(req: AskRequest):
+    schema = db.get_table_info(table_names=req.tables)
+
+    prompt = PromptTemplate(
+        input_variables=["schema", "question"],
+        template=(
+            "Given the following MySQL schema:\n"
+            "{schema}\n\n"
+            "Convert the following natural language question into a SQL query:\n"
+            "{question}\n"
+            "Only return the SQL query."
+        )
+    )
+
+    full_prompt = prompt.format(schema=schema, question=req.question)
+    
+    # call your LLM here (OpenAI, Anthropic, etc.)
+    # For example:
+    # response = llm(full_prompt)
+
+    return {"answer": f"Generated SQL from prompt:\n{full_prompt}"}
+```
+
+---
+
+### ✅ Bonus: Dynamic Table List from Database
+
+Instead of hardcoding `["patients", "visits"]`, you can fetch table names from MySQL dynamically in Express:
+
+```js
+const mysql = require("mysql2/promise");
+
+async function getTableNames() {
+  const conn = await mysql.createConnection({
+    host: 'localhost',
+    user: 'user',
+    password: 'pass',
+    database: 'your_database'
+  });
+
+  const [rows] = await conn.execute("SHOW TABLES");
+  return rows.map(row => Object.values(row)[0]);
+}
+```
+
+---
+
+## ✅ Summary
+
+* You can use **checkboxes** to let users pick tables
+* Use **`db.get_table_info(table_names=[...])`** to get only those schemas
+* Send question + selected tables to FastAPI and generate SQL using LangChain
+
+Let me know if you want to connect this to OpenAI, HuggingFace, or add SQL execution!

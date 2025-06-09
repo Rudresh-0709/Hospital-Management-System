@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from LLMs.mysqlllm import ask_ai_question
+from LLMs.mysqlllm import agent_with_memory
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -15,8 +15,12 @@ app.add_middleware(
 
 class Question(BaseModel):
     question: str
+    session_id:str
 
 @app.post("/ai")
 async def get_ai_response(data:Question):
-    answer = ask_ai_question(data.question)
+    answer = agent_with_memory.invoke(
+        {"input": data.question},
+        config={"configurable": {"session_id": data.session_id}}  # You can make this dynamic if needed
+    )
     return {"Answer":answer}
