@@ -27,9 +27,11 @@
           session_id: session_id
         })
       });
-
+      console.log(data.answer)
       const data = await res.json();
-      document.getElementById("response").innerText = data.answer;
+      // document.getElementById("response").innerText = data.answer;
+      document.getElementById("response").innerText = 
+  typeof data.answer === "string" ? data.answer : JSON.stringify(data.answer, null, 2);
     }
   </script>
 

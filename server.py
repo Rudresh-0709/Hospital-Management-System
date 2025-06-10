@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from LLMs.mysqlllm import agent_with_memory
 from fastapi.middleware.cors import CORSMiddleware
+import mysql.connector
 
 
 app=FastAPI()
@@ -23,4 +24,17 @@ async def get_ai_response(data:Question):
         {"input": data.question},
         config={"configurable": {"session_id": data.session_id}}  # You can make this dynamic if needed
     )
-    return {"Answer":answer}
+    response_text = answer["output"]
+    conn=mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="dipti7981",
+        database="hospital"
+    )
+    cursor=conn.cursor()
+    cursor.execute("INSERT INTO chat_history (session_id, question, answer) VALUES (%s, %s, %s)",
+        (data.session_id, data.question, response_text))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return {"answer":answer["output"]}

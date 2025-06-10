@@ -4,6 +4,7 @@ const session = require("express-session");
 const app = express();
 const con = require("../models/db");
 const flash = require("express-flash");
+const {v4: uuidv4} = require('uuid');
 
 app.use(express.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');

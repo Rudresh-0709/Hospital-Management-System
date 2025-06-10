@@ -886,6 +886,7 @@ app.get('/admin/ai',(req,res)=>{
 
 
 
+
 app.post("/admin_login_form", adminloginroute);
 app.post("/new_patient", patientroute);
 app.post("/admit_patient", admitroute);
