@@ -877,9 +877,37 @@ app.get('/video-chat', (req, res) => {
     res.render('videocall',{session:req.session});
 });
 app.get('/admin/ai',(req,res)=>{
-    res.render('adminpage/adminai');
-})
+    if(!req.session.admin_id){
+        return res.redirect('/adminlogin')
+    }
+    const admin_id=req.session.admin_id;
+    const query = 'SELECT * FROM chat_session WHERE admin_id = ? ORDER BY created_at DESC';
+    con.query(query,[admin_id],(err,sessions)=>{
+        if(err){
+            console.log(err);
+            return res.status(500).send("Error fetching admin details");
+        }
+        else{
+            session_uuid=sessions.session_uuid;
+            const chatquery=`SELECT * FROM chat_history where session_uuid = ? ORDER BY timestamp DESC`;
+            con.query(chatquery,[session_uuid],(err,chat_history)=>{
+                if(err){
+                    console.log(err);
+                    return res.status(500).send("Error fetching chat history");
+                }
+                else{
+                    res.render('adminpage/adminai',{
+                        admin_id:admin_id,
+                        sessions,
+                        chatHistory:chat_history
+                    });
+                }
+            })
 
+        }
+    })
+
+})
 
 
 

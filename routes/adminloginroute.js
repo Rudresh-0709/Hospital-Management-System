@@ -37,7 +37,8 @@ app.post("/admin_login_form", (req, res) => {
         }
 
         if (admindetails[0].admin_password === admin_password) {
-            req.session.admin_name = admin_name;
+            req.session.admin_name = admindetails[0].admin_name;
+            req.session.admin_id = admindetails[0].admin_id;
             return res.redirect("/admin");
         } else {
             req.flash("error", "Invalid username or password");

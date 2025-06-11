@@ -22,7 +22,7 @@ class Question(BaseModel):
 async def get_ai_response(data:Question):
     answer = agent_with_memory.invoke(
         {"input": data.question},
-        config={"configurable": {"session_id": data.session_id}}  # You can make this dynamic if needed
+        config={"configurable": {"session_id": data.session_id}}  
     )
     response_text = answer["output"]
     conn=mysql.connector.connect(

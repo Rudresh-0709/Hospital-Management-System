@@ -2,15 +2,281 @@
 <html>
 <head>
   <title>Ask the AI</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+        integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"   />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Eagle+Lake&family=Montserrat+Alternates:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Ruslan+Display&display=swap"
+        rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+        integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      display: flex;
+      height: 100vh;
+    }
+
+    .sidebar {
+      width: 20%;
+      background-color: white;
+      color: #2c3e50;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .sidebar h2 {
+      margin-top: 0;
+    }
+
+    .sidebar button {
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      padding: 10px;
+      cursor: pointer;
+    }
+
+    .sidebar ul {
+      list-style-type: none;
+      padding-left: 0;
+    }
+
+    .sidebar li {
+      padding: 10px;
+      cursor: pointer;
+    }
+
+    .sidebar li:hover {
+      background-color: #34495e;
+    }
+
+    .chat-window {
+      background-color: aliceblue;
+      width:80%;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-header {
+      display: flex;
+      align-items: center;
+      height:7%;
+      background-color: rgb(226, 240, 253);
+      color: rgb(0, 157, 248);
+      padding: 15px;
+      gap: 10px;
+    }
+    .ri-robot-2-fill{
+      font-size: xx-large;
+    }
+    .chat-messages {
+      flex-grow: 1;
+      padding: 20px;
+      overflow-y: auto;
+      background-color:aliceblue;
+    }
+
+    .chat-message {
+      margin-bottom: 15px;
+    }
+
+    .chat-message.user {
+      text-align: right;
+    }
+
+    .chat-message.ai {
+      text-align: left;
+    }
+
+    form {
+      display: flex;
+      padding: 10px;
+      background-color: aliceblue;
+      flex-direction: column;
+      align-items: center;
+      width: 55%;
+      gap: 15px;
+      border: 1px solid rgb(0, 157, 248);
+      border-radius: 20px;
+    }
+    #question{
+      resize: none;
+      overflow: hidden;
+      min-height: 30px;
+      max-height: 150px;
+      padding: 10px;
+      border:none;
+      width: 95%;
+      font-size: 1rem;
+      line-height: 1.5;
+      background-color: aliceblue;
+      outline: none;
+      color: rgb(0, 157, 248);
+    }
+
+    form button {
+      margin-left: 10px;
+      background-color: rgb(0, 157, 248); 
+      color: white; 
+      border-radius: 20px; 
+      border:none; 
+      padding :10px; 
+      cursor:pointer;
+    
+    }
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown-btn {
+      padding: 8px 12px;
+      border: 1px solid rgb(0, 157, 248);
+      background: #f9f9f9;
+      cursor: pointer;
+      color: rgb(0, 157, 248);
+      border-radius: 6px;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      bottom: 100%; /* Position above the button */
+      left: 0;
+      background-color: white;
+      min-width: 160px;
+      border: 1px solid #ccc;
+      box-shadow: 0px 8px 16px rgba(0,0,0,0.1);
+      z-index: 1;
+      padding: 10px;
+      border-radius: 6px;
+    }
+
+    .dropdown-content label {
+      display: block;
+      margin: 5px 0;
+    }
+    .chatbottom{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
+    .chatinput{
+      display:flex;
+      justify-content: center;
+      align-items: center;
+      background-color: aliceblue;
+      margin-bottom: 25px;
+    }
+    .ri-send-plane-fill{
+      font-size: 20px;
+    }
+    .dropdown-content.show {
+      display: block;
+    }
+    .chatbot-rules {
+      max-width: 450px;
+      margin: 40px auto 0 auto;
+      background: #eaf6ff;
+      border: 1.5px solid #b3e0ff;
+      border-radius: 18px;
+      padding: 24px 32px;
+      text-align: center;
+      box-shadow: 0 2px 12px rgba(0,157,248,0.07);
+    }
+    .chatbot-rules h3 {
+      margin-top: 0;
+      color: #009df8;
+      font-size: 1.2rem;
+    }
+    .chatbot-rules ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .chatbot-rules li {
+      margin: 12px 0;
+      font-size: 1rem;
+      color: #2c3e50;
+    }
+  </style>
 </head>
 <body>
-  <h1>Ask the AI</h1>
+  
+  <div class="container">
+    <!-- Sidebar for chat sessions -->
+    <aside class="sidebar">
+      <h2>Your Chats</h2>
+      <button onclick="createNewChat()">+ New Chat</button>
+      <ul id="chatList">
+        <% sessions.forEach(session => { %>
+          <li onclick="loadChat('<%= session.session_uuid %>')">
+            <%= session.name || 'Chat' %>
+          </li>
+        <% }); %>
+      </ul>
+    </aside>
 
-  <input type="text" id="question" placeholder="Type your question" />
-  <button onclick="askAI()">Ask</button>
+    <!-- Main chat area -->
+    <main class="chat-window">
+      <div class="chat-header">
+        <i class="ri-robot-2-fill"></i>
+        <h2>AI Chatbot</h2>
+      </div>
 
-  <div id="response"></div>
+      <div id="chatMessages" class="chat-messages">
+        <% if(chatHistory[0]){ %>
+          <% chatHistory.forEach(msg => { %>
+            <div class="chat-message user"><strong>You:</strong> <%= msg.question %></div>
+            <div class="chat-message ai"><strong>AI:</strong> <%= msg.answer %></div>
+          <% }) %>
+        <% } else { %>
+          <div class="chatbot-rules">
+            <h3>📘 How to Use the AI Admin Chatbot</h3>
+            <ul>
+              <li>✔️ Select only relevant tables (e.g., <em>patients</em>, <em>appointments</em>, <em>staff</em>).</li>
+              <li>✔️ Ask specific questions based on the database (e.g., “Today's appointments?”).</li>
+              <li>✔️ Avoid vague queries like “how is everything?”</li>
+              <li>✔️ Combine filters for better insights (e.g., “ICU patients admitted this week”).</li>
+              <li>✔️ Use it to monitor hospital status: bed availability, staff shifts, pending discharges.</li>
+            </ul>
+          </div>
+        <% } %>
+      </div>
+      <div class="chatinput">
+        <form id="chatForm" onsubmit="sendQuestion(event)">
+          <textarea id="question" placeholder="Type your message..." rows="1"></textarea>
+          <div class="chatbottom">
+            <div class="dropdown">
+              <button type="button" onclick="toggleDropdown()" class="dropdown-btn">Select Tables ▾</button>
+              <div id="dropdownContent" class="dropdown-content">
+                <label><input type="checkbox" value="patients"> Patients</label>
+                <label><input type="checkbox" value="doctors"> Doctors</label>
+                <label><input type="checkbox" value="appointments"> Appointments</label>
+                <label><input type="checkbox" value="records"> Records</label>
+              </div>
+            </div>
+            <button type="submit"><i class="ri-send-plane-fill"></i></button>
+          </div>
 
+        </form>
+        
+      </div>
+    </main>
+  </div>
   <script>
 
     const session_id="user123"
@@ -34,6 +300,26 @@
   typeof data.answer === "string" ? data.answer : JSON.stringify(data.answer, null, 2);
     }
   </script>
+  <script>
+    // Fix: Use the correct textarea id
+    const textarea = document.getElementById('question');
 
+    textarea.addEventListener('input', () => {
+      textarea.style.height = 'auto'; // Reset height
+      textarea.style.height = textarea.scrollHeight + 'px'; // Set to scroll height
+    });
+    function toggleDropdown() {
+      document.getElementById("dropdownContent").classList.toggle("show");
+    }
+
+    // Optional: Close dropdown when clicking outside
+    window.onclick = function(e) {
+      const dropdownBtn = document.querySelector('.dropdown-btn');
+      const dropdownContent = document.getElementById('dropdownContent');
+      if (!dropdownBtn.contains(e.target) && !dropdownContent.contains(e.target)) {
+        dropdownContent.classList.remove('show');
+      }
+    };
+  </script>
 </body>
 </html>
