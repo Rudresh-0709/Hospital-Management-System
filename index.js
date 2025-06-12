@@ -1034,7 +1034,25 @@ app.post('/notifications/mark-as-read',(req,res)=>{
         res.redirect('/doctoradmin');
     });
 })
-
+app.post('/admin/ai/newchat',(req,res)=>{
+    const admin_id=req.session.admin_id;
+    const session_uuid = uuidv4(); // Generate a new UUID for the session
+    if (!admin_id) {
+        return res.status(400).send('Admin ID is required');
+    }
+    const query = `INSERT INTO chat_session (admin_id, session_uuid) VALUES (?, ?)`;
+    con.query(query, [admin_id, session_uuid], (err, result) => {
+        if (err) {
+            console.error("Error creating new chat session:", err);
+            return res.status(500).send('Error creating chat session');
+        }
+        else{
+            res.status(200).json({
+                session_uuid:session_uuid,
+            })
+        }
+    });
+})
 server.listen(3000, () => {
     console.log(`Server running on port 3000`);
 });

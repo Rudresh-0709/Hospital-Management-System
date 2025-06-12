@@ -1,0 +1,201 @@
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      display: flex;
+      height: 100vh;
+    }
+
+    .sidebar {
+      width: 20%;
+      background-color: white;
+      color: #2c3e50;
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      justify-content: flex-start;
+      flex-direction: column;
+      align-items:center;
+    }
+
+    .sidebar h2 {
+      margin-top: 0;
+    }
+    .sidebar ul {
+      list-style-type: none;
+      padding-left: 0;
+    }
+
+    .sidebar li {
+      padding: 10px;
+      cursor: pointer;
+    }
+
+    .sidebar li:hover {
+      background-color: #34495e;
+    }
+
+    .chat-window {
+      background-color: aliceblue;
+      width:80%;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-header {
+      display: flex;
+      align-items: center;
+      height:7%;
+      background-color: rgb(226, 240, 253);
+      color: rgb(0, 157, 248);
+      padding: 15px;
+      gap: 10px;
+    }
+    .ri-robot-2-fill{
+      font-size: xx-large;
+    }
+    .chat-messages {
+      flex-grow: 1;
+      padding: 20px;
+      overflow-y: auto;
+      background-color:aliceblue;
+    }
+
+    .chat-message {
+      margin-bottom: 15px;
+    }
+
+    .chat-message.user {
+      text-align: right;
+    }
+
+    .chat-message.ai {
+      text-align: left;
+    }
+
+    form {
+      display: flex;
+      padding: 10px;
+      background-color: aliceblue;
+      flex-direction: column;
+      align-items: center;
+      width: 55%;
+      gap: 15px;
+      border: 1px solid rgb(0, 157, 248);
+      border-radius: 20px;
+    }
+    #question{
+      resize: none;
+      overflow: hidden;
+      min-height: 30px;
+      max-height: 150px;
+      padding: 10px;
+      border:none;
+      width: 95%;
+      font-size: 1rem;
+      line-height: 1.5;
+      background-color: aliceblue;
+      outline: none;
+      color: rgb(0, 157, 248);
+    }
+
+    form button {
+      margin-left: 10px;
+      background-color: rgb(0, 157, 248); 
+      color: white; 
+      border-radius: 20px; 
+      border:none; 
+      padding :10px; 
+      cursor:pointer;
+    
+    }
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown-btn {
+      padding: 8px 12px;
+      border: 1px solid rgb(0, 157, 248);
+      background: #f9f9f9;
+      cursor: pointer;
+      color: rgb(0, 157, 248);
+      border-radius: 6px;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      bottom: 100%; /* Position above the button */
+      left: 0;
+      background-color: white;
+      min-width: 160px;
+      border: 1px solid #ccc;
+      box-shadow: 0px 8px 16px rgba(0,0,0,0.1);
+      z-index: 1;
+      padding: 10px;
+      border-radius: 6px;
+    }
+
+    .dropdown-content label {
+      display: block;
+      margin: 5px 0;
+    }
+    .chatbottom{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
+    .chatinput{
+      display:flex;
+      justify-content: center;
+      align-items: center;
+      background-color: aliceblue;
+      margin-bottom: 25px;
+    }
+    .ri-send-plane-fill{
+      font-size: 20px;
+    }
+    .dropdown-content.show {
+      display: block;
+    }
+    .chatbot-rules {
+      max-width: 450px;
+      margin: 40px auto 0 auto;
+      background: #eaf6ff;
+      border: 1.5px solid #b3e0ff;
+      border-radius: 18px;
+      padding: 24px 32px;
+      text-align: center;
+      box-shadow: 0 2px 12px rgba(0,157,248,0.07);
+    }
+    .chatbot-rules h3 {
+      margin-top: 0;
+      color: #009df8;
+      font-size: 1.2rem;
+    }
+    .chatbot-rules ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .chatbot-rules li {
+      margin: 12px 0;
+      font-size: 1rem;
+      color: #2c3e50;
+    }
+    .newchat{
+      width:90%;
+      padding:15px 10px;
+      background-color: rgb(0, 157, 248);
+      color: white;
+      cursor: pointer;
+      border: none;
+      border-radius: 10px;
+    }

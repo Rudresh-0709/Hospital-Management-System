@@ -28,7 +28,7 @@ async def get_ai_response(data:Question):
     conn=mysql.connector.connect(
         host="localhost",
         user="root",
-        password="dipti7981",
+        password="ishowhell",
         database="hospital"
     )
     cursor=conn.cursor()
