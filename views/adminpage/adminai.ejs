@@ -23,7 +23,7 @@
     <!-- Sidebar for chat sessions -->
     <aside class="sidebar">
       <h2>Your Chats</h2>
-      <button onclick="createNewChat()" class="newchat">New Chat</button>
+      <button onclick="createNewChat()" class="newchat" id="newchatbutton">New Chat</button>
       <ul id="chatList">
         <% sessions.forEach(session => { %>
           <li onclick="loadChat('<%= session.session_uuid %>')">

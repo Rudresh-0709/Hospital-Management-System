@@ -888,25 +888,62 @@ app.get('/admin/ai',(req,res)=>{
             return res.status(500).send("Error fetching admin details");
         }
         else{
-            session_uuid=sessions.session_uuid;
-            const chatquery=`SELECT * FROM chat_history where session_uuid = ? ORDER BY timestamp DESC`;
-            con.query(chatquery,[session_uuid],(err,chat_history)=>{
-                if(err){
-                    console.log(err);
-                    return res.status(500).send("Error fetching chat history");
-                }
-                else{
-                    res.render('adminpage/adminai',{
-                        admin_id:admin_id,
-                        sessions,
-                        chatHistory:chat_history
-                    });
-                }
-            })
+            let session_uuid=null;
+            let chathistory=[];
+            if(sessions.length>0){
+                session_uuid=sessions[0].session_uuid; // Get the most recent session UUID
+                const chatquery=`SELECT * FROM chat_history where session_uuid = ? ORDER BY timestamp DESC`;
+                con.query(chatquery,[session_uuid],(err,chat_history)=>{
+                    if(err){
+                        console.log(err);
+                        return res.status(500).send("Error fetching chat history");
+                    }
+                    else{
+                        res.render('adminpage/adminai',{
+                            admin_id:admin_id,
+                            sessions,
+                            chatHistory:chat_history
+                        });
+                    }
+                })
+            }
+            else{
+                res.render('adminpage/adminai',{
+                    admin_id:admin_id,
+                    sessions:[],
+                    chat_history:[]
+                })
+            }
 
         }
     })
 
+})
+app.get('/admin/ai/chat/:session_uuid', (req, res) => {
+    if(!req.session.admin_id){
+        return res.status(401).send("Error fetching admin details");
+    }
+    const admin_id=req.session.admin_id;
+    const session_uuid=req.params.session_uuid;
+
+    const sessionquery = "SELECT * FROM chat_session WHERE admin_id = ? AND session_uuid = ?";
+    con.query(sessionquery, [admin_id, session_uuid], (err, sessions) => {
+        if (err) {
+            console.log(err);
+            return res.status(500).send("Error fetching admin details");
+        }
+        if (sessions.length === 0) {
+            return res.status(404).send("Session not found");
+        }
+        const chatquery = `SELECT * FROM chat_history WHERE session_uuid = ? ORDER BY timestamp DESC`;
+        con.query(chatquery, [session_uuid], (err, chat_history) => {
+            if (err) {
+                console.log(err);
+                return res.status(500).send("Error fetching chat history");
+            }
+            res.json({chatHistory: chat_history, session: sessions[0] });
+        });
+    });
 })
 
 
