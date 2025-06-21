@@ -26,13 +26,16 @@
       <button onclick="createNewChat()" class="newchat" id="newchatbutton">New Chat</button>
       <ul id="chatList">
         <% sessions.forEach(session => { %>
-          <li onclick="loadChat('<%= session.session_uuid %>')">
+          <li data-session-id="<%=session.session_uuid %>" onclick="loadChat('<%= session.session_uuid %>')">
             <%= session.name || 'Chat' %>
           </li>
         <% }); %>
       </ul>
     </aside>
-
+    <div id="initial-data-store"
+         data-initial-session-id="<%= initialSessionId %>"
+         data-has-initial-history="<%= (initialChatHistory && initialChatHistory.length > 0).toString() %>"
+         style="display: none;"></div>
     <!-- Main chat area -->
     <main class="chat-window">
       <div class="chat-header">
@@ -43,8 +46,8 @@
       <div id="chatMessages" class="chat-messages">
         <% if(chatHistory[0]){ %>
           <% chatHistory.forEach(msg => { %>
-            <div class="chat-message user"><strong>You:</strong> <%= msg.question %></div>
-            <div class="chat-message ai"><strong>AI:</strong> <%= msg.answer %></div>
+            <div class="chat-message user"><%= msg.question %></div>
+            <div class="chat-message ai"><%= msg.answer %></div>
           <% }) %>
         <% } else { %>
           <div class="chatbot-rules">
@@ -69,7 +72,12 @@
                 <label><input type="checkbox" value="patients"> Patients</label>
                 <label><input type="checkbox" value="doctors"> Doctors</label>
                 <label><input type="checkbox" value="appointments"> Appointments</label>
-                <label><input type="checkbox" value="records"> Records</label>
+                <label><input type="checkbox" value="emergency"> Emergency</label>
+                <label><input type="checkbox" value="equipments"> Equipments</label>
+                <label><input type="checkbox" value="hospital_staff"> Staff</label>
+                <label><input type="checkbox" value="nurses"> Nurses</label>
+                <label><input type="checkbox" value="rooms"> Rooms</label>
+                <label><input type="checkbox" value="visits"> Visits</label>
               </div>
             </div>
             <button type="submit"><i class="ri-send-plane-fill"></i></button>

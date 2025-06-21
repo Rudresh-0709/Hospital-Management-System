@@ -12,6 +12,7 @@ const nodemailer = require('nodemailer');
 const mongoose = require('mongoose');
 const http = require('http');
 const socketio = require('socket.io');
+const { v4: uuidv4 } = require('uuid');
 
 const server = http.createServer(app);
 const io = socketio(server);
@@ -888,12 +889,12 @@ app.get('/admin/ai',(req,res)=>{
             return res.status(500).send("Error fetching admin details");
         }
         else{
-            let session_uuid=null;
-            let chathistory=[];
+            let initialsession_uuid=null;
+            let initialchathistory=[];
             if(sessions.length>0){
-                session_uuid=sessions[0].session_uuid; // Get the most recent session UUID
-                const chatquery=`SELECT * FROM chat_history where session_uuid = ? ORDER BY timestamp DESC`;
-                con.query(chatquery,[session_uuid],(err,chat_history)=>{
+                initialsession_uuid=sessions[0].session_uuid; // Get the most recent session UUID
+                const chatquery=`SELECT * FROM chat_history where session_uuid = ? ORDER BY timestamp ASC`;
+                con.query(chatquery,[initialsession_uuid],(err,chat_history)=>{
                     if(err){
                         console.log(err);
                         return res.status(500).send("Error fetching chat history");
@@ -901,8 +902,10 @@ app.get('/admin/ai',(req,res)=>{
                     else{
                         res.render('adminpage/adminai',{
                             admin_id:admin_id,
-                            sessions,
-                            chatHistory:chat_history
+                            sessions:sessions,
+                            chatHistory:chat_history,
+                            initialSessionId:initialsession_uuid,
+                            initialChatHistory:chat_history
                         });
                     }
                 })
@@ -911,17 +914,18 @@ app.get('/admin/ai',(req,res)=>{
                 res.render('adminpage/adminai',{
                     admin_id:admin_id,
                     sessions:[],
-                    chat_history:[]
+                    chatHistory:[],
+                    initialSessionId: null,
+                    initialChatHistory:[]
                 })
             }
-
         }
     })
 
 })
 app.get('/admin/ai/chat/:session_uuid', (req, res) => {
     if(!req.session.admin_id){
-        return res.status(401).send("Error fetching admin details");
+        return res.status(401).json({"error": "Unauthorized access. Please log in."});
     }
     const admin_id=req.session.admin_id;
     const session_uuid=req.params.session_uuid;
@@ -930,18 +934,18 @@ app.get('/admin/ai/chat/:session_uuid', (req, res) => {
     con.query(sessionquery, [admin_id, session_uuid], (err, sessions) => {
         if (err) {
             console.log(err);
-            return res.status(500).send("Error fetching admin details");
+            return res.status(500).json({"error": "Error fetching session details"});
         }
         if (sessions.length === 0) {
-            return res.status(404).send("Session not found");
+            return res.status(404).json({"error": "Session not found"});
         }
-        const chatquery = `SELECT * FROM chat_history WHERE session_uuid = ? ORDER BY timestamp DESC`;
+        const chatquery = `SELECT * FROM chat_history WHERE session_uuid = ? ORDER BY timestamp ASC`;
         con.query(chatquery, [session_uuid], (err, chat_history) => {
             if (err) {
                 console.log(err);
-                return res.status(500).send("Error fetching chat history");
+                return res.status(500).json({"error": "Error fetching chat history"});
             }
-            res.json({chatHistory: chat_history, session: sessions[0] });
+            res.json({chat_history: chat_history, session: sessions[0] });
         });
     });
 })
@@ -1075,13 +1079,13 @@ app.post('/admin/ai/newchat',(req,res)=>{
     const admin_id=req.session.admin_id;
     const session_uuid = uuidv4(); // Generate a new UUID for the session
     if (!admin_id) {
-        return res.status(400).send('Admin ID is required');
+        return res.status(400).json({error: "Admin ID is required"});
     }
     const query = `INSERT INTO chat_session (admin_id, session_uuid) VALUES (?, ?)`;
     con.query(query, [admin_id, session_uuid], (err, result) => {
         if (err) {
             console.error("Error creating new chat session:", err);
-            return res.status(500).send('Error creating chat session');
+            return res.status(500).json({error:'Error creating chat session'});
         }
         else{
             res.status(200).json({

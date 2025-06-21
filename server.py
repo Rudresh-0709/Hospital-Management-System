@@ -17,11 +17,11 @@ app.add_middleware(
 class Question(BaseModel):
     question: str
     session_id:str
-
+    selected_tables: list[str] = []
 @app.post("/ai")
 async def get_ai_response(data:Question):
     answer = agent_with_memory.invoke(
-        {"input": data.question},
+        {"input": data.question, "allowed_tables":data.selected_tables},
         config={"configurable": {"session_id": data.session_id}}  
     )
     response_text = answer["output"]
@@ -32,7 +32,7 @@ async def get_ai_response(data:Question):
         database="hospital"
     )
     cursor=conn.cursor()
-    cursor.execute("INSERT INTO chat_history (session_id, question, answer) VALUES (%s, %s, %s)",
+    cursor.execute("INSERT INTO chat_history (session_uuid, question, answer) VALUES (%s, %s, %s)",
         (data.session_id, data.question, response_text))
     conn.commit()
     cursor.close()
