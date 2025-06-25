@@ -921,7 +921,6 @@ app.get('/admin/ai',(req,res)=>{
             }
         }
     })
-
 })
 app.get('/admin/ai/chat/:session_uuid', (req, res) => {
     if(!req.session.admin_id){

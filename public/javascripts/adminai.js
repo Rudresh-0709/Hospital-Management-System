@@ -150,6 +150,7 @@ if(sessionullist){
         loadChat(sessionId);
       }
     }
+    
   })
 }
 function highlightActiveChat(sessionId) {
