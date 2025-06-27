@@ -26,9 +26,17 @@
       <button onclick="createNewChat()" class="newchat" id="newchatbutton">New Chat</button>
       <ul id="chatList">
         <% sessions.forEach(session => { %>
-          <li data-session-id="<%=session.session_uuid %>" onclick="loadChat('<%= session.session_uuid %>')">
-            <%= session.name || 'Chat' %>
-          </li>
+            <li class="newchatli<%= session.session_uuid === initialSessionId ? ' active' : '' %>" 
+              data-session-id="<%=session.session_uuid %>">
+              <span class="chat-name"><%= session.name || 'Chat' %></span>
+              <div class="menu-wrapper" style="position: relative;">
+                <i class="ri-more-2-line"></i>
+                <div class="dropdown-menu">
+                  <button onclick="renameChat('<%= session.session_uuid %>')">Rename</button>
+                  <button onclick="deleteChat('<%= session.session_uuid %>')">Delete</button>
+                </div>
+              </div>
+            </li>
         <% }); %>
       </ul>
     </aside>

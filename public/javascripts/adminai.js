@@ -4,6 +4,7 @@ const initialDataStore =document.getElementById("initial-data-store");
 let activeSessionId=null;
 const chatmessagesdiv= document.getElementById("chatMessages");
 const sessionullist = document.getElementById("chatList");
+const 
 
 async function sendQuestion(event) {
   if(!activeSessionId){
@@ -112,6 +113,7 @@ if(initialDataStore){
   }
   else{
     loadChat(activeSessionId);
+    highlightActiveChat(activeSessionId);
   }
 }
 
@@ -148,6 +150,7 @@ if(sessionullist){
       const sessionId = clickedChat.dataset.sessionId;
       if(sessionId){
         loadChat(sessionId);
+        highlightActiveChat(sessionId);
       }
     }
     

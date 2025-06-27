@@ -220,3 +220,49 @@
       margin-bottom:30px ;
       margin-top: 30px;
     }
+    .active{
+      background-color: #34495e;
+      color: white;
+    }
+    .newchatli{
+      width:70%;
+      display:flex;
+      justify-content: space-between;
+
+    }
+    #chatList{
+      width:100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap:25px;
+    }
+    .ri-more-2-line{
+      position: relative;
+    }
+    .dropdown-menu{
+      display: none;
+      position: absolute;
+      display:flex;
+      flex-direction: column;
+      top: 30px;
+      background-color: aliceblue;
+      z-index: 2;
+      right:-35px;
+      border-radius: 10px;
+      border: 0.1px solid rgb(0, 157, 248);
+    }
+    .dropdown-menu button{
+      border-radius: 10px;
+      background-color: aliceblue;
+      border: none;
+      color: rgb(0, 157, 248);
+      cursor: pointer;
+      padding: 5px 10px;
+      font-size: larger;
+    }
+    .dropdown-menu button:nth-child(2){
+      border-top: 0.1px solid rgb(0, 157, 248);
+      border-top-left-radius: 0;
+      border-top-right-radius: 0;
+    }
