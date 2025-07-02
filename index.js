@@ -1093,6 +1093,42 @@ app.post('/admin/ai/newchat',(req,res)=>{
         }
     });
 })
+app.post("/admin/ai/chat/:session_uuid/rename",(req,res)=>{
+    const session_uuid = req.params.session_uuid;
+    const newName =req.body.newName;
+    const query = `UPDATE chat_session SET name = ? WHERE session_uuid = ?`;
+    con.query(query, [newName,session_uuid],(err,result)=>{
+        if(err){
+            console.error("Error updating chat session name:", err);
+        }
+        else{
+            res.status(200).json({message:"Chat session name updated successfully"});
+        }
+    })
+})
+app.delete("/admin/ai/chat/:session_uuid/delete",(req,res)=>{
+    const session_uuid = req.params.session_uuid;
+    if(!session_uuid){
+        return res.status(400).json({error: "session_uuid is required"});
+    }
+    const deleteChatQuery = `DELETE FROM chat_session WHERE session_uuid = ?`;
+    con.query(deleteChatQuery,[session_uuid],(err,result)=>{
+        if(err){
+            console.error("Error deleting chat session:", err);
+        }
+        else{
+            const deleteHistoryQuery = `DELETE FROM chat_history WHERE session_uuid = ?`;
+            con.query(deleteHistoryQuery,[session_uuid],(err,result)=>{
+                if(err){
+                    console.error("Error deleting chat history:", err);
+                }
+                else{
+                    res.status(200).json({message:"Chat session and history deleted successfully"});
+                }
+            })
+        }
+    })
+})
 server.listen(3000, () => {
     console.log(`Server running on port 3000`);
 });

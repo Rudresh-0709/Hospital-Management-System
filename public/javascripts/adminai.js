@@ -4,7 +4,7 @@ const initialDataStore =document.getElementById("initial-data-store");
 let activeSessionId=null;
 const chatmessagesdiv= document.getElementById("chatMessages");
 const sessionullist = document.getElementById("chatList");
-const 
+
 
 async function sendQuestion(event) {
   if(!activeSessionId){
@@ -101,6 +101,16 @@ newchatbutton.addEventListener("click", async () => {
     newchatli.className = "newchatli";
     newchatli.dataset.sessionId = data.session_uuid; // Store session ID
     const sessionullist = document.getElementById("chatList");
+    newchatli.innerHTML = `
+      <span class="chat-name">${data.name || 'Chat'}</span>
+      <div class="menu-wrapper" style="position: relative;">
+        <i class="ri-more-2-line"></i>
+        <div class="dropdown-menu" style="display: none;">
+          <button>Rename</button>
+          <button>Delete</button>
+        </div>
+      </div>
+    `;
     sessionullist.prepend(newchatli);
   } catch (err) {
     console.error("Error creating new chat", err);
@@ -161,9 +171,93 @@ function highlightActiveChat(sessionId) {
     document.querySelectorAll(".newchatli.active").forEach(li => {
         li.classList.remove("active");
     });
+    if(!sessionId) return;
     // Add highlight to the currently active chat
     const currentActiveLi = document.querySelector(`.newchatli[data-session-id="${sessionId}"]`);
     if (currentActiveLi) {
         currentActiveLi.classList.add("active");
     }
 }
+document.querySelectorAll(".menu-wrapper").forEach(wrapper =>{
+  wrapper.addEventListener("click",function (event){
+    event.stopPropagation();
+    document.querySelectorAll('.dropdown-menu').forEach(m =>{
+      if(m !== this.querySelector(".dropdown-menu"))m.style.display = 'none';
+    })
+    const menu = this.querySelector(".dropdown-menu");
+    if(menu){
+      menu.style.display = (menu.style.display === 'flex') ? 'none' : 'flex'; 
+    }
+  })
+})
+document.querySelectorAll(".dropdown-menu button:nth-child(1)").forEach(renameButton =>{
+  renameButton.addEventListener("click",function(event){
+    event.stopPropagation();
+    const li=this.closest("li");
+    const chatName=li.querySelector(".chat-name")
+    const oldName = chatName.textContent.trim();
+    if(li.querySelector(".rename-input")){
+      return;
+    }
+    const input= document.createElement("input");
+    input.type="text";
+    input.value=oldName;
+    input.className="rename-input";
+    chatName.replaceWith(input);
+    input.focus();
+    input.addEventListener("keydown",async(e)=>{
+      if(e.key === 'Enter'){
+        const newName = input.value.trim();
+        const sessionId = li.dataset.sessionId;
+        const span = document.createElement("span");
+        span.className="chat-name";
+        span.textContent = newName;
+        input.replaceWith(span);
+        li.querySelector(".dropdown-menu").style.display = 'none'; // Hide dropdown menu
+        fetch(`/admin/ai/chat/${sessionId}/rename`, {
+          method:"POST",
+          headers:{
+            "Content-Type": "application/json"
+          },
+          body:JSON.stringify({
+            newName,
+            sessionId
+          })
+        })
+        .then((res)=>{
+          if(!res.ok){
+            throw new Error("Failed to rename chat");
+          }
+          return res.json();
+        })
+      }
+    })
+  })
+})
+document.querySelectorAll(".dropdown-menu button:nth-child(2)").forEach(deleteButton =>{
+  deleteButton.addEventListener("click",function(event){
+    event.stopPropagation();
+    const li = this.closest("li");
+    const sessionId = li.dataset.sessionId;
+    if(confirm("Are you sure you want to delete this chat?")){
+      fetch(`/admin/ai/chat/${sessionId}/delete`,{
+        method:"DELETE",
+        headers:{
+          "Content-Type":"application/json"
+        }
+      })
+      .then((res)=>{
+        if(!res.ok){
+          throw new Error("Failed to delete chat");
+        }
+        li.remove();
+        activeSessionId = null;
+        highlightActiveChat(null);
+        renderChat(null)
+      })
+      .catch((err)=>{
+        alert("Error deleting chat");
+      })
+    }
+  })
+})
