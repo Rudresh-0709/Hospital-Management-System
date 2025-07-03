@@ -13,43 +13,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 class Question(BaseModel):
     question: str
     session_id:str
     selected_tables: list[str] = []
-# @app.post("/ai")
-# async def get_ai_response(data: Question):
-#     print("Allowed tables passed to LLM:", data.selected_tables)
-#     # Step 1: Generate schema string for selected tables
-#     schema_string = generate_schema_string(data.selected_tables)
-#     # Step 2: Generate SQL query using question and schema
-#     response_text = generate_sql_query(data.question, schema_string,data.selected_tables)
-#     # (Optional) Save chat history as before
-#     conn = mysql.connector.connect(
-#         host="localhost",
-#         user="root",
-#         password="ishowhell",
-#         database="hospital"
-#     )
-
-#     cursor = conn.cursor()
-
-#     # If response_text is a dict, extract the answer or SQL string
-#     if isinstance(response_text, dict):
-#         # Adjust the key as needed, e.g., 'answer', 'sql', or 'result'
-#         answer_str = response_text.get("answer") or response_text.get("sql") or str(response_text)
-#     else:
-#         answer_str = str(response_text)
-
-#     cursor.execute(
-#         "INSERT INTO chat_history (session_uuid, question, answer) VALUES (%s, %s, %s)",
-#         (data.session_id, data.question, answer_str)
-#     )
-#     conn.commit()
-#     cursor.close()
-#     conn.close()
-#     return {"answer": answer_str}
 
 @app.post("/ai")
 async def get_ai_response(data: Question):

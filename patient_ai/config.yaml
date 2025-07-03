@@ -1,0 +1,26 @@
+llm:
+  openai:
+    provider:openai
+    model_name:gpt-3.5-turbo
+    api_key_env:OPENAI_API_KEY
+    temperature:0.2
+  groq:
+    provider:groq
+    model_name:llama3-3.2-90b-vision-preview
+    api_key_env:GROQ_API_KEY
+
+vector_store:
+  index_path:./vector_index
+  embedding_model:sentence-transformers/all-MiniLM-L6-v2
+
+sql:
+  db_type:mysql
+  uri_env:MYSQL_URI
+  tables:
+    appointments:appointments 
+    patients:patients
+    admit:admit
+    diagnosis:diagnosis
+    prescriptions:prescription_medicines
+    visits:visits
+    nurses:nurses
