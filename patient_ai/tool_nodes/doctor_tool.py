@@ -1,5 +1,6 @@
 from typing import List, Optional, Dict
 from datetime import date, timedelta, datetime
+from langchain.tools import tool
 import mysql.connector
 import os
 import yaml
@@ -22,7 +23,7 @@ def sql_connector():
 
 llm=ChatOpenAI(model=config["llm"]["openai"]["model_name"],temperature=0.1)
 
-@tool
+@tool(description="Given a medical condition or symptom, returns the most appropriate medical specialty.")
 def medical_diagnosis_to_speciality(condition:str)->str:
     prompt=f"""
     Given the medical condition: ${condition}, return the most appropriate medical speciality to consult.

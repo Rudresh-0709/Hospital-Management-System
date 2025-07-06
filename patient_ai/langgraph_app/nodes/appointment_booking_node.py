@@ -1,14 +1,26 @@
-from state import HMAIState
+from langgraph_app.state import HMAIState
 from tool_nodes.doctor_tool import medical_diagnosis_to_speciality, get_available_slots, get_specialised_doctors
-from tool_nodes.sql_tool_node import run_sql_query
+from tool_nodes.sql_tool_node import run_sql_query, build_sql_tool, sql_to_nl
 from tool_nodes.patient_tool import get_patient_details
 from util.insert_appointments import insert_appointment
+from langgraph_app.nodes.sql_node import detect_sql_topic
+
+
+TOPIC_TABLE_MAP = {
+    "appointments": ["appointments"],
+    "doctors": ["doctors"],
+    "personal_info": ["patients"],
+    "prescriptions": ["prescriptions", "prescription_medicines"],
+    "admissions": ["admit", "rooms"]
+}
+
 
 def handle_appointment(state:HMAIState) -> HMAIState:
     if state.intent== "appointment_booking":
         return handle_booking(state)
-    if state.intent == "sql_query":
+    elif state.intent == "sql_query":
         return handle_sql_info(state)
+    return state
     
 def handle_booking(state:HMAIState) -> HMAIState:
     entities = state.extracted_entities or {}
@@ -96,4 +108,35 @@ def handle_booking(state:HMAIState) -> HMAIState:
     return state
 
 def handle_sql_info(state:HMAIState) -> HMAIState:
-    return
+    print("Entered sql_info")
+    user_query = state.user_input
+    try:
+        topic = detect_sql_topic(user_query)
+        print(f"Detected topic: {topic}")
+        allowed_tables = TOPIC_TABLE_MAP.get(topic, [])
+        print(f"Allowed tables: {allowed_tables}")
+
+        if not allowed_tables:
+            state.final_response = "Sorry, I couldn't understand your query topic."
+            print(f"Returning early, final_response: {state.final_response}")
+            return state
+
+        patient_id=state.patient_id
+        sql_tool = build_sql_tool(allowed_tables)
+        result = sql_tool.run(user_query)
+
+        user_question=result["query"]
+        sql_answer=result["result"]
+        state.sql_response = sql_answer
+
+        final_answer=sql_to_nl(user_question, sql_answer)
+        state.final_response = str(final_answer) if final_answer else "No data found."
+        state.follow_up_required = False
+    except Exception as e:
+        state.final_response = f"Error accessing database: {str(e)}"
+        print(f"SQL handler error: {e}")
+        print(f"Set final_response (exception): {state.final_response}")
+
+    state.follow_up_required = False
+    print(f"Returning state, final_response: {state.final_response}")
+    return state

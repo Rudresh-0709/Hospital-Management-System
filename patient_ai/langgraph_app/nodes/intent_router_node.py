@@ -1,5 +1,5 @@
 from model_loader import llms
-from state import HMAIState
+from langgraph_app.state import HMAIState
 
 def detect_intent(state:HMAIState)-> str:
     if state.image_base64:
@@ -9,13 +9,14 @@ def detect_intent(state:HMAIState)-> str:
         "Classify the user's intent into one of the following:\n"
         "- 'pdf_search' for medical queries\n"
         "- 'image_analysis' for image diagnosis\n"
-        "- 'appointment_booking' for booking a doctor\n"
-        "- 'sql_query' for sql info"
-        "Return only one of the labels."
+        "- 'appointment_booking' (for booking or managing appointments)\n"
+        "- 'sql_query' (for queries about appointments, medicines, admissions, personal info, etc)"
+        "Return only the intent keyword, nothing else"
     )
 
     user_prompt=f"User_input:${state.user_input}"
 
-    llm=llms["groq_fast"]
-    response=llm.predict(system_prompt + "/n" + user_prompt)
+    llm=llms["openai"]
+    ai_response=llm.invoke(system_prompt + "\n" + user_prompt)
+    response=ai_response.content
     return response.strip()
