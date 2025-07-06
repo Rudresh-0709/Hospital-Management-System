@@ -45,6 +45,18 @@ def load_llms():
            temperature=0.2
         )
         print("Groq AI loaded successfully")
+    
+    if "groq_fast" in config["llm"]:
+        groq_config=config["llm"]["groq_fast"]
+        groq_api_key=os.getenv(groq_config["api_key_env"])
+        if not groq_api_key:
+            print(f"Groq_Fast AI API key not set ${groq_api_key}")
+        llms["groq_fast"]=ChatGroq(
+           model=groq_config.get("model_name","llama3-70b-8192"),
+           api_key=groq_api_key,
+           temperature=0.1
+        )
+        print("Groq_Fast AI loaded successfully")
 
 def load_vector_store():
     global vector_store
