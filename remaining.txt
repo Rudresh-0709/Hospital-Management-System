@@ -48,3 +48,161 @@ Integration with Other Systems
 
 Modules like radiology, laboratory, or external APIs for advanced medical tests.
 
+Below is a “slot-filling” recipe that usually ends the Groundhog-Day feeling you get when the user finally supplies the information you asked for but your code no longer remembers what it wanted to do with it.
+
+────────────────────────────────────────
+1. Treat the conversation state as a single source of truth
+────────────────────────────────────────
+Create a Pydantic model (or a dataclass) that represents every piece of information the booking flow cares about.  
+Example:
+
+```python
+class BookingState(BaseModel):
+    # conversational context
+    patient_id: int
+    user_input: str = ""
+    next_prompt: str = ""
+    follow_up_required: bool = False
+
+    # slots to fill
+    diagnosis_condition: str | None = None
+    speciality: str | None = None
+    selected_doctor: int | None = None
+    selected_slot: datetime | None = None
+
+    # helper caches
+    available_doctors: list[int] = []
+    available_slots: list[datetime] = []
+
+    # finite-state marker
+    booking_stage: Literal[
+        "need_diagnosis", "choose_doctor", "choose_slot",
+        "confirm", "done"
+    ] = "need_diagnosis"
+```
+
+Every node in your LangGraph receives an *immutable copy* of this state, returns a *new* state.  
+Persist it in Redis / DynamoDB / Postgres JSONB—anything that lets you fetch
+`conversation_id → state_blob` at the start of the next request.
+
+────────────────────────────────────────
+2. Always run an “updater” before the business logic node
+────────────────────────────────────────
+```python
+def update_state_from_input(state: BookingState) -> BookingState:
+    """
+    Pull entities out of user_input and write the corresponding fields.
+    Works even when the user dumps three facts in one sentence.
+    """
+    # 1. Use a single LLM call that returns structured JSON
+    extraction_prompt = """
+    Extract the following fields from the message.
+    Return JSON with exactly these keys (null if not present):
+    - diagnosis_condition
+    - doctor_name
+    - slot_datetime
+    """ + state.user_input
+    fields = llm_extract(extraction_prompt)  # ← returns a dict
+
+    # 2. Update the state *only* for keys that were found
+    if fields["diagnosis_condition"]:
+        state.diagnosis_condition = fields["diagnosis_condition"]
+    if fields["doctor_name"]:
+        state.selected_doctor = doctor_name_to_id(fields["doctor_name"])
+    if fields["slot_datetime"]:
+        state.selected_slot = parse_dt(fields["slot_datetime"])
+
+    return state
+```
+
+Put this node at the top of the graph so that any new information is merged into the state before `handle_booking` runs.
+
+────────────────────────────────────────
+3. Refactor handle_booking to be idempotent
+────────────────────────────────────────
+The node shouldn’t care whether data arrived in the previous turn or this one—it simply looks at which *slots* are still empty:
+
+```python
+def handle_booking(state: BookingState) -> BookingState:
+
+    # 1. Still need the diagnosis? Ask for it.
+    if state.diagnosis_condition is None:
+        state.follow_up_required = True
+        state.next_prompt = (
+            "Please describe the health issue so I can find the right doctor."
+        )
+        return state
+
+    # 2. Still need the doctor? Offer list *once*.
+    if state.selected_doctor is None:
+        if state.available_doctors == []:
+            spec = state.speciality or medical_diagnosis_to_speciality(state.diagnosis_condition)
+            state.speciality = spec
+            state.available_doctors = get_specialised_doctors(spec)
+
+        state.follow_up_required = True
+        state.next_prompt = (
+            "Here are the available doctors:\n"
+            + "\n".join(format_doctor(d) for d in state.available_doctors)
+            + "\nPlease tell me which doctor you’d like to see."
+        )
+        return state
+
+    # 3. Still need the slot? Offer list.
+    if state.selected_slot is None:
+        if state.available_slots == []:
+            state.available_slots = get_available_slots(state.selected_doctor)
+
+        state.follow_up_required = True
+        state.next_prompt = (
+            "These time slots are open:\n"
+            + "\n".join(s.strftime("%d %b %Y %H:%M") for s in state.available_slots)
+            + "\nWhich one works for you?"
+        )
+        return state
+
+    # 4. We have all the info – book it!
+    appointment_id = create_appointment(
+        patient_id=state.patient_id,
+        doctor_id=state.selected_doctor,
+        slot=state.selected_slot,
+        diagnosis=state.diagnosis_condition,
+    )
+    state.follow_up_required = False
+    state.booking_stage = "done"
+    state.next_prompt = (
+        f"✅ Your appointment is booked (ID #{appointment_id}) for "
+        f"{state.selected_slot:%d %b %Y %H:%M}. See you soon!"
+    )
+    return state
+```
+
+Because the node always checks *what’s missing* instead of *which stage we’re in*, it gracefully accepts extra information in any turn.
+
+────────────────────────────────────────
+4. Writing to the database – decouple “decide” from “persist”
+────────────────────────────────────────
+`create_appointment(...)` should live in a separate infra layer.  
+Inside it you:
+
+1. Begin a DB transaction.  
+2. `SELECT … FOR UPDATE` on the chosen slot so two users can’t grab it simultaneously.  
+3. `INSERT` the appointment row.  
+4. Commit. Roll back & ask for another slot if the row already exists.
+
+────────────────────────────────────────
+5. Recap – how your flow looks in LangGraph
+────────────────────────────────────────
+```
+[User Input] ──► UpdateStateFromInput ──► HandleBooking ──► Output
+                              ▲                       │
+                              └───────── Persist state ┘
+```
+
+• `UpdateStateFromInput` never asks questions, it only fills slots.  
+• `HandleBooking` asks questions *only* for the slots that are still empty, or books the appointment when all are filled.  
+• Because state is persisted between turns, the second message the user sends will arrive with whatever you stored after the first message—no information gets lost.
+
+Now your bot can handle:
+“Hi, I need to see a cardiologist next Monday around 2 pm — Dr Patel would be great.”  
+in a single turn, or in five separate turns, without changing a line of logic.

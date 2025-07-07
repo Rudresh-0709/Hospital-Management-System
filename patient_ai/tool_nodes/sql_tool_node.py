@@ -30,7 +30,7 @@ def clean_query(query: str) -> str:
     else:
         return query
 
-def build_sql_tool(allowed_tables: list) -> Tool:
+def build_sql_tool(allowed_tables: list, patient_id: int = None) -> Tool:
     db = SQLDatabase.from_uri(db_uri, include_tables=allowed_tables)
     schema_info = db.get_table_info(table_names=allowed_tables)
 
@@ -40,14 +40,20 @@ def build_sql_tool(allowed_tables: list) -> Tool:
 
         {table_info}
 
+        The current patient_id is: {patient_id}
+
         Given the user question, produce ONE valid MySQL statement that answers it.
+        If the question is about the user, use the patient_id in the WHERE clause.
         Return ONLY the SQL itself – no prefix, no explanations, no markdown fences.
         Question: {input}
         SQL:
         """.strip()
 
     prompt = PromptTemplate(
-        input_variables=["input", "table_info"],
+        input_variables=["input", "table_info"],          
+        partial_variables={                              
+            "patient_id": int(patient_id) if patient_id is not None else ""
+        },
         template=custom_template,
     )
 
@@ -61,9 +67,17 @@ def build_sql_tool(allowed_tables: list) -> Tool:
         return_direct=True
     )
 
+    def tool_func(query):
+        return sql_chain.invoke({
+            "query": clean_query(query),
+            "input": query,
+            "table_info": schema_info,
+            "patient_id": patient_id if patient_id is not None else "",
+        })
+
     return Tool(
         name=f"SQLTool_{'_'.join(allowed_tables)}",
-        func=lambda query: sql_chain.invoke({"query": clean_query(query)}),
+        func=tool_func,
         description=f"Queries only the following tables: {', '.join(allowed_tables)}"
     )
 
@@ -77,6 +91,7 @@ def run_sql_query(query: str, allowed_tables: list) -> str:
         {table_info}
 
         Given the user question, produce ONE valid MySQL statement that answers it.
+        If the question is related to the patient itself than use its patient id.
         Return ONLY the SQL itself – no prefix, no explanations, no markdown fences.
         Question: {input}
         SQL:
@@ -106,4 +121,4 @@ def sql_to_nl(question: str, rows: list | str) -> str:
     Please answer the user in natural language using the data above.
     Make it short and simple.
     """.strip()
-    return llm.invoke(prompt).content 
+    return llm.invoke(prompt).content

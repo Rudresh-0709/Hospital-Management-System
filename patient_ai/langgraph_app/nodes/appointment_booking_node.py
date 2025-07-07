@@ -122,7 +122,7 @@ def handle_sql_info(state:HMAIState) -> HMAIState:
             return state
 
         patient_id=state.patient_id
-        sql_tool = build_sql_tool(allowed_tables)
+        sql_tool = build_sql_tool(allowed_tables, patient_id=state.patient_id)
         result = sql_tool.run(user_query)
 
         user_question=result["query"]
