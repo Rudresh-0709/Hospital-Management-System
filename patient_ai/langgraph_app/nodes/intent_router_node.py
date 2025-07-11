@@ -19,4 +19,5 @@ def detect_intent(state:HMAIState)-> str:
     llm=llms["openai"]
     ai_response=llm.invoke(system_prompt + "\n" + user_prompt)
     response=ai_response.content
+    state.intent=response.strip()
     return response.strip()
