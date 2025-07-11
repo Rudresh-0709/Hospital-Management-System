@@ -10,7 +10,7 @@ def detect_intent(state:HMAIState)-> str:
         "- 'pdf_search' for medical queries\n"
         "- 'image_analysis' for image diagnosis\n"
         "- 'appointment_booking' (for booking or managing appointments)\n"
-        "- 'sql_query' (for queries about appointments, medicines, admissions, personal info, etc)"
+        "- 'sql_query' (for queries about previous or upcoming appointments, medicines, admissions, personal info, etc)"
         "Return only the intent keyword, nothing else"
     )
 

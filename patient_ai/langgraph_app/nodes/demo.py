@@ -7,11 +7,11 @@ load_config()
 load_llms()
 
 test_queries = [
-    "When is my next appointment?",
-    "What is Dr. Pravin Sisodiya's contact info?",
-    "What is my current reason for admission?",
-    "Show me my admission date and room number.",
-    "What is my email address in your system?"
+    "Are there any appointments under my name?",
+    # "What is Dr. Pravin Sisodiya's contact info?",
+    # "What is my current reason for admission?",
+    # "Show me my admission date and room number.",
+    # "What is my email address in your system?"
 ]
 
 for q in test_queries:

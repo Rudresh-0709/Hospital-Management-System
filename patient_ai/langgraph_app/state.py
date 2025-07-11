@@ -14,6 +14,8 @@ class HMAIState(BaseModel):
     patient_id:Optional[int]=None
     last_disease_topic:Optional[str]=None
     diagnosis_condition:Optional[str]=None
+    appointment_date:Optional[str]=None
+    appointment_time:Optional[str]=None
 
     extracted_entities:Optional[Dict[str, Any]] = None
     follow_up_required:Optional[bool] = False
