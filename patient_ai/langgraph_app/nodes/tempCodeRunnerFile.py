@@ -1,2 +1,2 @@
-from appointment_booking_node import handle_appointment
-from ..state import HMAIState
+clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch16")
+# clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch16")

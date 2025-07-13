@@ -7,6 +7,7 @@ class HMAIState(BaseModel):
     image_base64:Optional[str]=None
 
     pdf_chunks:Optional[List[str]]=None
+    pdf_query_input:Optional[str]=None
     vision_result:Optional[str]=None
     booking_result:Optional[str]=None
     final_response:Optional[str]=None
