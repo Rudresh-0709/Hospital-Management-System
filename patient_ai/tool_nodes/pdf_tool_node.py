@@ -8,7 +8,7 @@ from util.vector_store import load_faiss_vector_store
 load_config()
 load_llms()
 
-def medical_pdf_chain():
+def medical_pdf_chain(context,question):
     custom_prompt_template = """
         You are an AI medical assistant specializing in hospital management. Your role is to assist patients by providing symptom-based diagnoses and medical recommendations.
 

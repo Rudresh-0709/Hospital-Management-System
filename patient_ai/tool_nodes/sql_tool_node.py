@@ -6,9 +6,11 @@ import yaml
 from langchain_groq import ChatGroq
 from langchain.prompts import PromptTemplate
 
-with open("config.yaml", "r") as file:
-    config = yaml.safe_load(file)
+base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+config_path = os.path.join(base_dir, "config.yaml")
 
+with open(config_path, "r") as file:
+    config = yaml.safe_load(file)
 db_uri = os.getenv(config["sql"]["uri_env"])
 llm = ChatGroq(
     model=config["llm"]["groq_fast"]["model_name"],

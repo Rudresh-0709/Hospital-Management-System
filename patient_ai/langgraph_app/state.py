@@ -5,6 +5,7 @@ class HMAIState(BaseModel):
     user_input:Optional[str]=None
     intent:Optional[str]=None
     image_base64:Optional[str]=None
+    image_path:Optional[str]=None
 
     pdf_chunks:Optional[List[str]]=None
     pdf_query_input:Optional[str]=None

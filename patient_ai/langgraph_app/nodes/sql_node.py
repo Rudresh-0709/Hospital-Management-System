@@ -1,4 +1,4 @@
-from model_loader import llms
+from ...model_loader import llms
 
 
 def detect_sql_topic(user_input: str) -> str:

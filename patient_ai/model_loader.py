@@ -17,8 +17,15 @@ sql_db={}
 
 def load_config():
     global config
-    with open("config.yaml","r") as f:
-        config=yaml.safe_load(f)
+
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Build the full path to config.yaml
+    config_path = os.path.join(base_dir, "config.yaml")
+
+    # Load the YAML config
+    with open(config_path, "r") as file:
+        config = yaml.safe_load(file)
 
 def load_llms():
     global llms

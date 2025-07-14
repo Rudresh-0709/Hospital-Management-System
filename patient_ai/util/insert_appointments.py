@@ -1,5 +1,5 @@
 import mysql.connector
-from tool_nodes.doctor_tool import sql_connector
+from ..tool_nodes.doctor_tool import sql_connector
 
 def insert_appointment(name,email,contact,doctor_name,appointment_date,appointment_time,purpose,status="Scheduled"):
     conn=sql_connector()

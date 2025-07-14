@@ -1,5 +1,5 @@
-from model_loader import llms
-from langgraph_app.state import HMAIState
+from patient_ai.model_loader import llms
+from patient_ai.langgraph_app.state import HMAIState
 
 def detect_intent(state:HMAIState)-> str:
     if state.image_base64:

@@ -1,4 +1,4 @@
-from tool_nodes.doctor_tool import sql_connector
+from .doctor_tool import sql_connector
 
 def get_patient_details(patient_id:int)-> dict:
     conn=sql_connector()
