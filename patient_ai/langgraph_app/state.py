@@ -12,6 +12,7 @@ class HMAIState(BaseModel):
     vision_result:Optional[str]=None
     booking_result:Optional[str]=None
     final_response:Optional[str]=None
+    last_sender:Optional[str]="user"
 
     patient_id:Optional[int]=None
     last_disease_topic:Optional[str]=None
