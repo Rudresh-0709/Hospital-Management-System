@@ -6,7 +6,7 @@ llm:
     temperature: 0.2
   groq:
     provider: groq
-    model_name: llama3-3.2-90b-vision-preview
+    model_name: llama-3.3-70b-versatile
     api_key_env: GROQ_API_KEY
   groq_fast:
     provider: groq

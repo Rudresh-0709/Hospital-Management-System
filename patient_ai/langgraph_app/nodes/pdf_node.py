@@ -53,13 +53,13 @@ from tool_nodes.pdf_tool_node import medical_pdf_chain
 def pdf_search_from_user(state):
     query=state.user_input
     qa=medical_pdf_chain()
-    result=qa(query)
+    result=qa({"query":query})
     state.final_response=result["result"]
     return state
 
 def pdf_search_from_image(state):
     query=state.pdf_query_input
     qa=medical_pdf_chain()
-    result=qa(query)
+    result=qa.invoke({"query":query})
     state.final_response=result["result"]
     return state

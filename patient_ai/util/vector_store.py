@@ -1,7 +1,7 @@
 import os
 import yaml
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.document_loaders import PyPDFLoader, DirectoryLoader
 from langchain_community.vectorstores import FAISS
 
@@ -36,6 +36,6 @@ def ingest_pdf_to_faiss():
     print(f"FAISS embeddings generated successfully at ${index_path}")
 
 def load_faiss_vector_store():
-     index_path=config["vector_store"]["index_path"]
-     embeddings=get_embeddings()
-     return FAISS.load_local(index_path, embeddings)
+    index_path=os.path.join(root_dir, config["vector_store"]["index_path"])
+    embeddings=get_embeddings()
+    return FAISS.load_local(index_path, embeddings, allow_dangerous_deserialization=True)

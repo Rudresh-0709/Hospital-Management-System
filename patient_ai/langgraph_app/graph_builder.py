@@ -66,11 +66,9 @@ patient_graph=graph.compile()
 from pprint import pprint
 
 test_state = HMAIState(
-    user_input="Book me an appointment for chest pain under Pravin Sisodiya today at 3 pm",
+    user_input="How to cure cold at home?",
     patient_id=39
 )
 final_state=patient_graph.invoke(test_state)
-final_state["user_input"]="10 am tomorrow."
-next_state=patient_graph.invoke(final_state)
-print(next_state)
+print(final_state)
 
