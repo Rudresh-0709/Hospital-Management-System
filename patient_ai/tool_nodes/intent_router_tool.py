@@ -11,6 +11,9 @@ from langchain.prompts import PromptTemplate
 from langchain.output_parsers import PydanticOutputParser
 
 class BookingIntent(BaseModel):
+    doctor_name:Optional[str]=Field(
+        description="Preffered doctor for the appointment"
+    )
     purpose: Optional[str]=Field(
         description="Reason or symptom for booking the appointment"
     )
@@ -60,29 +63,27 @@ def extract_booking_intent(text: str, today: datetime | None = None) -> BookingI
         today=today.strftime("%Y-%m-%d"),
         format_instructions=format_instructions
     )   
-    raw = llm.invoke5(msg.to_string())
+    response = llm.invoke(msg.to_string())
+    raw=response.content if hasattr(response,'content') else str(response)
     return parser.parse(raw)
 
 def insert_appointment_intent(state:HMAIState)->HMAIState:
     intent=extract_booking_intent(state.user_input)
 
-    new_state=deepcopy(state)
 
-    if intent.purpose and not new_state.diagnosis_condition:
-        new_state.diagnosis_condition = intent.purpose
+    if intent.purpose and not state.diagnosis_condition:
+        state.diagnosis_condition = intent.purpose
 
-    if intent.doctor_name and not new_state.selected_doctor:
-        new_state.selected_doctor = intent.doctor_name
+    if intent.doctor_name and not state.selected_doctor:
+        state.selected_doctor = intent.doctor_name
 
-    if intent.date and not new_state.appointment_date:
-        new_state.appointment_date = intent.date
+    if intent.appointment_date and not state.appointment_date:
+        state.appointment_date = intent.appointment_date
 
-    if intent.time and not new_state.appointment_time:
-        new_state.appointment_time = intent.time
+    if intent.appointment_time and not state.appointment_time:
+        state.appointment_time = intent.appointment_time
 
-    new_state.extracted_entities = intent.model_dump(exclude_none=True)
+    state.extracted_entities = intent.model_dump(exclude_none=True)
 
-    return new_state
+    return state
 
-if __name__ == "__main__":
-    print(extract_booking_intent("Book me a appointment for Chest Pain under Dr. Pravin Sisiodiya at 5 pm tomorrow."))

@@ -1,7 +1,7 @@
-from patient_ai.model_loader import llms
+from patient_ai.model_loader import llms, load_config, load_llms
 from patient_ai.langgraph_app.state import HMAIState
 
-def detect_intent(state:HMAIState)-> str:
+def detect_intent(state:HMAIState)-> HMAIState:
     if state.image_base64:
         return"image analysis"
     
@@ -15,9 +15,10 @@ def detect_intent(state:HMAIState)-> str:
     )
 
     user_prompt=f"User_input:${state.user_input}"
-
+    load_config()
+    load_llms()
     llm=llms["openai"]
     ai_response=llm.invoke(system_prompt + "\n" + user_prompt)
     response=ai_response.content
     state.intent=response.strip()
-    return response.strip()
+    return state

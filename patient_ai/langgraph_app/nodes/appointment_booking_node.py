@@ -24,89 +24,99 @@ def handle_appointment(state:HMAIState) -> HMAIState:
     return state
 
 def handle_booking(state:HMAIState) -> HMAIState:
-    s=deepcopy(state)
 
-    if s.diagnosis_condition is None:
-        s.follow_up_required = True
-        s.next_prompt = (
+    if state.diagnosis_condition is None:
+        state.follow_up_required = True
+        state.next_prompt = (
             "Please describe the issue you're facing so I can find the right doctor."
         )
-        return s
+        print(state.next_prompt)
+        return state
 
     # 2. Need doctor?  --------------------------------------------------
-    if s.selected_doctor is None:
-        if not s.available_doctors:
-            speciality = medical_diagnosis_to_speciality.run(s.diagnosis_condition)
-            s.available_doctors = get_specialised_doctors(speciality)
+    if state.selected_doctor is None:
+        if not state.available_doctors:
+            speciality = medical_diagnosis_to_speciality.run(state.diagnosis_condition)
+            state.available_doctors = get_specialised_doctors(speciality)
 
-        if not s.available_doctors:
-            s.follow_up_required = True
-            s.next_prompt = (
+        if not state.available_doctors:
+            state.follow_up_required = True
+
+            state.next_prompt = (
                 "Sorry, no specialists are available right now. "
                 "Would you like to try something else?"
             )
-            return s
-        s.booking_stage="choose_doctor"
-        s.follow_up_required=True
-        s.next_prompt=(
+            print(state.next_prompt)
+            return state
+        state.booking_stage="choose_doctor"
+        state.follow_up_required=True
+        state.next_prompt=(
             "These doctors are available:\n"
-            + "\n".join(str(d) for d in s.available_doctors)
+            + "\n".join(str(d) for d in state.available_doctors)
             + "\nPlease select a doctor."
         )
+        print(state.next_prompt)
 
-    if s.selected_slot is None:
-        if not s.available_slots:
-            s.available_slots = get_available_slots(s.selected_doctor)
+    if state.selected_slot is None:
+        if not state.available_slots:
+            state.available_slots = get_available_slots(state.selected_doctor)
 
-        s.booking_stage = "choose_slot"
-        s.follow_up_required = True
-        s.next_prompt = (
+            if not state.available_slots:
+                state.follow_up_required=False
+                state.next_prompt="Sorry can't find a slot"
+                return state
+            
+        state.booking_stage = "choose_slot"
+        state.follow_up_required = False
+        state.next_prompt = (
             "These time-slots are free:\n"
-            + "\n".join(s.available_slots)
+            + "\n".join(state.available_slots)
             + "\nWhich one works for you?"
         )
-        return s
+        print(state.next_prompt)
+        return state
 
     required = ["appointee_name", "appointee_email", "appointee_contact"]
-    missing  = [f for f in required if getattr(s, f, None) is None]
+    missing  = [f for f in required if getattr(state, f, None) is None]
 
-    if missing and s.patient_id:
-        patient = get_patient_details(s.patient_id)
+    if missing and state.patient_id:
+        patient = get_patient_details(state.patient_id)
         if patient:                      # None -> patient not found
-            s.appointee_name    = s.appointee_name    or patient["name"]
-            s.appointee_email   = s.appointee_email   or patient["email"]
-            s.appointee_contact = s.appointee_contact or patient["contact"]
+            state.appointee_name    = state.appointee_name    or patient["name"]
+            state.appointee_email   = state.appointee_email   or patient["email"]
+            state.appointee_contact = state.appointee_contact or patient["contact"]
 
-            missing  = [f for f in required if getattr(s, f, None) is None]
+            missing  = [f for f in required if getattr(state, f, None) is None]
 
     if missing:
-        s.follow_up_required = True
-        s.next_prompt = (
+        state.follow_up_required = True
+        state.next_prompt = (
             "I still need your "
             + ", ".join(missing)
             + " to complete the booking."
         )
-        return s
+        print(state.next_prompt)
+        return state
     
-    date_str, time_str = s.selected_slot.split(" at ")
+    date_str, time_str = state.selected_slot.split(" at ")
 
     insert_appointment(
-        name=s.appointee_name,
-        contact=s.appointee_contact,
-        email=s.appointee_email,
-        doctor_name=s.selected_doctor,
+        name=state.appointee_name,
+        contact=state.appointee_contact,
+        email=state.appointee_email,
+        doctor_name=state.selected_doctor,
         appointment_date=date_str,
         appointment_time=time_str,
-        purpose=s.purpose,
+        purpose=state.purpose,
         status="Scheduled"
     )
 
-    s.final_response=(
+    state.final_response=(
         f"Your appointment is booked with Doctor {state.selected_doctor} on {date_str} at {time_str}."
     )
-    s.booking_stage=None
-    s.follow_up_required=False
-    return s
+    state.booking_stage=None
+    state.follow_up_required=False
+    return state
 
 def handle_sql_info(state:HMAIState) -> HMAIState:
     print("Entered sql_info")

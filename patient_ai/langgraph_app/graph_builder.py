@@ -5,6 +5,8 @@ from .nodes.appointment_booking_node import handle_appointment, handle_booking, 
 from tool_nodes.intent_router_tool import insert_appointment_intent
 from .nodes.vision_node import process_image
 from .nodes.pdf_node import pdf_search_from_image,pdf_search_from_user
+from .nodes.last_sender_node import set_last_sender_ai, set_last_sender_user
+from .nodes.final_db_node import save_message
 
 graph = StateGraph(HMAIState)
 
@@ -15,9 +17,16 @@ graph.add_node("Handle_sql",handle_sql_info)
 graph.add_node("Image_identifier",process_image)
 graph.add_node("User_PDF_search",pdf_search_from_user)
 graph.add_node("Vision_PDF_search",pdf_search_from_image)
+graph.add_node("User_setter",set_last_sender_user)
+graph.add_node("AI_setter",set_last_sender_ai)
+graph.add_node("Chat_logger",save_message)
 
 
 graph.set_entry_point("Intent_detector")
+# graph.add_edge("Intent_detector","User_setter")
+# graph.add_edge("User_setter","Chat_logger")
+
+
 
 graph.add_conditional_edges(
     "Intent_detector",
@@ -36,12 +45,32 @@ graph.add_conditional_edges(
     lambda state:"Appointment_auto_detail_inserter" if state.follow_up_required else END,
     {
         "Appointment_auto_detail_inserter":"Appointment_auto_detail_inserter",
-        "END":END
+        "__end__":END
     }
 )   
 graph.add_edge("Image_identifier","Vision_PDF_search")
-graph.add_edge("User_PDF_search", END)
-graph.add_edge("Handle_sql", END)
 graph.add_edge("Vision_PDF_search",END)
+graph.add_edge("Handle_sql", END)
+graph.add_edge("User_PDF_search", END)
+# graph.add_edge("User_PDF_search", "AI_setter")
+# graph.add_edge("AI_setter",END)
 
-graph.compile()
+# graph.add_edge("Handle_sql", "AI_setter")
+# graph.add_edge("AI_setter",END)
+
+# graph.add_edge("Vision_PDF_search","AI_setter")
+# graph.add_edge("AI_setter",END)
+
+patient_graph=graph.compile()
+
+from pprint import pprint
+
+test_state = HMAIState(
+    user_input="Book me an appointment for chest pain under Pravin Sisodiya today at 3 pm",
+    patient_id=39
+)
+final_state=patient_graph.invoke(test_state)
+final_state["user_input"]="10 am tomorrow."
+next_state=patient_graph.invoke(final_state)
+print(next_state)
+

@@ -1,1 +1,1 @@
-ri(db_uri)
+display(Image(chat_graph.get_graph().draw_mermaid_png))

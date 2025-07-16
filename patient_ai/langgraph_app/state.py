@@ -4,6 +4,7 @@ from pydantic import BaseModel
 class HMAIState(BaseModel):
     user_input:Optional[str]=None
     intent:Optional[str]=None
+    source:Optional[str]="text"
     image_base64:Optional[str]=None
     image_path:Optional[str]=None
 

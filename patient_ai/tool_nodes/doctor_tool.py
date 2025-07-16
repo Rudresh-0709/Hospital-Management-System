@@ -47,7 +47,7 @@ def get_specialised_doctors(speciality:str) -> str:
     conn.close()
     return doctors
 
-def get_available_slots(doctor_id: int, days_ahead: int = 7, slot_interval_mins: int = 60) -> List[str]:
+def get_available_slots(doctor_name: str, days_ahead: int = 7, slot_interval_mins: int = 60) -> List[str]:
     conn = sql_connector()
     cursor = conn.cursor(dictionary=True)
 
@@ -55,8 +55,8 @@ def get_available_slots(doctor_id: int, days_ahead: int = 7, slot_interval_mins:
     cursor.execute("""
         SELECT doctor_in, doctor_out 
         FROM doctors 
-        WHERE id = %s
-    """, (doctor_id,))
+        WHERE doctor_name = %s
+    """, (doctor_name,))
     result = cursor.fetchone()
 
     if not result:
@@ -64,6 +64,16 @@ def get_available_slots(doctor_id: int, days_ahead: int = 7, slot_interval_mins:
 
     doctor_in = result['doctor_in']  # e.g., 10:00:00
     doctor_out = result['doctor_out']  # e.g., 16:00:00
+
+    if isinstance(doctor_in, str):
+        doctor_in = datetime.strptime(doctor_in, "%H:%M:%S").time()
+    elif isinstance(doctor_in, timedelta):  # MySQL `TIME` fields can return timedelta
+        doctor_in = (datetime.min + doctor_in).time()
+
+    if isinstance(doctor_out, str):
+        doctor_out = datetime.strptime(doctor_out, "%H:%M:%S").time()
+    elif isinstance(doctor_out, timedelta):
+        doctor_out = (datetime.min + doctor_out).time()
 
     available_slots = []
     today = date.today()
@@ -83,8 +93,8 @@ def get_available_slots(doctor_id: int, days_ahead: int = 7, slot_interval_mins:
         # Step 3: Fetch booked slots from appointments table
         cursor.execute("""
             SELECT appointment_time FROM appointments
-            WHERE doctor_id = %s AND appointment_date = %s AND status IN ('Scheduled', 'Pending')
-        """, (doctor_id, current_date))
+            WHERE doctor_name = %s AND appointment_date = %s AND status IN ('Scheduled', 'Pending')
+        """, (doctor_name, current_date))
         booked_times = [row['appointment_time'] for row in cursor.fetchall()]
 
         # Step 4: Filter out booked times

@@ -4,4 +4,5 @@ from ..state import HMAIState
 
 def save_message(state:HMAIState)->HMAIState:
     patient_id=state.patient_id
-    user_input
+    message=state.user_input if state.last_sender=="user" else state.final_response
+    role=state.last_sender

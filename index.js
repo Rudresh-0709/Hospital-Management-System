@@ -892,7 +892,7 @@ app.get('/admin/ai',(req,res)=>{
             let initialsession_uuid=null;
             let initialchathistory=[];
             if(sessions.length>0){
-                initialsession_uuid=sessions[0].session_uuid; // Get the most recent session UUID
+                initialsession_uuid=sessions[0].session_uuid;
                 const chatquery=`SELECT * FROM chat_history where session_uuid = ? ORDER BY timestamp ASC`;
                 con.query(chatquery,[initialsession_uuid],(err,chat_history)=>{
                     if(err){
@@ -948,7 +948,77 @@ app.get('/admin/ai/chat/:session_uuid', (req, res) => {
         });
     });
 })
+app.get('/patient/ai',(req,res)=>{
+    if (!req.session.patientId) {
+        return res.redirect('/patientlogin');
+    }
+    const patient_id=req.session.patientId;
+    const query=`SELECT * FROM patient_chat_session WHERE patient_id = ?`;
+    con.query(query,[patient_id],(err,sessions)=>{
+        if(err){
+            console.log(err);
+            return res.status(500).send("Error fetching patient details");
+        }else{
+            let initialsession_uuid=null
+            let initialChat_history=[]
+            if(sessions.length()>0){
+                initialsession_uuid=sessions[0].session_uuid
+                const chatquery = `SELECT * FROM patient_chat_history WHERE session_uuid = ? ORDER BY timestamp ASC`;
+                con.query(query,[initialsession_uuid],(err,chat_history)=>{
+                    if(err){
+                        console.log(err);
+                        return res.status(500).send("Error fetching chat history");
+                    }
+                    else{
+                        res.render('patientpage/patientai',{
+                            patient_id:patient_id,
+                            sessions:sessions,
+                            chatHistory:chat_history,
+                            initialSessionId:initialsession_uuid,
+                            initialChatHistory:chat_history
+                        })
+                    }
+                })
+            }
+            else{
+                res.render('patientpage/patientai',{
+                    patient_id:patient_id,
+                    sessions:[],
+                    chatHistory:[],
+                    initialSessionId:null,
+                    initialChatHistory:[]
+                })
+            }
+        }
+        
+    })
+})
+app.get('patient/ai/chat/:session_uuid',(req,res)=>{
+    if(!req.session.patientId){
+        return res.redirect('/patientlogin');
+    }
+    const patient_id=req.session.patientId;
+    const session_uuid=req.params.session_uuid
 
+    const sessionquery = "SELECT * FROM patient_chat_session WHERE patient_id = ? AND session_uuid = ?";
+    con.query(sessionquery, [patient_id, session_uuid], (err, sessions) => {
+        if (err) {
+            console.log(err);
+            return res.status(500).json({"error": "Error fetching session details"});
+        }
+        if (sessions.length === 0) {
+            return res.status(404).json({"error": "Session not found"});
+        }
+        const chatquery = `SELECT * FROM patient_chat_history WHERE session_uuid = ? ORDER BY timestamp ASC`;
+        con.query(chatquery, [session_uuid], (err, chat_history) => {
+            if (err) {
+                console.log(err);
+                return res.status(500).json({"error": "Error fetching chat history"});
+            }
+            res.json({chat_history: chat_history, session: sessions[0] });
+        });
+    });
+})
 
 
 
@@ -1128,6 +1198,25 @@ app.delete("/admin/ai/chat/:session_uuid/delete",(req,res)=>{
             })
         }
     })
+})
+app.post('/patient/ai/newchat',(req,res)=>{
+    if(!req.session.patientId){
+        return res.status(400).json({error:"Patient_id is required"})
+    }
+    const patient_id=req.session.patientId;
+    const session_uuid=uuidv4();
+    const query=`INSERT INTO patient_chat_session (patient_id,session_uuid) VALUES (?, ?)`;
+    con.query(query, [patient_id, session_uuid], (err, result) => {
+        if (err) {
+            console.error("Error creating new chat session:", err);
+            return res.status(500).json({error:'Error creating chat session'});
+        }
+        else{
+            res.status(200).json({
+                session_uuid:session_uuid,
+            })
+        }
+    });
 })
 server.listen(3000, () => {
     console.log(`Server running on port 3000`);
