@@ -40,14 +40,16 @@ graph.add_conditional_edges(
 )
 graph.add_edge("Appointment_auto_detail_inserter","Handle_booking")
 
-graph.add_conditional_edges(
-    "Handle_booking",
-    lambda state:"Appointment_auto_detail_inserter" if state.follow_up_required else END,
-    {
-        "Appointment_auto_detail_inserter":"Appointment_auto_detail_inserter",
-        "__end__":END
-    }
-)   
+# graph.add_conditional_edges(
+#     "Handle_booking",
+#     lambda state:"Appointment_auto_detail_inserter" if state.follow_up_required else END,
+#     {
+#         "Appointment_auto_detail_inserter":"Appointment_auto_detail_inserter",
+#         "__end__":END
+#     }
+# ) 
+
+graph.add_edge("Handle_booking",END)  
 graph.add_edge("Image_identifier","Vision_PDF_search")
 graph.add_edge("Vision_PDF_search",END)
 graph.add_edge("Handle_sql", END)
@@ -66,9 +68,20 @@ patient_graph=graph.compile()
 from pprint import pprint
 
 test_state = HMAIState(
-    user_input="How to cure cold at home?",
+    user_input="Book me an appointment for chest pain under Pravin Sisodiya at 11 am day after tomorrow ",
     patient_id=39
 )
 final_state=patient_graph.invoke(test_state)
 print(final_state)
+# if (final_state["final_response"]):
+#     print(final_state["final_response"])
 
+# else:
+#     print(final_state["next_prompt"])
+
+# new_state = HMAIState(**final_state).model_copy(update={
+#     "user_input": "10 am",
+#     "follow_up_required": False
+# })
+# completed_state=patient_graph.invoke(new_state)
+# print(completed_state)

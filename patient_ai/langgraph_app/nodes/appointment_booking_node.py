@@ -49,6 +49,7 @@ def handle_booking(state:HMAIState) -> HMAIState:
             print(state.next_prompt)
             return state
         state.booking_stage="choose_doctor"
+        state.selected_doctor=None
         state.follow_up_required=True
         state.next_prompt=(
             "These doctors are available:\n"
@@ -62,12 +63,14 @@ def handle_booking(state:HMAIState) -> HMAIState:
             state.available_slots = get_available_slots(state.selected_doctor)
 
             if not state.available_slots:
-                state.follow_up_required=False
+                state.follow_up_required=True
                 state.next_prompt="Sorry can't find a slot"
                 return state
             
         state.booking_stage = "choose_slot"
-        state.follow_up_required = False
+        state.follow_up_required = True
+        state.selected_slot=None
+        state.appointment_time=None
         state.next_prompt = (
             "These time-slots are free:\n"
             + "\n".join(state.available_slots)
@@ -75,16 +78,19 @@ def handle_booking(state:HMAIState) -> HMAIState:
         )
         print(state.next_prompt)
         return state
-
+    if state.selected_slot:
+        date_str, time_str = state.selected_slot.split(" at ")
+        state.appointment_date = date_str
+        state.appointment_time = time_str
     required = ["appointee_name", "appointee_email", "appointee_contact"]
     missing  = [f for f in required if getattr(state, f, None) is None]
 
     if missing and state.patient_id:
         patient = get_patient_details(state.patient_id)
         if patient:                      # None -> patient not found
-            state.appointee_name    = state.appointee_name    or patient["name"]
+            state.appointee_name    = state.appointee_name    or patient["first_name"]+" "+patient["last_name"]
             state.appointee_email   = state.appointee_email   or patient["email"]
-            state.appointee_contact = state.appointee_contact or patient["contact"]
+            state.appointee_contact = state.appointee_contact or patient["contact_number"]
 
             missing  = [f for f in required if getattr(state, f, None) is None]
 
@@ -107,7 +113,7 @@ def handle_booking(state:HMAIState) -> HMAIState:
         doctor_name=state.selected_doctor,
         appointment_date=date_str,
         appointment_time=time_str,
-        purpose=state.purpose,
+        purpose=state.diagnosis_condition,
         status="Scheduled"
     )
 

@@ -71,17 +71,24 @@ def insert_appointment_intent(state:HMAIState)->HMAIState:
     intent=extract_booking_intent(state.user_input)
 
 
-    if intent.purpose and not state.diagnosis_condition:
+    if intent.purpose:
         state.diagnosis_condition = intent.purpose
 
-    if intent.doctor_name and not state.selected_doctor:
+    if intent.doctor_name:
         state.selected_doctor = intent.doctor_name
 
-    if intent.appointment_date and not state.appointment_date:
+    if intent.appointment_date:
         state.appointment_date = intent.appointment_date
 
-    if intent.appointment_time and not state.appointment_time:
+    if intent.appointment_time:
         state.appointment_time = intent.appointment_time
+
+    if intent.appointment_date and intent.appointment_time:
+        slot_str = f"{intent.appointment_date} at {intent.appointment_time}"
+        if slot_str in (state.available_slots or []):
+            state.selected_slot = slot_str
+        else:
+            state.selected_slot = None  # Invalid slot, will prompt again
 
     state.extracted_entities = intent.model_dump(exclude_none=True)
 

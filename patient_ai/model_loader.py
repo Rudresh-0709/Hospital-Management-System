@@ -39,7 +39,6 @@ def load_llms():
             api_key=openai_api_key,
             temperature=openai_config.get("temperature",0.2)
             )
-        print("OpenAI llm loaded successfully")
 
     if "groq" in config["llm"]:
         groq_config=config["llm"]["groq"]
@@ -51,7 +50,6 @@ def load_llms():
            api_key=groq_api_key,
            temperature=0.2
         )
-        print("Groq AI loaded successfully")
     
     if "groq_fast" in config["llm"]:
         groq_config=config["llm"]["groq_fast"]
@@ -63,7 +61,6 @@ def load_llms():
            api_key=groq_api_key,
            temperature=0.1
         )
-        print("Groq_Fast AI loaded successfully")
 
 def load_vector_store():
     global vector_store

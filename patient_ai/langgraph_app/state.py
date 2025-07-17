@@ -32,3 +32,7 @@ class HMAIState(BaseModel):
     available_slots:Optional[list[str]]=None
     selected_slot:Optional[str]=None
     sql_response:Optional[str]=None
+
+    appointee_name:Optional[str]=None  
+    appointee_email:Optional[str]=None
+    appointee_contact:Optional[int]=None
