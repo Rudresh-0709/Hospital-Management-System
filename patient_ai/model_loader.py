@@ -14,6 +14,7 @@ llms={}
 vector_store={}
 sql_db={}
 
+load_dotenv()
 
 def load_config():
     global config

@@ -65,10 +65,8 @@ graph.add_edge("User_PDF_search", END)
 
 patient_graph=graph.compile()
 
-from pprint import pprint
-
 test_state = HMAIState(
-    user_input="Book me an appointment for chest pain under Pravin Sisodiya at 11 am day after tomorrow ",
+    user_input="I want to book an apoointment under dr. Pravin Sisodiya tell me the available dates?",
     patient_id=39
 )
 final_state=patient_graph.invoke(test_state)

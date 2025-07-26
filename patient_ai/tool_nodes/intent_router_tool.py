@@ -45,7 +45,8 @@ prompt = PromptTemplate(
         "Return ONLY valid JSON that obeys these rules:\n"
         "{format_instructions}\n\n"            # ← placeholder, not f-string
         "If the user gives a relative date (e.g. 'tomorrow', 'next Monday'), "
-        "convert it to an absolute date in YYYY-MM-DD using today as {today}.\n\n"
+        "convert it to an absolute date in YYYY-MM-DD using today as {today}.\n"
+        " The time should be in 24 hours format so you don't have to specify AM or PM\n\n"
         "User says: {user_input}"
     ),
     input_variables=["user_input", "today", "format_instructions"],
@@ -68,8 +69,7 @@ def extract_booking_intent(text: str, today: datetime | None = None) -> BookingI
     return parser.parse(raw)
 
 def insert_appointment_intent(state:HMAIState)->HMAIState:
-    intent=extract_booking_intent(state.user_input)
-
+    intent = extract_booking_intent(state.user_input)
 
     if intent.purpose:
         state.diagnosis_condition = intent.purpose
@@ -83,14 +83,21 @@ def insert_appointment_intent(state:HMAIState)->HMAIState:
     if intent.appointment_time:
         state.appointment_time = intent.appointment_time
 
+    # Normalize available_slots and slot_str for robust matching
+    available_slots = getattr(state, "available_slots", []) or []
+    available_slots = [s.strip() for s in available_slots]
+
     if intent.appointment_date and intent.appointment_time:
-        slot_str = f"{intent.appointment_date} at {intent.appointment_time}"
-        if slot_str in (state.available_slots or []):
+        slot_str = f"{intent.appointment_date} at {intent.appointment_time}".strip()
+        # Optionally, standardize time format here if needed
+        print("Your slot:"+slot_str+"\n")
+        for slot in available_slots:
+            print(slot)
+        if slot_str in available_slots:
             state.selected_slot = slot_str
         else:
-            state.selected_slot = None  # Invalid slot, will prompt again
+            state.selected_slot = None  # Will trigger prompt for available slots
 
     state.extracted_entities = intent.model_dump(exclude_none=True)
-
     return state
 

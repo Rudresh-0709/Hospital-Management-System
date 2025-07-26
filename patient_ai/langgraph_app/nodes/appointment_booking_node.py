@@ -24,8 +24,8 @@ def handle_appointment(state:HMAIState) -> HMAIState:
     return state
 
 def handle_booking(state:HMAIState) -> HMAIState:
-
-    if state.diagnosis_condition is None:
+    print("Entered handle_booking")
+    if state.diagnosis_condition is None and state.selected_doctor is None:
         state.follow_up_required = True
         state.next_prompt = (
             "Please describe the issue you're facing so I can find the right doctor."
@@ -35,6 +35,7 @@ def handle_booking(state:HMAIState) -> HMAIState:
 
     # 2. Need doctor?  --------------------------------------------------
     if state.selected_doctor is None:
+        print("Entered select doctor ")
         if not state.available_doctors:
             speciality = medical_diagnosis_to_speciality.run(state.diagnosis_condition)
             state.available_doctors = get_specialised_doctors(speciality)
@@ -58,26 +59,59 @@ def handle_booking(state:HMAIState) -> HMAIState:
         )
         print(state.next_prompt)
 
-    if state.selected_slot is None:
+    if (
+        state.selected_slot is None
+        and state.appointment_date
+        and state.appointment_time
+        and state.available_slots
+    ):
+        print("Entered complete if block")
+        slot_str = f"{state.appointment_date} at {state.appointment_time}".strip()
+        available_slots = [s.strip() for s in state.available_slots]
+        print("Trying to match slot_str:", repr(slot_str), "len:", len(slot_str), "bytes:", slot_str.encode())
+        for s in available_slots:
+            print("Available slot:", repr(s), "len:", len(s), "bytes:", s.encode())
+        if slot_str in available_slots:
+            print("MATCH FOUND!")
+            state.selected_slot = slot_str
+        else:
+            print("NO MATCH!")
+
+    if state.selected_slot is None and state.booking_stage != "choose_slot":
+        print("Entered select slot block")
         if not state.available_slots:
             state.available_slots = get_available_slots(state.selected_doctor)
-
             if not state.available_slots:
-                state.follow_up_required=True
-                state.next_prompt="Sorry can't find a slot"
+                state.follow_up_required = True
+                state.next_prompt = "Sorry can't find a slot"
                 return state
             
-        state.booking_stage = "choose_slot"
-        state.follow_up_required = True
-        state.selected_slot=None
-        state.appointment_time=None
-        state.next_prompt = (
-            "These time-slots are free:\n"
-            + "\n".join(state.available_slots)
-            + "\nWhich one works for you?"
-        )
-        print(state.next_prompt)
-        return state
+        if state.appointment_date and state.appointment_time:
+            slot_str = f"{state.appointment_date} at {state.appointment_time}".strip().lower()
+            normalized_slots = [s.strip().lower() for s in state.available_slots]
+
+            print("Trying to match:", slot_str)
+            for i, slot in enumerate(state.available_slots):
+                print(f"{i}. Available: {repr(slot)}")
+
+            if slot_str in normalized_slots:
+                match_index = normalized_slots.index(slot_str)
+                state.selected_slot = state.available_slots[match_index]
+                print("MATCH FOUND:", state.selected_slot)
+            else:
+                print("NO MATCH FOUND for:", slot_str)
+
+        # Only prompt, do NOT reset appointment_time or selected_slot here!
+        
+        if state.selected_slot is None:
+            state.booking_stage = "choose_slot"
+            state.follow_up_required = True
+            state.next_prompt = (
+                "These time-slots are free:\n"
+                + "\n".join(state.available_slots)
+                + "\nWhich one works for you?"
+            )
+            return state
     if state.selected_slot:
         date_str, time_str = state.selected_slot.split(" at ")
         state.appointment_date = date_str
