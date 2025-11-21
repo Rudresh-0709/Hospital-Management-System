@@ -5,7 +5,7 @@ from typing import Literal, Optional, Any
 from pydantic import BaseModel, Field
 from langchain_openai import ChatOpenAI
 from langchain_groq import ChatGroq
-from langchain.vectorstores import FAISS
+from langchain_community.vectorstores import FAISS
 from langchain_community.utilities import SQLDatabase
 from langchain_community.embeddings import HuggingFaceEmbeddings
 
@@ -58,7 +58,7 @@ def load_llms():
         if not groq_api_key:
             print(f"Groq_Fast AI API key not set ${groq_api_key}")
         llms["groq_fast"]=ChatGroq(
-           model=groq_config.get("model_name","llama3-70b-8192"),
+           model=groq_config.get("model_name","llama-3.3-70b-versatile"),
            api_key=groq_api_key,
            temperature=0.1
         )

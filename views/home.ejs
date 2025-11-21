@@ -1,67 +1,543 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
-        integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"   />
+    <title>CarePlus Hospital | Excellence in Healthcare</title>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Eagle+Lake&family=Montserrat+Alternates:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Ruslan+Display&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- GSAP for Animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
     <link rel="stylesheet" href="/stylesheets/homestyle.css">
-    
-    <title>Hospital</title>
-</head>
-<body>
-    <section class="nav">
-        <div class="infonav">
-            <div class="emergency">
-                <div class="phone">
-                    <i class="fa-solid fa-phone"></i>
-                    <h3>Emergency: </h3>
-                </div>
-                <h3 style="font-size:medium;">+91 8356960443</h3>
-            </div>
-            <div class="time">
-                <i class="fa-solid fa-clock"></i>
-                 <h3>Mon-Sun(24-7)</h3>
-            </div>
-            <i onclick=menushow()  class="fa-solid fa-bars"></i>
-        </div>
-        <div class="menu">
-            <ul>
-                <li>
-                    <i class="fa-solid fa-user-nurse"></i>
-                    <a href="adminlogin">Admin Login</a>
-                </li>
-                <li>
-                    <i class="fa-solid fa-user-doctor"></i>
-                    <a href="admin/doctorlogin">Doctor Login</a>
-                </li>
-                <li>
-                    <i class="fa-solid fa-calendar-check"></i>
-                    <a href="appointmentbook">Apointment Booking</a>
-                </li>
-                <li>
-                    <i class="fa-solid fa-hospital-user"></i>
-                    <a href="patientlogin">Patient Login</a>
-                </li>
-                <li>
-                    <i class="fa-solid fa-house-medical"></i>
-                    <a href="">OPD</a>
-                </li>
-            </ul>
-        </div>
-        <div class="navlinks"></div>
-    </section>
-    <section>
+
+    <style>
+        /* --- CSS VARIABLES --- */
+        :root {
+            --primary: #0077b6;       /* Strong Blue */
+            --primary-dark: #023e8a;  /* Navy Blue */
+            --accent: #48cae4;        /* Cyan/Teal */
+            --light: #caf0f8;         /* Light Blue Background */
+            --white: #ffffff;
+            --text: #333333;
+            --text-light: #666666;
+            --glass: rgba(255, 255, 255, 0.9);
+            --shadow: 0 4px 20px rgba(0, 119, 182, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: #fdfdfd;
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        a { text-decoration: none; color: inherit; transition: 0.3s; }
+        ul { list-style: none; }
+
+        /* --- NAVBAR --- */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 80px;
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 5%;
+            z-index: 1000;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+        }
+
+        .logo {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .logo i { color: var(--accent); }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-item {
+            position: relative;
+            font-weight: 500;
+            color: var(--text);
+            cursor: pointer;
+        }
+
+        .nav-item:hover { color: var(--primary); }
+
+        /* Dropdown Styling */
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%) translateY(10px);
+            background: white;
+            width: 200px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            padding: 10px 0;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            border-top: 3px solid var(--primary);
+        }
+
+        .nav-item:hover .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .dropdown-menu li a {
+            display: block;
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            color: var(--text);
+        }
+
+        .dropdown-menu li a:hover {
+            background: var(--light);
+            color: var(--primary-dark);
+            padding-left: 25px; /* subtle slide effect */
+        }
+
+        /* CTA Button in Nav */
+        .btn-nav {
+            background: var(--primary);
+            color: white;
+            padding: 10px 25px;
+            border-radius: 50px;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0, 119, 182, 0.3);
+        }
+        .btn-nav:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .mobile-toggle { display: none; font-size: 1.5rem; cursor: pointer; }
+
+        /* --- HERO SECTION --- */
+        .hero {
+            margin-top: 80px; /* Prevents navbar overlap */
+            min-height: 90vh;
+            display: flex;
+            align-items: center;
+            padding: 0 5%;
+            background: linear-gradient(to right, #f0f9ff, #ffffff);
+            overflow: hidden;
+        }
+
+        .hero-content {
+            flex: 1;
+            padding-right: 50px;
+        }
+
+        .hero h4 {
+            color: var(--accent);
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            line-height: 1.2;
+            color: var(--primary-dark);
+            margin-bottom: 20px;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            margin-bottom: 30px;
+            line-height: 1.6;
+            max-width: 500px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 20px;
+        }
+
+        .btn-primary {
+            background: var(--primary-dark);
+            color: white;
+            padding: 15px 35px;
+            border-radius: 8px;
+            font-weight: 600;
+            display: inline-block;
+        }
         
+        .btn-secondary {
+            border: 2px solid var(--primary-dark);
+            color: var(--primary-dark);
+            padding: 15px 35px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .hero-image {
+            flex: 1;
+            position: relative;
+            height: 600px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Using a shape behind the image */
+        .blob-bg {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: var(--light);
+            border-radius: 50%;
+            z-index: 1;
+            filter: blur(40px);
+            opacity: 0.6;
+        }
+
+        .hero-img-tag {
+            width: 100%;
+            max-width: 550px;
+            border-radius: 20px;
+            z-index: 2;
+            position: relative;
+            /* Placeholder image styling */
+            object-fit: cover;
+            box-shadow: 20px 20px 0px var(--accent);
+        }
+
+        /* --- FEATURES / SERVICES --- */
+        .services {
+            padding: 80px 5%;
+            text-align: center;
+        }
+
+        .section-title {
+            color: var(--primary-dark);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .section-subtitle {
+            color: var(--text-light);
+            margin-bottom: 50px;
+        }
+
+        .service-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .service-card {
+            background: white;
+            padding: 40px 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            transition: 0.3s;
+            border-bottom: 4px solid transparent;
+        }
+
+        .service-card:hover {
+            transform: translateY(-10px);
+            border-bottom: 4px solid var(--primary);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        }
+
+        .icon-box {
+            width: 70px;
+            height: 70px;
+            background: var(--light);
+            color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin: 0 auto 20px auto;
+        }
+
+        .service-card h3 { margin-bottom: 10px; color: var(--primary-dark); }
+        .service-card p { color: var(--text-light); font-size: 0.9rem; }
+
+        /* --- STATS / WHY CHOOSE US --- */
+        .stats-section {
+            background: var(--primary-dark);
+            color: white;
+            padding: 60px 5%;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 30px;
+            text-align: center;
+        }
+
+        .stat-item h2 { font-size: 3rem; font-weight: 700; color: var(--accent); }
+        .stat-item p { font-size: 1.1rem; opacity: 0.9; }
+
+        /* --- FOOTER --- */
+        footer {
+            background: #1a1a1a;
+            color: #ddd;
+            padding: 50px 5% 20px;
+        }
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        .footer-col h4 { color: white; margin-bottom: 20px; font-size: 1.2rem; }
+        .footer-col ul li { margin-bottom: 10px; }
+        .footer-col ul li a:hover { color: var(--accent); }
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #333;
+            font-size: 0.8rem;
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 900px) {
+            .hero { flex-direction: column; text-align: center; padding-top: 40px; }
+            .hero-content { padding-right: 0; margin-bottom: 50px; }
+            .hero h1 { font-size: 2.5rem; }
+            .hero-buttons { justify-content: center; }
+            
+            .nav-links { display: none; } /* Needs JS Toggle for mobile */
+            .mobile-toggle { display: block; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Floating Navbar -->
+    <nav id="navbar">
+        <div class="logo">
+            <i class="fa-solid fa-heart-pulse"></i>
+            <span>MediCare+</span>
+        </div>
+
+        <ul class="nav-links">
+            <li class="nav-item"><a href="/">Home</a></li>
+            
+            <!-- Dropdown for Logins -->
+            <li class="nav-item">
+                <span>Portals <i class="fa-solid fa-chevron-down" style="font-size: 0.8rem;"></i></span>
+                <ul class="dropdown-menu">
+                    <li><a href="patientlogin"><i class="fa-solid fa-user-injured"></i> Patient Login</a></li>
+                    <li><a href="admin/doctorlogin"><i class="fa-solid fa-user-doctor"></i> Doctor Login</a></li>
+                    <li><a href="adminlogin"><i class="fa-solid fa-user-shield"></i> Admin Login</a></li>
+                </ul>
+            </li>
+
+            <li class="nav-item"><a href="/opd">OPD Schedule</a></li>
+            <li class="nav-item"><a href="#services">Services</a></li>
+            
+            <!-- CTA Button -->
+            <a href="appointmentbook" class="btn-nav">Book Appointment</a>
+        </ul>
+
+        <div class="mobile-toggle">
+            <i class="fa-solid fa-bars"></i>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h4>24/7 Emergency Service</h4>
+            <h1>Your Health is Our <br><span style="color: var(--primary);">Top Priority</span></h1>
+            <p>Experience world-class healthcare with advanced technology and compassionate doctors. From routine checkups to complex surgeries, we are here for you.</p>
+            
+            <div class="hero-buttons">
+                <a href="appointmentbook" class="btn-primary">Make Appointment</a>
+                <a href="#services" class="btn-secondary">Learn More</a>
+            </div>
+        </div>
+
+        <div class="hero-image">
+            <div class="blob-bg"></div>
+            <!-- Using a placeholder image for demonstration -->
+            <img src="https://images.unsplash.com/photo-1638202993928-7267aad84c31?q=80&w=1974&auto=format&fit=crop" alt="Doctor Team" class="hero-img-tag">
+        </div>
     </section>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" integrity="sha512-7eHRwcbYkK4d9g/6tD/mhkf++eoTHwpNM9woBxtPUBWm67zeAfFC+HrdoE2GanKeocly/VxeLvIqwvCdk7qScg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="stat-item">
+            <h2 class="counter">50+</h2>
+            <p>Specialist Doctors</p>
+        </div>
+        <div class="stat-item">
+            <h2 class="counter">15k+</h2>
+            <p>Happy Patients</p>
+        </div>
+        <div class="stat-item">
+            <h2 class="counter">24/7</h2>
+            <p>Emergency Support</p>
+        </div>
+        <div class="stat-item">
+            <h2 class="counter">10+</h2>
+            <p>Years Experience</p>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="services" id="services">
+        <h2 class="section-title">Our Medical Specialties</h2>
+        <p class="section-subtitle">Providing high-quality services for all your medical needs</p>
+
+        <div class="service-grid">
+            <div class="service-card">
+                <div class="icon-box"><i class="fa-solid fa-heart-pulse"></i></div>
+                <h3>Cardiology</h3>
+                <p>Comprehensive heart care including diagnostics and surgery.</p>
+            </div>
+            
+            <div class="service-card">
+                <div class="icon-box"><i class="fa-solid fa-brain"></i></div>
+                <h3>Neurology</h3>
+                <p>Advanced treatment for disorders of the nervous system.</p>
+            </div>
+
+            <div class="service-card">
+                <div class="icon-box"><i class="fa-solid fa-baby"></i></div>
+                <h3>Pediatrics</h3>
+                <p>Specialized care for infants, children, and adolescents.</p>
+            </div>
+
+            <div class="service-card">
+                <div class="icon-box"><i class="fa-solid fa-vial"></i></div>
+                <h3>Laboratory</h3>
+                <p>Accurate and timely diagnostic results 24/7.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-grid">
+            <div class="footer-col">
+                <div class="logo" style="color: white; margin-bottom: 15px;">
+                    <i class="fa-solid fa-heart-pulse" style="color: var(--accent);"></i> MediCare+
+                </div>
+                <p style="font-size: 0.9rem; color: #aaa;">Leading the way in medical excellence. Trust us with your health and future.</p>
+            </div>
+            
+            <div class="footer-col">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="appointmentbook">Book Appointment</a></li>
+                    <li><a href="admin/doctorlogin">Doctor Login</a></li>
+                    <li><a href="opd">OPD Timings</a></li>
+                    <li><a href="#services">Departments</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Contact Us</h4>
+                <ul>
+                    <li><i class="fa-solid fa-phone"></i> +91 8356960443</li>
+                    <li><i class="fa-solid fa-location-dot"></i> Mumbai, India</li>
+                    <li><i class="fa-solid fa-envelope"></i> info@medicareplus.com</li>
+                </ul>
+            </div>
+        </div>
+        <div class="copyright">
+            &copy; 2024 MediCare+ Hospital Management System. All Rights Reserved.
+        </div>
+    </footer>
+
+    <!-- Animations Script -->
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Navbar entrance
+        gsap.from("#navbar", {
+            y: -100,
+            opacity: 0,
+            duration: 1,
+            ease: "power4.out"
+        });
+
+        // Hero text stagger
+        gsap.from(".hero-content > *", {
+            x: -50,
+            opacity: 0,
+            duration: 0.8,
+            stagger: 0.2,
+            delay: 0.5,
+            ease: "power2.out"
+        });
+
+        // Hero image slide in
+        gsap.from(".hero-image", {
+            x: 50,
+            opacity: 0,
+            duration: 1,
+            delay: 0.8,
+            ease: "power2.out"
+        });
+
+        // Service cards animation on scroll
+        gsap.from(".service-card", {
+            scrollTrigger: {
+                trigger: ".services",
+                start: "top 80%",
+            },
+            y: 50,
+            opacity: 0,
+            duration: 0.8,
+            stagger: 0.15,
+            ease: "back.out(1.7)"
+        });
+
+        // Counter animation for stats
+        gsap.from(".stat-item h2", {
+            scrollTrigger: {
+                trigger: ".stats-section",
+                start: "top 85%",
+            },
+            innerText: 0,
+            duration: 2,
+            snap: { innerText: 1 },
+            ease: "power1.inOut"
+        });
+    </script>
+
     <script src="/javascripts/home.js"></script>
 </body>
-
 </html>

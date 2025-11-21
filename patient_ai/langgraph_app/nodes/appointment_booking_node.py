@@ -17,7 +17,12 @@ TOPIC_TABLE_MAP = {
 
 
 def handle_appointment(state:HMAIState) -> HMAIState:
-    if state.intent== "appointment_booking":
+    # If we're in a booking stage, always handle as booking
+    if state.booking_stage in ["choose_doctor", "choose_slot"]:
+        return handle_booking(state)
+    
+    # Otherwise route based on intent
+    if state.intent == "appointment_booking":
         return handle_booking(state)
     elif state.intent == "sql_query":
         return handle_sql_info(state)
@@ -25,6 +30,40 @@ def handle_appointment(state:HMAIState) -> HMAIState:
 
 def handle_booking(state:HMAIState) -> HMAIState:
     print("Entered handle_booking")
+    if state.booking_stage == "choose_doctor" and state.available_doctors:
+        user_input_lower = state.user_input.lower().strip()
+        for doctor in state.available_doctors:
+            if doctor.lower() in user_input_lower or user_input_lower in doctor.lower():
+                state.selected_doctor = doctor
+                state.booking_stage = None
+                # Fetch available slots
+                state.available_slots = get_available_slots(doctor)
+                if not state.available_slots:
+                    state.follow_up_required = True
+                    state.next_prompt = f"Sorry, Dr. {doctor} has no available slots."
+                    return state
+                
+                # THIS IS WHERE YOU ADD THE FORMATTING FIX:
+                # Format slots as a numbered list
+                formatted_slots = "\n".join([f"{i+1}. {slot}" for i, slot in enumerate(state.available_slots)])
+                
+                state.booking_stage = "choose_slot"
+                state.follow_up_required = True
+                state.next_prompt = (
+                    f"Great! Dr. {doctor} is available at these times:\n\n"
+                    + formatted_slots
+                    + "\n\nPlease select a slot by typing the date and time."
+                )
+                return state
+        
+        # Doctor not found
+        state.follow_up_required = True
+        state.next_prompt = (
+            "I couldn't find that doctor. Please choose from:\n"
+            + "\n".join(state.available_doctors)
+        )
+        return state
+        
     if state.diagnosis_condition is None and state.selected_doctor is None:
         state.follow_up_required = True
         state.next_prompt = (

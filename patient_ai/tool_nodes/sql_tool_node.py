@@ -19,10 +19,15 @@ llm = ChatGroq(
 )
 
 
-def clean_query(query: str) -> str:
-    # Check for unexpected types (should be str)
+def clean_query(query) -> str:
+    """Safely convert query (AIMessage or other types) to a plain string."""
+    # Handle AIMessage or Message-like objects
+    if hasattr(query, "content"):
+        query = query.content
+
+    # Convert non-strings
     if not isinstance(query, str):
-        return str(query) # Convert to string to avoid further errors
+        query = str(query)
 
     stripped_lower_query = query.strip().lower()
 
@@ -30,7 +35,8 @@ def clean_query(query: str) -> str:
         cleaned = query.split(":", 1)[1].strip()
         return cleaned
     else:
-        return query
+        return query.strip()
+
 
 def build_sql_tool(allowed_tables: list, patient_id: int = None) -> Tool:
     db = SQLDatabase.from_uri(db_uri, include_tables=allowed_tables)
@@ -52,8 +58,8 @@ def build_sql_tool(allowed_tables: list, patient_id: int = None) -> Tool:
         """.strip()
 
     prompt = PromptTemplate(
-        input_variables=["input", "table_info"],          
-        partial_variables={                              
+        input_variables=["input", "table_info"],
+        partial_variables={
             "patient_id": int(patient_id) if patient_id is not None else ""
         },
         template=custom_template,
@@ -69,13 +75,32 @@ def build_sql_tool(allowed_tables: list, patient_id: int = None) -> Tool:
         return_direct=True
     )
 
-    def tool_func(query):
-        return sql_chain.invoke({
-            "query": clean_query(query),
-            "input": query,
-            "table_info": schema_info,
-            "patient_id": patient_id if patient_id is not None else "",
-        })
+    def tool_func(user_query):
+        cleaned = clean_query(user_query)
+        try:
+            result = sql_chain.invoke({
+                "input": cleaned,
+                "table_info": schema_info,
+                "patient_id": patient_id if patient_id is not None else "",
+            })
+        except Exception as e:
+            # Some chain implementations expect 'query' as the input key or support run()
+            try:
+                result = sql_chain.invoke({
+                    "query": cleaned,
+                    "table_info": schema_info,
+                    "patient_id": patient_id if patient_id is not None else "",
+                })
+            except Exception:
+                # final fallback to run which usually accepts a single string
+                try:
+                    result = sql_chain.run(cleaned)
+                except Exception as e2:
+                    raise e2
+        # Normalize AIMessage-like responses
+        if hasattr(result, "content"):
+            return result.content
+        return str(result)
 
     return Tool(
         name=f"SQLTool_{'_'.join(allowed_tables)}",
@@ -83,8 +108,10 @@ def build_sql_tool(allowed_tables: list, patient_id: int = None) -> Tool:
         description=f"Queries only the following tables: {', '.join(allowed_tables)}"
     )
 
+
 def run_sql_query(query: str, allowed_tables: list) -> str:
     db = SQLDatabase.from_uri(db_uri, include_tables=allowed_tables)
+    schema_info = db.get_table_info(table_names=allowed_tables)
 
     custom_template = """
         You are a world-class MySQL expert.
@@ -93,7 +120,7 @@ def run_sql_query(query: str, allowed_tables: list) -> str:
         {table_info}
 
         Given the user question, produce ONE valid MySQL statement that answers it.
-        If the question is related to the patient itself than use its patient id.
+        If the question is related to the patient itself then use its patient id.
         Return ONLY the SQL itself – no prefix, no explanations, no markdown fences.
         Question: {input}
         SQL:
@@ -103,6 +130,7 @@ def run_sql_query(query: str, allowed_tables: list) -> str:
         input_variables=["input", "table_info"],
         template=custom_template,
     )
+
     sql_chain = SQLDatabaseChain.from_llm(
         llm=llm,
         db=db,
@@ -111,7 +139,17 @@ def run_sql_query(query: str, allowed_tables: list) -> str:
         verbose=False,
         top_k=5
     )
-    result = sql_chain.invoke({"query": clean_query(query)})
+
+    cleaned = clean_query(query)
+    try:
+        result = sql_chain.invoke({"input": cleaned, "table_info": schema_info})
+    except Exception:
+        try:
+            result = sql_chain.invoke({"query": cleaned, "table_info": schema_info})
+        except Exception:
+            result = sql_chain.run(cleaned)
+    if hasattr(result, "content"):
+        return result.content
     return str(result)
 
 def sql_to_nl(question: str, rows: list | str) -> str:
@@ -123,4 +161,5 @@ def sql_to_nl(question: str, rows: list | str) -> str:
     Please answer the user in natural language using the data above.
     Make it short and simple.
     """.strip()
-    return llm.invoke(prompt).content
+    resp = llm.invoke(prompt)
+    return resp.content if hasattr(resp, "content") else str(resp)

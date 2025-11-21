@@ -1,9 +1,9 @@
-from model_loader import load_config, load_llms, llms
+from patient_ai.model_loader import load_config, load_llms, llms
 from langchain_core.prompts import PromptTemplate
 from langchain.chains import RetrievalQA
 from langchain_community.vectorstores import FAISS
 from langchain_groq import ChatGroq
-from util.vector_store import load_faiss_vector_store
+from patient_ai.util.vector_store import load_faiss_vector_store
 
 load_config()
 load_llms()

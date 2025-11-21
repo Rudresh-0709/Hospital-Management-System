@@ -24,25 +24,50 @@ DB_CONFIG={
 def sql_connector():
     return mysql.connector.connect(**DB_CONFIG)
 
-llm=ChatOpenAI(model=config["llm"]["openai"]["model_name"],temperature=0.1)
+from langchain_groq import ChatGroq
+
+def get_all_specialities() -> List[str]:
+    conn = sql_connector()
+    cursor = conn.cursor()
+    cursor.execute("SELECT DISTINCT speciality FROM doctors")
+    specialities = [row[0] for row in cursor.fetchall()]
+    cursor.close()
+    conn.close()
+    return specialities
+
+# Initialize Groq LLM for speed
+groq_api_key = os.getenv(config["llm"]["groq_fast"]["api_key_env"])
+llm = ChatGroq(
+    model=config["llm"]["groq_fast"]["model_name"],
+    api_key=groq_api_key,
+    temperature=0.1
+)
 
 @tool(description="Given a medical condition or symptom, returns the most appropriate medical specialty.")
 def medical_diagnosis_to_speciality(condition:str)->str:
+    valid_specialities = get_all_specialities()
+    specialities_str = ", ".join([f'"{s}"' for s in valid_specialities])
+    
     prompt=f"""
-    Given the medical condition: ${condition}, return the most appropriate medical speciality to consult.
-    Respond only with speciality name, like "Cardiologist","Dermatologist","Pulmnologist","Pediatrician",etc."""
+    Given the medical condition: "{condition}", return the most appropriate medical speciality to consult.
+    You MUST choose from the following list of valid specialities: [{specialities_str}]
+    
+    Respond ONLY with the exact name of the speciality from the list. Do not add any other text.
+    If none fit perfectly, choose the closest match.
+    """
     result=llm.invoke(prompt)
-    return result.content.strip()
+    return result.content.strip().replace('"', '').replace("'", "")
 
 def get_specialised_doctors(speciality:str) -> str:
+    print(speciality)
     conn=sql_connector()
     cursor=conn.cursor(dictionary=True)
 
     cursor.execute("""
         SELECT doctor_name FROM doctors WHERE speciality = %s
-    """,(speciality))
+    """,(speciality,))
 
-    doctors=cursor.fetchall()
+    doctors=[doc['doctor_name'] for doc in cursor.fetchall()]
     cursor.close()
     conn.close()
     return doctors

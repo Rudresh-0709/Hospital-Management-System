@@ -20,10 +20,15 @@ def encode_image(image_path):
 
 def process_image(state:HMAIState)->HMAIState:
     s=deepcopy(state)
-    image_path=s.image_path
-    image = Image.open(image_path)
-
-    image_base64=encode_image(image_path)
+    
+    image_base64 = s.image_base64
+    
+    if not image_base64 and s.image_path:
+        image_base64 = encode_image(s.image_path)
+        
+    if not image_base64:
+        s.pdf_query_input = "No image provided."
+        return s
 
     message = HumanMessage(content=[
         {

@@ -1,13 +1,406 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8">
+  <title>AI Health Assistant</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Marked.js for Markdown -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0f172a; /* Slate 900 */
+    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155; /* Slate 700 */
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569; /* Slate 600 */
+    }
+    
+    .typing-dot {
+      animation: typing 1.4s infinite ease-in-out both;
+    }
+    .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+    .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+    
+    @keyframes typing {
+      0%, 80%, 100% { transform: scale(0); }
+      40% { transform: scale(1); }
+    }
+
+    .markdown-body p { margin-bottom: 0.5em; }
+    .markdown-body ul { list-style-type: disc; margin-left: 1.5em; margin-bottom: 0.5em; }
+    .markdown-body ol { list-style-type: decimal; margin-left: 1.5em; margin-bottom: 0.5em; }
+    .markdown-body strong { font-weight: 600; color: #38bdf8; }
+    .markdown-body a { color: #38bdf8; text-decoration: underline; }
+  </style>
 </head>
-<body>
-    <div class="chat_messages">
-        
+<body class="h-screen flex text-slate-200 overflow-hidden">
+
+  <!-- Sidebar -->
+  <aside class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col hidden md:flex">
+    <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+      <h1 class="font-bold text-lg text-sky-400 tracking-wide">MediBot AI</h1>
+      <button id="newChatBtnSidebar" class="text-slate-400 hover:text-white transition" title="New Chat">
+        <i class="fa-solid fa-pen-to-square"></i>
+      </button>
     </div>
+    
+    <div class="flex-1 overflow-y-auto p-2 space-y-1" id="sessionList">
+      <div class="text-xs font-semibold text-slate-500 uppercase px-2 py-2">Recent Chats</div>
+      <% if (sessions && sessions.length > 0) { %>
+        <% sessions.forEach(session => { %>
+          <div class="session-item p-2 rounded-lg hover:bg-slate-800 cursor-pointer text-sm text-slate-300 truncate transition" 
+               data-id="<%= session.session_uuid %>">
+             <i class="fa-regular fa-message mr-2 text-slate-500"></i>
+             <%= session.session_uuid.substring(0, 8) %>...
+          </div>
+        <% }) %>
+      <% } else { %>
+        <div class="text-slate-600 text-sm px-2 italic">No history yet.</div>
+      <% } %>
+    </div>
+
+    <div class="p-4 border-t border-slate-800">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-full bg-sky-600 flex items-center justify-center text-white font-bold">
+            P
+        </div>
+        <div class="text-sm">
+          <div class="font-medium text-slate-200">Patient #<%= patient_id %></div>
+          <div class="text-xs text-slate-500">Online</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Chat Area -->
+  <main class="flex-1 flex flex-col bg-slate-950 relative">
+    
+    <!-- Mobile Header -->
+    <header class="md:hidden h-14 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-4">
+      <h1 class="font-bold text-sky-400">MediBot AI</h1>
+      <button id="newChatBtnMobile" class="text-slate-300"><i class="fa-solid fa-plus"></i></button>
+    </header>
+
+    <!-- Messages Container -->
+    <div id="chatContainer" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 scroll-smooth">
+      <!-- Welcome Message -->
+      <div class="flex gap-4 max-w-3xl mx-auto">
+        <div class="w-8 h-8 rounded-full bg-sky-600 flex-shrink-0 flex items-center justify-center text-white text-xs">
+          <i class="fa-solid fa-robot"></i>
+        </div>
+        <div class="flex-1 space-y-1">
+          <div class="flex items-center gap-2">
+            <span class="font-semibold text-sm text-slate-200">MediBot</span>
+            <span class="text-xs text-slate-500">Now</span>
+          </div>
+          <div class="text-slate-300 leading-relaxed">
+            Hello! I'm your personal health assistant. I can help you book appointments, check doctor availability, or answer medical questions based on your records. How can I help you today?
+          </div>
+        </div>
+      </div>
+
+      <!-- Existing Chat History -->
+      <% if (chatHistory && chatHistory.length > 0) { %>
+        <% chatHistory.forEach(msg => { %>
+            <% if (msg.role === 'user' || msg.sender === 'user') { %>
+                <!-- User Message -->
+                <div class="flex gap-4 max-w-3xl mx-auto flex-row-reverse">
+                    <div class="w-8 h-8 rounded-full bg-slate-700 flex-shrink-0 flex items-center justify-center text-white text-xs">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                    <div class="flex-1 space-y-1 text-right">
+                        <div class="text-slate-300 bg-sky-900/30 inline-block px-4 py-2 rounded-2xl rounded-tr-sm border border-sky-800/50 text-left">
+                            <%= msg.message || msg.question %>
+                        </div>
+                    </div>
+                </div>
+            <% } else { %>
+                <!-- Bot Message -->
+                <div class="flex gap-4 max-w-3xl mx-auto">
+                    <div class="w-8 h-8 rounded-full bg-sky-600 flex-shrink-0 flex items-center justify-center text-white text-xs">
+                        <i class="fa-solid fa-robot"></i>
+                    </div>
+                    <div class="flex-1 space-y-1">
+                        <div class="text-slate-300 leading-relaxed markdown-body">
+                            <!-- We will render markdown in JS, but for server-side rendering we might need a helper. 
+                                 For now, just output text. -->
+                            <%= msg.message || msg.answer %>
+                        </div>
+                    </div>
+                </div>
+            <% } %>
+        <% }) %>
+      <% } %>
+    </div>
+
+    <!-- Input Area -->
+    <div class="p-4 bg-slate-900 border-t border-slate-800">
+      <div class="max-w-3xl mx-auto relative">
+        
+        <!-- Image Preview -->
+        <div id="imagePreviewContainer" class="hidden absolute bottom-full mb-2 left-0 bg-slate-800 p-2 rounded-lg border border-slate-700 shadow-lg">
+            <div class="relative">
+                <img id="imagePreview" src="" alt="Preview" class="max-h-32 rounded">
+                <button id="removeImageBtn" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="flex items-end gap-2 bg-slate-800 p-2 rounded-xl border border-slate-700 focus-within:border-sky-500/50 focus-within:ring-1 focus-within:ring-sky-500/50 transition shadow-lg">
+          
+          <button id="uploadBtn" class="p-2 text-slate-400 hover:text-sky-400 transition rounded-lg" title="Upload Image">
+            <i class="fa-solid fa-image text-lg"></i>
+          </button>
+          <input type="file" id="fileInput" accept="image/*" class="hidden">
+
+          <textarea id="messageInput" rows="1" 
+            class="flex-1 bg-transparent text-slate-200 placeholder-slate-500 text-sm p-2 focus:outline-none resize-none max-h-32"
+            placeholder="Type your health concern..."></textarea>
+            
+          <button id="sendBtn" class="p-2 bg-sky-600 hover:bg-sky-500 text-white rounded-lg transition shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
+            <i class="fa-solid fa-paper-plane"></i>
+          </button>
+        </div>
+        <div class="text-center mt-2">
+            <p class="text-xs text-slate-500">AI can make mistakes. Please consult a doctor for serious issues.</p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    // --- Variables ---
+    const patientId = "<%= patient_id %>";
+    let sessionId = "<%= initialSessionId %>";
+    if (!sessionId) {
+        sessionId = crypto.randomUUID(); // Generate new if none exists
+    }
+    
+    const chatContainer = document.getElementById('chatContainer');
+    const messageInput = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const fileInput = document.getElementById('fileInput');
+    const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+    const imagePreview = document.getElementById('imagePreview');
+    const removeImageBtn = document.getElementById('removeImageBtn');
+    const newChatBtnSidebar = document.getElementById('newChatBtnSidebar');
+    const newChatBtnMobile = document.getElementById('newChatBtnMobile');
+
+    let currentImageBase64 = null;
+
+    // --- Functions ---
+
+    function scrollToBottom() {
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    function autoResizeTextarea() {
+      messageInput.style.height = 'auto';
+      messageInput.style.height = messageInput.scrollHeight + 'px';
+    }
+
+    function renderMarkdown(text) {
+        return marked.parse(text);
+    }
+
+    function appendUserMessage(text, imageSrc = null) {
+        const div = document.createElement('div');
+        div.className = 'flex gap-4 max-w-3xl mx-auto flex-row-reverse animate-fade-in';
+        
+        let imageHtml = '';
+        if (imageSrc) {
+            imageHtml = `<img src="${imageSrc}" class="max-w-xs rounded-lg border border-sky-800/50 mb-2 block ml-auto">`;
+        }
+
+        div.innerHTML = `
+            <div class="w-8 h-8 rounded-full bg-slate-700 flex-shrink-0 flex items-center justify-center text-white text-xs shadow-sm">
+                <i class="fa-solid fa-user"></i>
+            </div>
+            <div class="flex-1 space-y-1 text-right">
+                ${imageHtml}
+                <div class="text-slate-200 bg-sky-600 inline-block px-4 py-2 rounded-2xl rounded-tr-sm shadow-md text-left text-sm">
+                    ${text}
+                </div>
+            </div>
+        `;
+        chatContainer.appendChild(div);
+        scrollToBottom();
+    }
+
+    function appendBotMessage(text) {
+        const div = document.createElement('div');
+        div.className = 'flex gap-4 max-w-3xl mx-auto animate-fade-in';
+        div.innerHTML = `
+            <div class="w-8 h-8 rounded-full bg-sky-600 flex-shrink-0 flex items-center justify-center text-white text-xs shadow-sm">
+                <i class="fa-solid fa-robot"></i>
+            </div>
+            <div class="flex-1 space-y-1">
+                <div class="flex items-center gap-2">
+                    <span class="font-semibold text-sm text-slate-200">MediBot</span>
+                </div>
+                <div class="text-slate-300 leading-relaxed text-sm markdown-body">
+                    ${renderMarkdown(text)}
+                </div>
+            </div>
+        `;
+        chatContainer.appendChild(div);
+        scrollToBottom();
+    }
+
+    function showTypingIndicator() {
+        const div = document.createElement('div');
+        div.id = 'typingIndicator';
+        div.className = 'flex gap-4 max-w-3xl mx-auto animate-fade-in';
+        div.innerHTML = `
+            <div class="w-8 h-8 rounded-full bg-sky-600 flex-shrink-0 flex items-center justify-center text-white text-xs shadow-sm">
+                <i class="fa-solid fa-robot"></i>
+            </div>
+            <div class="flex-1 flex items-center h-8">
+                <div class="flex gap-1 bg-slate-800 px-3 py-2 rounded-full">
+                    <div class="w-1.5 h-1.5 bg-slate-400 rounded-full typing-dot"></div>
+                    <div class="w-1.5 h-1.5 bg-slate-400 rounded-full typing-dot"></div>
+                    <div class="w-1.5 h-1.5 bg-slate-400 rounded-full typing-dot"></div>
+                </div>
+            </div>
+        `;
+        chatContainer.appendChild(div);
+        scrollToBottom();
+    }
+
+    function removeTypingIndicator() {
+        const indicator = document.getElementById('typingIndicator');
+        if (indicator) indicator.remove();
+    }
+
+    async function sendMessage() {
+        const text = messageInput.value.trim();
+        if (!text && !currentImageBase64) return;
+
+        // UI Updates
+        appendUserMessage(text, currentImageBase64);
+        messageInput.value = '';
+        messageInput.style.height = 'auto';
+        
+        const payload = {
+            message: text,
+            session_id: sessionId,
+            patient_id: parseInt(patientId) || null,
+            image_base64: currentImageBase64
+        };
+
+        // Clear image
+        currentImageBase64 = null;
+        imagePreviewContainer.classList.add('hidden');
+        
+        showTypingIndicator();
+
+        try {
+            // Call the Python API directly
+            const response = await fetch('http://localhost:8000/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const data = await response.json();
+            removeTypingIndicator();
+            appendBotMessage(data.reply);
+
+        } catch (error) {
+            console.error('Error:', error);
+            removeTypingIndicator();
+            appendBotMessage("⚠️ Sorry, I'm having trouble connecting to the server. Please try again later.");
+        }
+    }
+
+    // --- Event Listeners ---
+
+    messageInput.addEventListener('input', autoResizeTextarea);
+    
+    messageInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+
+    sendBtn.addEventListener('click', sendMessage);
+
+    uploadBtn.addEventListener('click', () => fileInput.click());
+
+    fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                currentImageBase64 = e.target.result; // Contains data:image/jpeg;base64,...
+                imagePreview.src = currentImageBase64;
+                imagePreviewContainer.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    removeImageBtn.addEventListener('click', () => {
+        currentImageBase64 = null;
+        fileInput.value = '';
+        imagePreviewContainer.classList.add('hidden');
+    });
+
+    const startNewChat = () => {
+        sessionId = crypto.randomUUID();
+        chatContainer.innerHTML = `
+            <div class="flex gap-4 max-w-3xl mx-auto">
+                <div class="w-8 h-8 rounded-full bg-sky-600 flex-shrink-0 flex items-center justify-center text-white text-xs">
+                <i class="fa-solid fa-robot"></i>
+                </div>
+                <div class="flex-1 space-y-1">
+                <div class="flex items-center gap-2">
+                    <span class="font-semibold text-sm text-slate-200">MediBot</span>
+                    <span class="text-xs text-slate-500">Now</span>
+                </div>
+                <div class="text-slate-300 leading-relaxed">
+                    Hello! I'm your personal health assistant. I can help you book appointments, check doctor availability, or answer medical questions based on your records. How can I help you today?
+                </div>
+                </div>
+            </div>
+        `;
+    };
+
+    newChatBtnSidebar.addEventListener('click', startNewChat);
+    newChatBtnMobile.addEventListener('click', startNewChat);
+
+    // Initial scroll
+    scrollToBottom();
+
+  </script>
 </body>
 </html>

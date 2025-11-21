@@ -19,7 +19,7 @@ const io = socketio(server);
 
 app.use(express.json());
 
-const User=require('./models/userModel.js');
+const User = require('./models/userModel.js');
 const ChatMessage = require('./models/chatModel');
 const chatNamespace = io.of('/chat');
 
@@ -51,22 +51,22 @@ chatNamespace.on('connection', async (socket) => {
 
     socket.on('chatMessage', async ({ senderId, receiverId, message }) => {
         console.log(`📤 Message from ${senderId} to ${receiverId}:`, message);
-    
+
         if (!senderId || !receiverId || !message) {
             console.error("⚠️ Missing sender, receiver, or message!");
             return;
         }
-    
+
         try {
             const newMessage = new ChatMessage({
-                sender: senderId,   
-                receiver: receiverId, 
+                sender: senderId,
+                receiver: receiverId,
                 message: message,
                 timestamp: new Date()  // ✅ Add timestamp
             });
-    
+
             await newMessage.save();
-    
+
             // ✅ Include timestamp when emitting
             const messageData = {
                 senderId,
@@ -74,17 +74,17 @@ chatNamespace.on('connection', async (socket) => {
                 message,
                 timestamp: newMessage.timestamp // ✅ Ensure correct timestamp
             };
-    
+
             // ✅ Emit to sender & receiver
             chatNamespace.to(senderId).emit("chatMessage", messageData);
             chatNamespace.to(receiverId).emit("chatMessage", messageData);
-    
+
             console.log(`✅ Message sent with timestamp: ${newMessage.timestamp}`);
         } catch (err) {
             console.error("❌ Error saving message:", err);
         }
     });
-    
+
     socket.on('disconnect', async () => {
         console.log(`🔌 User ${userId} disconnected.`);
 
@@ -107,8 +107,8 @@ mongoose.connect('mongodb://localhost:27017/chatdb', {
     useNewUrlParser: true,
     useUnifiedTopology: true
 })
-.then(() => console.log('Connected to MongoDB'))
-.catch(err => console.error('Error connecting to MongoDB', err));
+    .then(() => console.log('Connected to MongoDB'))
+    .catch(err => console.error('Error connecting to MongoDB', err));
 
 const patientroute = require('./routes/patientroute');
 const adminloginroute = require('./routes/adminloginroute')
@@ -162,6 +162,7 @@ app.get("/adminlogin", (req, res) => {
 app.get("/admin", (req, res) => {
     res.render("adminpage/admin");
 })
+
 app.get("/admin/patient", (req, res) => {
     var displayname = "SELECT * FROM patients p JOIN admit a ON p.patient_id=a.patient_id JOIN emergency e on e.patient_id=p.patient_id ";
     con.query(displayname, function (nameerror, nameresult) {
@@ -534,7 +535,7 @@ app.get("/doctoradmin", (req, res) => {
                             SELECT * FROM notifications 
                             WHERE doctor_assigned = ? AND is_read = 0 
                             ORDER BY created_at DESC;`;
-                        con.query(notificationquery, [doctor_id,doctor_name], (error, notifications) => {
+                        con.query(notificationquery, [doctor_id, doctor_name], (error, notifications) => {
                             if (error) {
                                 throw error;
                             }
@@ -677,16 +678,16 @@ app.get('/patientdashboard', (req, res) => {
     con.query(sql, [req.session.patientId], (err, result) => {
         if (err) throw err;
         const patient = result[0];
-        var notificationquery=`SELECT * FROM notifications where patient_id = ?`;
+        var notificationquery = `SELECT * FROM notifications where patient_id = ?`;
 
-        con.query(notificationquery,[req.session.patientId],(err,notifications)=>{
-            if(err) throw err;
-            else{
-                var prescriptionquery=`SELECT p.* , pm.* FROM prescriptions p JOIN prescription_medicines pm WHERE p.patient_id = ? AND p.prescription_id = pm.prescription_id`;
-                con.query(prescriptionquery,[req.session.patientId],(err,prescriptions)=>{
-                    if(err) throw err;
-                    else{
-                        res.render('patientpage/patientdashboard', { patient, notifications,prescriptions}); 
+        con.query(notificationquery, [req.session.patientId], (err, notifications) => {
+            if (err) throw err;
+            else {
+                var prescriptionquery = `SELECT p.* , pm.* FROM prescriptions p JOIN prescription_medicines pm WHERE p.patient_id = ? AND p.prescription_id = pm.prescription_id`;
+                con.query(prescriptionquery, [req.session.patientId], (err, prescriptions) => {
+                    if (err) throw err;
+                    else {
+                        res.render('patientpage/patientdashboard', { patient, notifications, prescriptions });
                     }
                 })
             }
@@ -874,148 +875,148 @@ app.get('/chat/setting', async (req, res) => {
     }
 });
 app.get('/video-chat', (req, res) => {
-    console.log("session data",req.session);
-    res.render('videocall',{session:req.session});
+    console.log("session data", req.session);
+    res.render('videocall', { session: req.session });
 });
-app.get('/admin/ai',(req,res)=>{
-    if(!req.session.admin_id){
+app.get('/admin/ai', (req, res) => {
+    if (!req.session.admin_id) {
         return res.redirect('/adminlogin')
     }
-    const admin_id=req.session.admin_id;
+    const admin_id = req.session.admin_id;
     const query = 'SELECT * FROM chat_session WHERE admin_id = ? ORDER BY created_at DESC';
-    con.query(query,[admin_id],(err,sessions)=>{
-        if(err){
+    con.query(query, [admin_id], (err, sessions) => {
+        if (err) {
             console.log(err);
             return res.status(500).send("Error fetching admin details");
         }
-        else{
-            let initialsession_uuid=null;
-            let initialchathistory=[];
-            if(sessions.length>0){
-                initialsession_uuid=sessions[0].session_uuid;
-                const chatquery=`SELECT * FROM chat_history where session_uuid = ? ORDER BY timestamp ASC`;
-                con.query(chatquery,[initialsession_uuid],(err,chat_history)=>{
-                    if(err){
+        else {
+            let initialsession_uuid = null;
+            let initialchathistory = [];
+            if (sessions.length > 0) {
+                initialsession_uuid = sessions[0].session_uuid;
+                const chatquery = `SELECT * FROM chat_history where session_uuid = ? ORDER BY timestamp ASC`;
+                con.query(chatquery, [initialsession_uuid], (err, chat_history) => {
+                    if (err) {
                         console.log(err);
                         return res.status(500).send("Error fetching chat history");
                     }
-                    else{
-                        res.render('adminpage/adminai',{
-                            admin_id:admin_id,
-                            sessions:sessions,
-                            chatHistory:chat_history,
-                            initialSessionId:initialsession_uuid,
-                            initialChatHistory:chat_history
+                    else {
+                        res.render('adminpage/adminai', {
+                            admin_id: admin_id,
+                            sessions: sessions,
+                            chatHistory: chat_history,
+                            initialSessionId: initialsession_uuid,
+                            initialChatHistory: chat_history
                         });
                     }
                 })
             }
-            else{
-                res.render('adminpage/adminai',{
-                    admin_id:admin_id,
-                    sessions:[],
-                    chatHistory:[],
+            else {
+                res.render('adminpage/adminai', {
+                    admin_id: admin_id,
+                    sessions: [],
+                    chatHistory: [],
                     initialSessionId: null,
-                    initialChatHistory:[]
+                    initialChatHistory: []
                 })
             }
         }
     })
 })
 app.get('/admin/ai/chat/:session_uuid', (req, res) => {
-    if(!req.session.admin_id){
-        return res.status(401).json({"error": "Unauthorized access. Please log in."});
+    if (!req.session.admin_id) {
+        return res.status(401).json({ "error": "Unauthorized access. Please log in." });
     }
-    const admin_id=req.session.admin_id;
-    const session_uuid=req.params.session_uuid;
+    const admin_id = req.session.admin_id;
+    const session_uuid = req.params.session_uuid;
 
     const sessionquery = "SELECT * FROM chat_session WHERE admin_id = ? AND session_uuid = ?";
     con.query(sessionquery, [admin_id, session_uuid], (err, sessions) => {
         if (err) {
             console.log(err);
-            return res.status(500).json({"error": "Error fetching session details"});
+            return res.status(500).json({ "error": "Error fetching session details" });
         }
         if (sessions.length === 0) {
-            return res.status(404).json({"error": "Session not found"});
+            return res.status(404).json({ "error": "Session not found" });
         }
         const chatquery = `SELECT * FROM chat_history WHERE session_uuid = ? ORDER BY timestamp ASC`;
         con.query(chatquery, [session_uuid], (err, chat_history) => {
             if (err) {
                 console.log(err);
-                return res.status(500).json({"error": "Error fetching chat history"});
+                return res.status(500).json({ "error": "Error fetching chat history" });
             }
-            res.json({chat_history: chat_history, session: sessions[0] });
+            res.json({ chat_history: chat_history, session: sessions[0] });
         });
     });
 })
-app.get('/patient/ai',(req,res)=>{
+app.get('/patient/ai', (req, res) => {
     if (!req.session.patientId) {
         return res.redirect('/patientlogin');
     }
-    const patient_id=req.session.patientId;
-    const query=`SELECT * FROM patient_chat_session WHERE patient_id = ?`;
-    con.query(query,[patient_id],(err,sessions)=>{
-        if(err){
+    const patient_id = req.session.patientId;
+    const query = `SELECT * FROM patient_chat_session WHERE patient_id = ?`;
+    con.query(query, [patient_id], (err, sessions) => {
+        if (err) {
             console.log(err);
             return res.status(500).send("Error fetching patient details");
-        }else{
-            let initialsession_uuid=null
-            let initialChat_history=[]
-            if(sessions.length()>0){
-                initialsession_uuid=sessions[0].session_uuid
+        } else {
+            let initialsession_uuid = null
+            let initialChat_history = []
+            if (sessions.length > 0) {
+                initialsession_uuid = sessions[0].session_uuid
                 const chatquery = `SELECT * FROM patient_chat_history WHERE session_uuid = ? ORDER BY timestamp ASC`;
-                con.query(query,[initialsession_uuid],(err,chat_history)=>{
-                    if(err){
+                con.query(chatquery, [initialsession_uuid], (err, chat_history) => {
+                    if (err) {
                         console.log(err);
                         return res.status(500).send("Error fetching chat history");
                     }
-                    else{
-                        res.render('patientpage/patientai',{
-                            patient_id:patient_id,
-                            sessions:sessions,
-                            chatHistory:chat_history,
-                            initialSessionId:initialsession_uuid,
-                            initialChatHistory:chat_history
+                    else {
+                        res.render('patientpage/patientai', {
+                            patient_id: patient_id,
+                            sessions: sessions,
+                            chatHistory: chat_history,
+                            initialSessionId: initialsession_uuid,
+                            initialChatHistory: chat_history
                         })
                     }
                 })
             }
-            else{
-                res.render('patientpage/patientai',{
-                    patient_id:patient_id,
-                    sessions:[],
-                    chatHistory:[],
-                    initialSessionId:null,
-                    initialChatHistory:[]
+            else {
+                res.render('patientpage/patientai', {
+                    patient_id: patient_id,
+                    sessions: [],
+                    chatHistory: [],
+                    initialSessionId: null,
+                    initialChatHistory: []
                 })
             }
         }
-        
+
     })
 })
-app.get('patient/ai/chat/:session_uuid',(req,res)=>{
-    if(!req.session.patientId){
+app.get('patient/ai/chat/:session_uuid', (req, res) => {
+    if (!req.session.patientId) {
         return res.redirect('/patientlogin');
     }
-    const patient_id=req.session.patientId;
-    const session_uuid=req.params.session_uuid
+    const patient_id = req.session.patientId;
+    const session_uuid = req.params.session_uuid
 
     const sessionquery = "SELECT * FROM patient_chat_session WHERE patient_id = ? AND session_uuid = ?";
     con.query(sessionquery, [patient_id, session_uuid], (err, sessions) => {
         if (err) {
             console.log(err);
-            return res.status(500).json({"error": "Error fetching session details"});
+            return res.status(500).json({ "error": "Error fetching session details" });
         }
         if (sessions.length === 0) {
-            return res.status(404).json({"error": "Session not found"});
+            return res.status(404).json({ "error": "Session not found" });
         }
         const chatquery = `SELECT * FROM patient_chat_history WHERE session_uuid = ? ORDER BY timestamp ASC`;
         con.query(chatquery, [session_uuid], (err, chat_history) => {
             if (err) {
                 console.log(err);
-                return res.status(500).json({"error": "Error fetching chat history"});
+                return res.status(500).json({ "error": "Error fetching chat history" });
             }
-            res.json({chat_history: chat_history, session: sessions[0] });
+            res.json({ chat_history: chat_history, session: sessions[0] });
         });
     });
 })
@@ -1133,8 +1134,8 @@ app.post('/new_nurse', nurseroute);
 app.post('/diagnosis', diagnosisroute);
 app.post('/prescription', prescriptionroute);
 app.post('/newprescription', newprescriptionroute);
-app.post('/notifications/mark-as-read',(req,res)=>{
-    const {notification_id}=req.body;
+app.post('/notifications/mark-as-read', (req, res) => {
+    const { notification_id } = req.body;
     const query = `UPDATE notifications SET is_read = 1 WHERE notification_id = ?`;
     con.query(query, [notification_id], (err, result) => {
         if (err) {
@@ -1144,76 +1145,76 @@ app.post('/notifications/mark-as-read',(req,res)=>{
         res.redirect('/doctoradmin');
     });
 })
-app.post('/admin/ai/newchat',(req,res)=>{
-    const admin_id=req.session.admin_id;
+app.post('/admin/ai/newchat', (req, res) => {
+    const admin_id = req.session.admin_id;
     const session_uuid = uuidv4(); // Generate a new UUID for the session
     if (!admin_id) {
-        return res.status(400).json({error: "Admin ID is required"});
+        return res.status(400).json({ error: "Admin ID is required" });
     }
     const query = `INSERT INTO chat_session (admin_id, session_uuid) VALUES (?, ?)`;
     con.query(query, [admin_id, session_uuid], (err, result) => {
         if (err) {
             console.error("Error creating new chat session:", err);
-            return res.status(500).json({error:'Error creating chat session'});
+            return res.status(500).json({ error: 'Error creating chat session' });
         }
-        else{
+        else {
             res.status(200).json({
-                session_uuid:session_uuid,
+                session_uuid: session_uuid,
             })
         }
     });
 })
-app.post("/admin/ai/chat/:session_uuid/rename",(req,res)=>{
+app.post("/admin/ai/chat/:session_uuid/rename", (req, res) => {
     const session_uuid = req.params.session_uuid;
-    const newName =req.body.newName;
+    const newName = req.body.newName;
     const query = `UPDATE chat_session SET name = ? WHERE session_uuid = ?`;
-    con.query(query, [newName,session_uuid],(err,result)=>{
-        if(err){
+    con.query(query, [newName, session_uuid], (err, result) => {
+        if (err) {
             console.error("Error updating chat session name:", err);
         }
-        else{
-            res.status(200).json({message:"Chat session name updated successfully"});
+        else {
+            res.status(200).json({ message: "Chat session name updated successfully" });
         }
     })
 })
-app.delete("/admin/ai/chat/:session_uuid/delete",(req,res)=>{
+app.delete("/admin/ai/chat/:session_uuid/delete", (req, res) => {
     const session_uuid = req.params.session_uuid;
-    if(!session_uuid){
-        return res.status(400).json({error: "session_uuid is required"});
+    if (!session_uuid) {
+        return res.status(400).json({ error: "session_uuid is required" });
     }
     const deleteChatQuery = `DELETE FROM chat_session WHERE session_uuid = ?`;
-    con.query(deleteChatQuery,[session_uuid],(err,result)=>{
-        if(err){
+    con.query(deleteChatQuery, [session_uuid], (err, result) => {
+        if (err) {
             console.error("Error deleting chat session:", err);
         }
-        else{
+        else {
             const deleteHistoryQuery = `DELETE FROM chat_history WHERE session_uuid = ?`;
-            con.query(deleteHistoryQuery,[session_uuid],(err,result)=>{
-                if(err){
+            con.query(deleteHistoryQuery, [session_uuid], (err, result) => {
+                if (err) {
                     console.error("Error deleting chat history:", err);
                 }
-                else{
-                    res.status(200).json({message:"Chat session and history deleted successfully"});
+                else {
+                    res.status(200).json({ message: "Chat session and history deleted successfully" });
                 }
             })
         }
     })
 })
-app.post('/patient/ai/newchat',(req,res)=>{
-    if(!req.session.patientId){
-        return res.status(400).json({error:"Patient_id is required"})
+app.post('/patient/ai/newchat', (req, res) => {
+    if (!req.session.patientId) {
+        return res.status(400).json({ error: "Patient_id is required" })
     }
-    const patient_id=req.session.patientId;
-    const session_uuid=uuidv4();
-    const query=`INSERT INTO patient_chat_session (patient_id,session_uuid) VALUES (?, ?)`;
+    const patient_id = req.session.patientId;
+    const session_uuid = uuidv4();
+    const query = `INSERT INTO patient_chat_session (patient_id,session_uuid) VALUES (?, ?)`;
     con.query(query, [patient_id, session_uuid], (err, result) => {
         if (err) {
             console.error("Error creating new chat session:", err);
-            return res.status(500).json({error:'Error creating chat session'});
+            return res.status(500).json({ error: 'Error creating chat session' });
         }
-        else{
+        else {
             res.status(200).json({
-                session_uuid:session_uuid,
+                session_uuid: session_uuid,
             })
         }
     });
