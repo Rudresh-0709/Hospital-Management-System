@@ -97,6 +97,7 @@ def handle_booking(state:HMAIState) -> HMAIState:
             + "\nPlease select a doctor."
         )
         print(state.next_prompt)
+        return state
 
     if (
         state.selected_slot is None
