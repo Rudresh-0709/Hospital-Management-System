@@ -13,8 +13,7 @@ from pathlib import Path
 
 # Load config
 current_file = Path(__file__).resolve()
-# Go up three levels to reach the patient_ai directory
-base_dir = current_file.parents[2]  # nodes -> langgraph_app -> patient_ai
+base_dir = current_file.parents[2]
 config_path = base_dir / "config.yaml"
 
 if not config_path.exists():
@@ -25,7 +24,6 @@ if not config_path.exists():
 with open(config_path, "r") as file:
     config = yaml.safe_load(file)
 
-# Initialize Groq LLM
 groq_api_key = os.getenv(config["llm"]["groq_fast"]["api_key_env"])
 llm = ChatGroq(
     model=config["llm"]["groq_fast"]["model_name"],
@@ -70,7 +68,6 @@ TOPIC_TABLE_MAP = {
     "prescriptions": ["prescriptions", "prescription_medicines"],
     "admissions": ["admit", "rooms"]
 }
-
 
 def handle_appointment(state:HMAIState) -> HMAIState:
     # If we're in a booking stage, always handle as booking

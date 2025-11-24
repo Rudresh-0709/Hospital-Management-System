@@ -134,6 +134,20 @@ app.use('/profile-pictures', express.static(path.join(__dirname, 'routes/chat/up
 
 app.use(express.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
+
+// Explicit route for video to ensure correct serving
+app.get("/background.mp4", (req, res) => {
+    const videoPath = path.join(__dirname, 'public/react-home', 'background.mp4');
+    res.setHeader('Content-Type', 'video/mp4');
+    res.sendFile(videoPath, (err) => {
+        if (err) {
+            console.error("Error sending video:", err);
+            res.status(404).end();
+        }
+    });
+});
+
+app.use(express.static(path.join(__dirname, 'public/react-home'))); // Serve React assets
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({
     secret: 'your-secret-key',
@@ -149,12 +163,11 @@ app.use((req, res, next) => {
     delete req.session.flashMessage;  // Clear the message after displaying it
     next();
 });
-
 const chatRoutes = require('./routes/chat/chatroute');
 app.use('/chat', chatRoutes);
 
 app.get("/", (req, res) => {
-    res.render("home");
+    res.sendFile(path.join(__dirname, 'public/react-home', 'index.html'));
 })
 app.get("/adminlogin", (req, res) => {
     res.render("adminpage/adminlogin");
@@ -162,7 +175,6 @@ app.get("/adminlogin", (req, res) => {
 app.get("/admin", (req, res) => {
     res.render("adminpage/admin");
 })
-
 app.get("/admin/patient", (req, res) => {
     var displayname = "SELECT * FROM patients p JOIN admit a ON p.patient_id=a.patient_id JOIN emergency e on e.patient_id=p.patient_id ";
     con.query(displayname, function (nameerror, nameresult) {

@@ -1,0 +1,58 @@
+.hover-border-gradient-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 9999px;
+    /* rounded-full */
+    padding: 2px;
+    /* Increased border width */
+    background-color: rgba(255, 255, 255, 0.1);
+    /* Subtle border bg */
+    transition: background-color 0.5s ease;
+    cursor: pointer;
+    width: fit-content;
+    text-decoration: none;
+    overflow: hidden;
+}
+
+.hover-border-gradient-container:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.hover-border-gradient-content {
+    position: relative;
+    z-index: 10;
+    background-color: transparent;
+    /* Removed black */
+    color: white;
+    padding: 0.5rem 1rem;
+    /* px-4 py-2 */
+    border-radius: inherit;
+    width: auto;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hover-border-gradient-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    border-radius: inherit;
+    overflow: hidden;
+    filter: blur(2px);
+    width: 100%;
+    height: 100%;
+}
+
+.hover-border-gradient-overlay {
+    position: absolute;
+    z-index: 1;
+    inset: 2px;
+    /* Matches padding */
+    background-color: transparent;
+    /* Removed black */
+    border-radius: 9999px;
+}
