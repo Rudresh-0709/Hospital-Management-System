@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Phone, ChevronDown, User, Sparkles } from 'lucide-react';
 import './Navbar.css';
 
@@ -12,28 +12,46 @@ const Navbar = () => {
     };
 
     useEffect(() => {
-        const controlNavbar = () => {
-            if (typeof window !== 'undefined') {
-                if (window.scrollY > lastScrollY && window.scrollY > 100) {
-                    // Scroll Down
-                    setIsVisible(false);
-                } else {
-                    // Scroll Up
-                    setIsVisible(true);
-                }
-                setLastScrollY(window.scrollY);
+        const navbar = document.querySelector('.navbar-wrapper');
+
+        // Start hidden
+        navbar.classList.add("initial-hidden");
+
+        // Reveal after delay
+        setTimeout(() => {
+            navbar.classList.remove('initial-hidden');
+            navbar.classList.add('visible');
+        }, 150);
+    }, []);
+
+
+
+
+    const lastY = useRef(0);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            const currentY = window.scrollY;
+
+            if (currentY > lastY.current && currentY > 120) {
+                // scrolling down
+                setIsVisible(false);
+            } else {
+                // scrolling up
+                setIsVisible(true);
             }
+
+            lastY.current = currentY;
         };
 
-        window.addEventListener('scroll', controlNavbar);
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
 
-        return () => {
-            window.removeEventListener('scroll', controlNavbar);
-        };
-    }, [lastScrollY]);
 
     return (
         <div className={`navbar-wrapper ${isVisible ? 'visible' : 'hidden'}`}>
+
             {/* Announcement Banner */}
             <div className="announcement-banner">
                 <Sparkles size={14} className="banner-icon" />

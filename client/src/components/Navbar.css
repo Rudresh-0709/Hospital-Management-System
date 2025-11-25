@@ -47,6 +47,11 @@
     animation: pulse 3s infinite ease-in-out;
 }
 
+.navbar-wrapper.initial-hidden {
+    opacity: 0;
+    transform: translate(-50%, -180%);
+}
+
 /* Navbar Container */
 .navbar {
     display: flex;
