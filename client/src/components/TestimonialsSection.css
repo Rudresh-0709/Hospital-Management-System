@@ -1,0 +1,140 @@
+/* SECTION */
+.testimonials-section {
+    padding: 2rem 2rem;
+    background-color: #f8f9fa;
+    /* Clean white or very light gray */
+    position: relative;
+    overflow: hidden;
+}
+
+/* HEADER */
+.testimonials-header {
+    text-align: center;
+    margin-bottom: 5rem;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.testimonials-header h2 {
+    font-size: 2.5rem;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+}
+
+.testimonials-header p {
+    font-size: 1.25rem;
+    color: #7f8c8d;
+    line-height: 1.6;
+}
+
+.testimonials-underline {
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+    margin: 1rem auto;
+    border-radius: 2px;
+}
+
+/* MASONRY GRID */
+.testimonials-grid {
+    column-count: 1;
+    /* Mobile default */
+    column-gap: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+    .testimonials-grid {
+        column-count: 2;
+    }
+}
+
+@media (min-width: 1200px) {
+    .testimonials-grid {
+        column-count: 3;
+    }
+}
+
+/* CARD */
+.testimonial-card {
+    background: #ffffff;
+    border-radius: 24px;
+    padding: 2.5rem;
+    margin-bottom: 2rem;
+    /* Spacing between items in a column */
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.03);
+    break-inside: avoid;
+    /* Prevent card from splitting across columns */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+}
+
+.testimonial-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 50px rgba(52, 152, 219, 0.15);
+}
+
+/* QUOTE ICON */
+.quote-icon-container {
+    margin-bottom: 1.5rem;
+    color: #3498db;
+    opacity: 0.2;
+}
+
+/* TEXT */
+.testimonial-text {
+    font-size: 1.1rem;
+    color: #34495e;
+    line-height: 1.7;
+    margin-bottom: 2rem;
+    font-style: italic;
+}
+
+/* AUTHOR */
+.testimonial-author {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.author-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.2rem;
+}
+
+.author-info h4 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #2c3e50;
+    font-weight: 700;
+}
+
+.author-info span {
+    font-size: 0.9rem;
+    color: #95a5a6;
+    display: block;
+    margin-top: 2px;
+}
+
+/* RATING */
+.rating {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 1rem;
+}
+
+.star {
+    fill: #f1c40f;
+    color: #f1c40f;
+}

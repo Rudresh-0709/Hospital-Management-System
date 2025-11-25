@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import './Hero.css';
 import { HoverBorderGradient } from "./ui/hover-border-gradient";
 
@@ -14,16 +15,37 @@ const Hero = () => {
 
             <div className="hero-inner">
                 <div className="hero-content">
-                    <h1 className="hero-title">
+                    <motion.h1
+                        className="hero-title"
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
+                    >
                         THE FUTURE <br />
                         OF CARE IS <br />
 
-                        <span>HERE.</span>
-                    </h1 >
-                    <p className="hero-subtitle">
+                        <motion.span
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8, ease: "easeOut", delay: 0.6 }}
+                        >
+                            HERE.
+                        </motion.span>
+                    </motion.h1 >
+                    <motion.p
+                        className="hero-subtitle"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8, ease: "easeOut", delay: 0.8 }}
+                    >
                         Where advanced AI meets human compassion.
-                    </p>
-                    <div className="hero-buttons">
+                    </motion.p>
+                    <motion.div
+                        className="hero-buttons"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8, ease: "easeOut", delay: 1 }}
+                    >
                         <a href="/appointment" className="btn-primary">BOOK APPOINTMENT</a>
                         <HoverBorderGradient
                             containerClassName="rounded-full"
@@ -33,7 +55,7 @@ const Hero = () => {
                         >
                             <span>EXPLORE SERVICES →</span>
                         </HoverBorderGradient>
-                    </div>
+                    </motion.div>
                 </div >
             </div>
         </div >

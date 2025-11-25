@@ -1,0 +1,233 @@
+/* SECTION */
+.resources-section {
+    padding: 6rem 2rem;
+    background-color: #f7f8f9;
+    /* User's requested background */
+    position: relative;
+    overflow: hidden;
+}
+
+/* HEADER */
+.resources-header {
+    text-align: center;
+    margin-bottom: 4rem;
+}
+
+.resources-header h2 {
+    font-size: 2.5rem;
+    color: #0f172a;
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.resources-header p {
+    font-size: 1.2rem;
+    color: #64748b;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.resources-underline {
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+    margin: 1rem auto;
+    border-radius: 2px;
+}
+
+/* BENTO GRID */
+.bento-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+    .bento-grid {
+        grid-template-columns: repeat(2, 1fr);
+        grid-auto-rows: 250px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .bento-grid {
+        grid-template-columns: repeat(4, 1fr);
+        /* Removed fixed row count to allow expansion */
+        grid-auto-rows: 280px;
+    }
+}
+
+/* BENTO ITEM */
+.bento-item {
+    background: #ffffff;
+    /* Changed to white for contrast */
+    border-radius: 24px;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    /* Slightly darker border */
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+    /* Added subtle shadow */
+}
+
+.bento-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+    border-color: rgba(56, 189, 248, 0.3);
+    z-index: 2;
+}
+
+/* SPANS */
+.span-2 {
+    grid-column: span 1;
+}
+
+@media (min-width: 768px) {
+    .span-2 {
+        grid-column: span 2;
+    }
+}
+
+.row-span-2 {
+    grid-row: span 1;
+}
+
+@media (min-width: 768px) {
+    .row-span-2 {
+        grid-row: span 2;
+    }
+}
+
+/* CONTENT STYLES */
+.bento-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    background: #f1f5f9;
+    /* Light gray background for icons */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+.bento-item:hover .bento-icon {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white !important;
+}
+
+.bento-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+}
+
+.bento-desc {
+    font-size: 1rem;
+    color: #64748b;
+    line-height: 1.5;
+}
+
+.bento-bg-icon {
+    position: absolute;
+    bottom: -20px;
+    right: -20px;
+    opacity: 0.05;
+    transition: transform 0.4s ease, opacity 0.4s ease;
+    pointer-events: none;
+}
+
+.bento-item:hover .bento-bg-icon {
+    transform: scale(1.2) rotate(-10deg);
+    opacity: 0.1;
+}
+
+/* SPECIFIC ITEM STYLES */
+.item-primary {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: white;
+}
+
+.item-primary .bento-title,
+.item-primary .bento-desc {
+    color: white;
+}
+
+.item-primary .bento-desc {
+    opacity: 0.8;
+}
+
+.item-primary .bento-icon {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.item-primary:hover {
+    background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+}
+
+/* NEW UNIQUE ITEM: TELEHEALTH */
+.item-accent {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.item-accent::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at top right, rgba(255, 255, 255, 0.2), transparent 70%);
+    pointer-events: none;
+}
+
+.item-accent .bento-title,
+.item-accent .bento-desc {
+    color: white;
+}
+
+.item-accent .bento-desc {
+    opacity: 0.9;
+}
+
+.item-accent .bento-icon {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.item-accent:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+}
+
+.arrow-link {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    color: #38bdf8;
+    font-size: 0.9rem;
+}
+
+.item-primary .arrow-link,
+.item-accent .arrow-link {
+    color: #7dd3fc;
+}
+
+.item-accent .arrow-link:hover {
+    color: white;
+}

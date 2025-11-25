@@ -14,10 +14,8 @@
     top: 0;
     bottom: 0;
     width: 200px;
-    /* Wide fade area */
     z-index: 20;
     pointer-events: none;
-    /* Allow clicks through */
 }
 
 .doctors-section::before {
@@ -30,11 +28,10 @@
     background: linear-gradient(to left, #f8f9fa 20%, transparent 100%);
 }
 
-.doctors-section, 
+.doctors-section,
 .doctors-section * {
     user-select: none;
 }
-
 
 /* HEADER */
 .doctors-header {
@@ -53,6 +50,14 @@
 .doctors-header p {
     font-size: 1.2rem;
     color: #7f8c8d;
+}
+
+.doctors-underline {
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+    margin: 1rem auto;
+    border-radius: 2px;
 }
 
 /* SLIDER */
@@ -75,14 +80,12 @@
     flex-shrink: 0;
     width: 460px;
     height: 480px;
-    /* Increased margin significantly to prevent clutter */
     position: relative;
-    /* Ensure no background on the slide itself to prevent ghosting */
     background: transparent;
 }
 
 .slide-inner {
-    padding: 0 65px; /* 40px gap on each side = 80px total */
+    padding: 0 65px;
     height: 100%;
 }
 
@@ -93,11 +96,8 @@
     position: relative;
     border-radius: 20px;
     background: white;
-    /* RESTORED: Solid white background */
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
-    /* RESTORED: Soft shadow */
     overflow: visible;
-    /* Allow image to pop out */
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
@@ -114,14 +114,11 @@
 .card-image-wrapper {
     position: absolute;
     top: -80px;
-    /* Adjust pop-out height */
     left: 50%;
     transform: translateX(-40%) translateY(-50px);
     height: 300px;
-    /* Fixed height for consistency */
     width: 260px;
     z-index: 10;
-    /* Ensure image doesn't get cut off */
     overflow: visible;
 }
 
@@ -129,11 +126,8 @@
     height: 105%;
     width: 100%;
     object-fit: cover;
-    /* Cover to fill the wrapper */
     object-position: top center;
-    /* Focus on face */
     border-radius: 20px;
-    /* Optional: Drop shadow on the image itself for depth */
     filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.15));
     mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
     -webkit-mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
@@ -154,10 +148,8 @@
 /* CONTENT */
 .card-content {
     padding: 80px 20px 30px;
-    /* Top padding clears the image */
     text-align: center;
     background: white;
-    /* Ensure content has background */
     border-radius: 0 0 20px 20px;
     z-index: 1;
 }

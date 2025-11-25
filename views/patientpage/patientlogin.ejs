@@ -1,301 +1,469 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Login | Modern Hospital</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Eagle+Lake&family=Montserrat+Alternates:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Ruslan+Display&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap"
         rel="stylesheet">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Patient Login</title>
     <script src="/javascripts/patientadmit.js"></script>
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --secondary: #64748b;
+            --bg-gradient: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            --glass-bg: rgba(255, 255, 255, 0.95);
+            --glass-border: rgba(255, 255, 255, 0.5);
+            --shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+            --text-main: #1e293b;
+            --text-light: #64748b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-gradient);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* ANIMATIONS */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 0.5;
+            }
+
+            50% {
+                transform: scale(1.05);
+                opacity: 0.7;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 0.5;
+            }
+        }
+
+        /* CONTAINER */
+        .main-container {
+            width: 90%;
+            max-width: 1100px;
+            height: 85vh;
+            background: var(--glass-bg);
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            display: flex;
+            overflow: hidden;
+            border: 1px solid var(--glass-border);
+            animation: fadeIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+            position: relative;
+            z-index: 10;
+        }
+
+        /* LEFT SIDE - IMAGE */
+        .image-section {
+            flex: 1.2;
+            background-color: #e0f2fe;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            display: none;
+            /* Hidden on mobile */
+        }
+
+        @media (min-width: 768px) {
+            .image-section {
+                display: flex;
+            }
+        }
+
+        .image-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 60%);
+            animation: float 10s infinite ease-in-out;
+        }
+
+        .illustration {
+            width: 90%;
+            height: auto;
+            z-index: 2;
+            animation: slideInLeft 1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.2s backwards;
+            filter: drop-shadow(0 10px 20px rgba(59, 130, 246, 0.15));
+        }
+
+        /* RIGHT SIDE - FORM */
+        .form-section {
+            flex: 1;
+            padding: 3rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            background: white;
+            overflow: hidden;
+        }
+
+        .form-content {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 5;
+            animation: slideInRight 1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.4s backwards;
+        }
+
+        .header {
+            margin-bottom: 2.5rem;
+            text-align: center;
+        }
+
+        .header h2 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+
+        /* FORM ELEMENTS */
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
+            color: var(--text-main);
+            transition: all 0.3s ease;
+            background: #f8fafc;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-group input:focus+label {
+            color: var(--primary);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        /* DECORATIVE CLIPARTS */
+        .clipart {
+            position: absolute;
+            opacity: 0.1;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .clipart-heart {
+            top: 10%;
+            right: 10%;
+            width: 60px;
+            height: 60px;
+            color: #ef4444;
+            animation: pulse 3s infinite ease-in-out;
+        }
+
+        .clipart-pill {
+            bottom: 15%;
+            left: 5%;
+            width: 50px;
+            height: 50px;
+            color: #3b82f6;
+            transform: rotate(45deg);
+        }
+
+        .clipart-plus {
+            top: 15%;
+            left: 10%;
+            width: 40px;
+            height: 40px;
+            color: #10b981;
+        }
+
+        .clipart-wave {
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: auto;
+            color: #e0f2fe;
+            opacity: 0.5;
+            z-index: 0;
+        }
+
+        /* FLASH MESSAGES */
+        .popup {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2000;
+            animation: slideInRight 0.5s ease-out;
+        }
+
+        .alert {
+            padding: 16px 24px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            min-width: 300px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .alert-success {
+            background-color: #ecfdf5;
+            color: #047857;
+            border-left: 4px solid #10b981;
+        }
+
+        .alert-error,
+        .alert-danger {
+            background-color: #fef2f2;
+            color: #b91c1c;
+            border-left: 4px solid #ef4444;
+        }
+
+        .alert button {
+            background: transparent;
+            border: none;
+            color: inherit;
+            margin-left: auto;
+            cursor: pointer;
+            font-weight: 600;
+            opacity: 0.7;
+        }
+
+        .alert button:hover {
+            opacity: 1;
+        }
+
+        /* BACKGROUND SHAPES */
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            z-index: 1;
+            opacity: 0.6;
+        }
+
+        .shape-1 {
+            top: -100px;
+            right: -100px;
+            width: 400px;
+            height: 400px;
+            background: #bfdbfe;
+        }
+
+        .shape-2 {
+            bottom: -100px;
+            left: -100px;
+            width: 400px;
+            height: 400px;
+            background: #ddd6fe;
+        }
+    </style>
 </head>
-<style>
-    html{
-        margin:0;
-        overflow: hidden;
-        background-color: #a7d2f4;
-        height:100%;
-    }
-    body{
-        height: 100%;
-        display:flex;
-        align-items: center;
-        justify-content: space-between;
-        margin:0;
-    }
-    .container{
-        height: 100%;
-        width:30%;
-        display:flex;
-        justify-content: center;
-        align-items: center;
-    }
-    .login-container{
-        background-size: cover;
-        background-image: url("/png/patientpng/wave.png");
-        z-index: 1000;
-        height:60%;
-        width:95%;
-        border:1px solid rgba(255, 255, 255, 0.426);
-        border-radius: 10px;
-    }
-    .loginimg{
-        height: 100%;
-        width:70%;
-        background-size: cover;
-        background-image: url("/png/patientpng/freepik__retouch__52603.png");
-    }
-    form{
-        height:100%;
-        width:100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-    }
-    .form-group{
-        margin: 0;
-        height:25%;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items:center;
-    }
-    .form-button{
-        height:25%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-    h2{
-        font-family:"Montserrat Alternates";
-        text-shadow: 1px 1px 1px #089cff;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items:center;
-        height:20%;
-        margin-top:20px;
-        margin-bottom:0;
-        font-size: 40px;
-        color: aliceblue;
-    }
-    label{
-        font-family:"Montserrat Alternates";
-        font-size: 20px;
-        width:100%;
-        color:aliceblue;
-        text-align: start;
-    }
-    .form-group input {
-        width: 90%;
-        padding:10px 15px 10px 15px;
-        color:rgba(0, 0, 0, 0.581);
-        border: 2px solid #e1e1e1;
-        border-radius: 12px;
-        font-size: 1rem;
-        transition: all 0.3s ease;
-    }
 
-    .form-group input:focus {
-        outline: none;
-        border-color: #089cff;
-        box-shadow: 0 0 0 4px rgba(0, 169, 247, 0.1);
-    }
-    .form-group{
-        width:70%;
-    }
-    button{
-        font-family:"Montserrat Alternates";
-        font-size:20px;
-        padding:10px 50px 10px 50px;
-        border-radius: 5px;
-        border-color: rgba(255, 255, 255, 0.1);
-        background-color: #a6d8fa6f;
-        cursor: pointer;
-        color:white;
-    }
-    .flash-message {
-    position: fixed;
-    top: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 90%;
-    max-width: 500px;
-    background-color: #4caf50; /* Success background color */
-    color: #fff; /* Text color */
-    font-size: 1rem;
-    padding: 15px 20px;
-    border-radius: 5px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    z-index: 1000;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-}
-
-.flash-message.error {
-    background-color: #f44336; /* Error background color */
-}
-
-.flash-message.warning {
-    background-color: #ff9800; /* Warning background color */
-}
-
-.flash-message.info {
-    background-color: #2196f3; /* Info background color */
-}
-
-.flash-message.show {
-    opacity: 1;
-    visibility: visible;
-}
-
-#flash-close {
-    background: none;
-    border: none;
-    color: #fff;
-    font-size: 1.2rem;
-    cursor: pointer;
-}
-
-#flash-close:hover {
-    color: #ccc;
-}
-.alert {
-    padding: 15px;
-    margin-bottom: 20px;
-    border: 1px solid transparent;
-    border-radius: 4px;
-}
-
-.alert-success {
-    color: #155724;
-    background-color: #d4edda;
-    border-color: #c3e6cb;
-}
-
-.alert-danger {
-    color: #721c24;
-    background-color: #f8d7da;
-    border-color: #f5c6cb;
-}
-.alert-error{
-    color: #721c24;
-    background-color: #f8d7da;
-    border-color: #f5c6cb;
-}
-.alert-warning{
-    background-color: #fff3cd;
-    color: #856404;
-    border: 1px solid #ffeeba;
-}
-/* Flash message container */
-.flash-message {
-    padding: 15px;
-    margin: 15px 0;
-    border-radius: 5px;
-    font-size: 16px;
-    font-weight: bold;
-    text-align: center;
-    animation: fadeOut 5s forwards; /* Auto-hide after 5 seconds */
-}
-
-/* Success message style */
-.flash-message.success {
-    background-color: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
-}
-
-/* Error message style */
-.flash-message.error {
-    background-color: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
-}
-
-/* Warning message style */
-.flash-message.warning {
-    background-color: #fff3cd;
-    color: #856404;
-    border: 1px solid #ffeeba;
-}
-.popup {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    min-width: 300px;
-    max-width: max-content;
-    background-color: #fff;
-    border: 1px solid #ccc;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    z-index: 1000;
-    display: none;
-    text-align: center;
-    padding: 20px;
-    border-radius: 10px;
-    animation: fadeIn 0.3s ease-in-out;
-}
-
-.popup-content h3 {
-    margin: 0;
-    font-size: 1.5rem;
-    color: #4caf50;
-}
-
-.popup-content p {
-    font-size: 1rem;
-    color: #555;
-    margin: 10px 0;
-}
-
-#close-popup {
-    background-color: #2196f3;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    font-size: 0.9rem;
-    cursor: pointer;
-    border-radius: 5px;
-}
-</style>
 <body>
-    <div class="loginimg">    
-    </div>
-    <div class="container">
+    <!-- Background Shapes -->
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
 
-        <div class="login-container">
-            <form action="/patientlogin" method="POST">
-                <h2>Patient Login</h2>
-                <div class="form-group">
-                    <label for="name">Name</label>
-                    <input type="text" id="name" name="name" required>
-                </div>
-                <div class="form-group">
-                    <label for="password">Password:</label>
-                    <input type="password" id="password" name="password" required>
-                </div>
-                <div class="form-button">
-                    <button type="submit">Login</button>
-                </div>
-            </form>
+    <div class="main-container">
+        <!-- Left Side: Illustration -->
+        <div class="image-section">
+            <!-- Using the newly generated image path -->
+            <img src="/png/patientpng/medical_login_illustration.png" alt="Medical Illustration"
+                class="illustration">
         </div>
-    </div>
-    <% if (flashMessage) { %>
-        <div class="popup" id="popup">
-            <div class="alert alert-<%= flashMessage.type %> ">
-                <span><%= flashMessage.message %></span>
-                <button id="close-popup">Close</button>
+
+        <!-- Right Side: Login Form -->
+        <div class="form-section">
+            <!-- Decorative Cliparts -->
+            <svg class="clipart clipart-heart" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                    d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+            </svg>
+            <svg class="clipart clipart-plus" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+            </svg>
+            <svg class="clipart clipart-pill" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                    d="M4.5 10.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5zm15 0c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" />
+            </svg>
+
+            <!-- Bottom Wave Decoration -->
+            <svg class="clipart clipart-wave" viewBox="0 0 1440 320" fill="currentColor">
+                <path fill-opacity="1"
+                    d="M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,224C672,245,768,267,864,261.3C960,256,1056,224,1152,197.3C1248,171,1344,149,1392,138.7L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z">
+                </path>
+            </svg>
+
+            <div class="form-content">
+                <div class="header">
+                    <h2>Welcome Back</h2>
+                    <p>Please enter your details to access your portal</p>
+                </div>
+
+                <form action="/patientlogin" method="POST">
+                    <div class="form-group">
+                        <label for="name">Patient Name</label>
+                        <input type="text" id="name" name="name" placeholder="e.g. John Doe" required
+                            autocomplete="off">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" placeholder="••••••••" required>
+                    </div>
+
+                    <button type="submit" class="submit-btn">Sign In</button>
+                </form>
             </div>
         </div>
-    <% } %>
+    </div>
+
+    <!-- Flash Messages -->
+    <% if (flashMessage) { %>
+        <div class="popup" id="popup">
+            <div class="alert alert-<%= flashMessage.type %>">
+                <span>
+                    <%= flashMessage.message %>
+                </span>
+                <button id="close-popup" onclick="document.getElementById('popup').style.display='none'">✕</button>
+            </div>
+        </div>
+        <% } %>
+
+            <script>
+                // Simple script to auto-hide flash message after 5 seconds
+                const popup = document.getElementById('popup');
+                if (popup) {
+                    setTimeout(() => {
+                        popup.style.opacity = '0';
+                        setTimeout(() => popup.remove(), 500);
+                    }, 5000);
+                }
+            </script>
 </body>
 
 </html>

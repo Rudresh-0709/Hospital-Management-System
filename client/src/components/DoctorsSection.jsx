@@ -95,7 +95,7 @@ const doctors = [
         image: DrMeera, // Placeholder
         description: "Helping patients achieve mental well-being and balance."
     },
-        {
+    {
         name: "Dr. Ananya Radhakrishnan",
         specialty: "Endocrinology",
         image: DrAnanya, // Placeholder
@@ -177,6 +177,7 @@ function DoctorsSection() {
         <section className="doctors-section" id="doctors">
             <div className="doctors-header">
                 <h2>World-Class Experts Leading Your Care</h2>
+                <div className="doctors-underline"></div>
                 <p>Browse our team of board-certified specialists</p>
             </div>
 

@@ -1,33 +1,40 @@
-*{
+* {
     box-sizing: border-box;
     padding: 0;
-    margin:0;
+    margin: 0;
     font-family: "Poppins";
     font-weight: 400;
 }
-body{
+
+body {
     background-color: aliceblue;
 }
-ul{
+
+ul {
     list-style: none;
 }
-a{
+
+a {
     text-decoration: none;
 }
-main{
+
+main {
     margin-inline: 6rem 1rem;
     padding-block: 2rem;
 }
-.nav{
-    width:72px;
-    height:max-content;
+
+.nav {
+    width: 72px;
+    height: max-content;
     position: fixed;
-    inset:0;
+    inset: 0;
     margin: auto 0;
+    z-index: 1000;
 }
-.navlist{
+
+.navlist {
     position: relative;
-    background-image: linear-gradient(to left,#00419c,#29B6F6);
+    background-image: linear-gradient(to left, #00419c, #29B6F6);
     /* background-color: #29B6F6; */
     padding-block: 70px;
     border-radius: 0 51px 51px 0;
@@ -35,19 +42,22 @@ main{
     justify-content: center;
     row-gap: 2rem;
 }
-.navlink{
+
+.navlink {
     position: relative;
     display: inline-flex;
-    padding:4px;
+    padding: 4px;
     border-radius: 50%;
     transition: background 4s;
 }
-.navlink i{
+
+.navlink i {
     font-size: 1.25rem;
-    color:aliceblue;
+    color: aliceblue;
     transition: color .4s;
 }
-.navname{
+
+.navname {
     position: absolute;
     top: 0;
     transform: translateX(56px);
@@ -58,214 +68,253 @@ main{
     padding: 6px 16px;
     border-radius: 3rem;
     pointer-events: none;
-    transition: transform .5s , opacity .5s;
-    opacity:0;
+    transition: transform .5s, opacity .5s;
+    opacity: 0;
+    z-index: 999;
 }
-.navlink:hover .navname{
-    opacity:1;
-    transform:translateX(48px);
+
+.navlink:hover .navname {
+    opacity: 1;
+    transform: translateX(48px);
 }
+
 .navcircle1,
-.navcircle2{
-    width:80px;
-    height:80px;
+.navcircle2 {
+    width: 80px;
+    height: 80px;
     background-color: aliceblue;
     border-radius: 50%;
-    position:absolute;
-    left:0;
+    position: absolute;
+    left: 0;
     z-index: 10;
 }
-.navcircle1{
-    top:-78px;
+
+.navcircle1 {
+    top: -78px;
 }
-.navcircle2{
-    bottom:-78px
+
+.navcircle2 {
+    bottom: -78px
 }
+
 .navsquare1,
-.navsquare2{
-    width:35px;
-    height:40px;
-    background-image: linear-gradient(to left,#00419c,#29B6F6);
+.navsquare2 {
+    width: 35px;
+    height: 40px;
+    background-image: linear-gradient(to left, #00419c, #29B6F6);
     /* background-color: #29B6F6; */
-    position:absolute;
-    z-index:1;
+    position: absolute;
+    z-index: 1;
 }
-.navsquare1{
+
+.navsquare1 {
     top: -39px;
 }
-.navsquare2{
-    bottom:-39px
+
+.navsquare2 {
+    bottom: -39px
 }
-.active-link{
+
+.active-link {
     background-color: aliceblue;
 }
-.active-link i{
+
+.active-link i {
     color: #29B6F6;
 }
-.header{
-    width:100%;
-    height:5rem;
+
+.header {
+    width: 100%;
+    height: 5rem;
     background-color: #fff;
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
-.appointment{
-    font-family:"Montserrat Alternates";
-    height:60%;
-    padding:0 10px 0 10px;
-    width:fit-content;
-    background-image: linear-gradient(to right,#29B6F6,#0185c2);
+
+.appointment {
+    font-family: "Montserrat Alternates";
+    height: 60%;
+    padding: 0 10px 0 10px;
+    width: fit-content;
+    background-image: linear-gradient(to right, #29B6F6, #0185c2);
     border-radius: 10px;
     margin-left: 20px;
-    color:aliceblue;
+    color: aliceblue;
     display: flex;
     font-weight: 600;
     justify-content: center;
     align-items: center;
     font-size: small;
 }
-.profileheader{
+
+.profileheader {
     display: flex;
     justify-content: center;
     align-items: center;
     margin-right: 20px;
     width: fit-content;
-    gap:5px;
-    font-family:"Montserrat Alternates";
+    gap: 5px;
+    font-family: "Montserrat Alternates";
 }
-.ri-user-6-line{
-    background-image: radial-gradient(#afe6ff,#19b6ff);
+
+.ri-user-6-line {
+    background-image: radial-gradient(#afe6ff, #19b6ff);
     font-size: x-large;
-    padding:5px;
+    padding: 5px;
     border-radius: 50%;
 }
-.section1{
-    margin-left:5%;
-    display:flex;
-    gap:3%;
+
+.section1 {
+    margin-left: 5%;
+    display: flex;
+    gap: 3%;
 }
-.medication{
+
+.medication {
     margin-left: 20px;
     background-color: #fff;
     border-radius: 5px;
-    width:20%;
+    width: 20%;
     height: fit-content;
     padding: 20px;
     margin-top: 30px;
 }
-.medicationheading h2,.reportheading h2,.upcomingappointmentsheading h2{
-    font-family:"Montserrat Alternates";
+
+.medicationheading h2,
+.reportheading h2,
+.upcomingappointmentsheading h2 {
+    font-family: "Montserrat Alternates";
     padding-bottom: 10px;
     border-bottom: 0.1px solid rgba(0, 62, 125, 0.3);
 }
-.medicationlist li{
+
+.medicationlist li {
     margin-top: 10px;
     border-radius: 5px;
-    padding:10px;
+    padding: 10px;
     padding-bottom: 10px;
     box-shadow: rgba(100, 100, 111, 0.1) 0px 3px 49px 0px;
 }
-.medicationlist li h4{
-    color:#3e98c1;
+
+.medicationlist li h4 {
+    color: #3e98c1;
     font-size: small;
     font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
 }
-.medicationlist li h3{
+
+.medicationlist li h3 {
     padding-top: 5px;
     color: #00112ad1;
 }
-.medicine{
-    display:flex;
-    gap:10px;
+
+.medicine {
+    display: flex;
+    gap: 10px;
     align-items: center;
 }
-.medicine i{
-    padding-top:5px;
+
+.medicine i {
+    padding-top: 5px;
 }
-.upcomingappointments{
-    display:flex;
+
+.upcomingappointments {
+    display: flex;
     margin-top: 30px;
     background-color: #fff;
-    width:100%;
+    width: 100%;
     padding: 20px;
-    height:fit-content;
+    height: fit-content;
     flex-direction: column;
 }
-.upcomingappointments li{
+
+.upcomingappointments li {
     margin-top: 10px;
     border-radius: 5px;
-    padding:10px;
+    padding: 10px;
     padding-bottom: 10px;
     box-shadow: rgba(100, 100, 111, 0.1) 0px 3px 49px 0px;
 }
-.upcomingappointments li h4{
-    color:#3e98c1;
+
+.upcomingappointments li h4 {
+    color: #3e98c1;
     font-size: small;
     font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
 }
-.upcomingappointments li h3{
+
+.upcomingappointments li h3 {
     padding-top: 5px;
     color: #00112ad1;
 }
-.doctorname{
+
+.doctorname {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap:5px;
+    gap: 5px;
 }
-.doctorname i{
+
+.doctorname i {
     background-color: #3e98c177;
     color: #00112ad1;
-    padding:10px;
+    padding: 10px;
     border-radius: 50%;
     margin-top: 5px;
 }
-.appointmentdoctor{
+
+.appointmentdoctor {
     display: flex;
     justify-content: space-between;
     align-items: center;
 
 }
-.checkdiv i{
+
+.checkdiv i {
     font-size: x-large;
     cursor: pointer;
 }
-.appointmentsection{
-    display:flex;
-    justify-content:space-between;
+
+.appointmentsection {
+    display: flex;
+    justify-content: space-between;
     padding-bottom: 5px;
     padding-right: 5px;
 }
-.reportsection{
-    display:flex;
+
+.reportsection {
+    display: flex;
     margin-top: 30px;
     background-color: #fff;
-    width:100%;
+    width: 100%;
     padding: 20px;
-    height:fit-content;
+    height: fit-content;
     flex-direction: column;
 }
-.reportsort{
+
+.reportsort {
     display: flex;
     justify-content: space-between;
-    margin:10px 0px 10px 0px;
+    margin: 10px 0px 10px 0px;
     align-items: center;
 }
-.filterreport a, .filterreport select,.allreport a{
-    font-family:Geneva, Tahoma, sans-serif;
-    padding:7px 15px 7px 15px;
+
+.filterreport a,
+.filterreport select,
+.allreport a {
+    font-family: Geneva, Tahoma, sans-serif;
+    padding: 7px 15px 7px 15px;
     font-weight: lighter;
     box-shadow: rgba(0, 0, 0, 0.184) 0px 1px 15px;
     border: none;
     border-radius: 5px;
     color: aliceblue;
-    background-image: linear-gradient(to right,#50b9e9,#1bb1f7);
+    background-image: linear-gradient(to right, #50b9e9, #1bb1f7);
 }
-.reportfiles li{
+
+.reportfiles li {
     margin-top: 10px;
     border-radius: 5px;
-    padding:10px;
+    padding: 10px;
     padding-bottom: 10px;
     box-shadow: rgba(100, 100, 111, 0.1) 0px 3px 49px 0px;
     display: flex;
@@ -273,67 +322,78 @@ main{
     justify-content: space-between;
     flex-direction: row;
 }
-.reportname{
-    display:flex;
+
+.reportname {
+    display: flex;
     flex-direction: row;
-    gap:10px;
+    gap: 10px;
     align-items: center;
 }
-.reportname i{
+
+.reportname i {
     background-color: #00000088;
     color: #fff;
-    padding:10px;
+    padding: 10px;
     border-radius: 50%;
     margin-top: 5px;
 }
-.midsection{
-    width:37%;
+
+.midsection {
+    width: 37%;
     height: fit-content;
 }
-.notifications{
-    display:flex;
+
+.notifications {
+    display: flex;
     margin-top: 30px;
     background-color: #fff;
-    width:100%;
+    width: 100%;
     padding: 20px;
-    height:fit-content;
+    height: fit-content;
     flex-direction: column;
 }
-#notificationlist li{
+
+#notificationlist li {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
-.message{
+
+.message {
     display: flex;
     align-items: center;
     gap: 8px;
 }
-.message i{
+
+.message i {
     color: #1bb1f7;
 }
-.messageinfo{
+
+.messageinfo {
     font-size: medium;
 }
-.endsection{
+
+.endsection {
     width: 33%;
     height: fit-content;
 }
-.news{
-    display:flex;
+
+.news {
+    display: flex;
     margin-top: 30px;
-    color:aliceblue;
+    color: aliceblue;
     background-image: linear-gradient(to right, #29B6F6, #0185c2);
-    width:100%;
+    width: 100%;
     padding: 20px;
-    height:fit-content;
+    height: fit-content;
     flex-direction: column;
     border-radius: 10px;
 }
-.newslist li{
+
+.newslist li {
     margin-top: 10px;
     border-radius: 5px;
-    padding:10px;
+    padding: 10px;
     padding-bottom: 10px;
     box-shadow: rgba(100, 100, 111, 0.1) 0px 3px 49px 0px;
     display: flex;
@@ -341,7 +401,8 @@ main{
     justify-content: space-between;
     flex-direction: row;
 }
-.newsinfo h4{
+
+.newsinfo h4 {
     font-size: smaller;
     color: rgb(202, 219, 235);
 }

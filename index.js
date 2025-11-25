@@ -976,7 +976,7 @@ app.get('/patient/ai', (req, res) => {
             let initialChat_history = []
             if (sessions.length > 0) {
                 initialsession_uuid = sessions[0].session_uuid
-                const chatquery = `SELECT * FROM patient_chat_history WHERE session_uuid = ? ORDER BY timestamp ASC`;
+                const chatquery = `SELECT * FROM patient_chat_history WHERE session_id = ? ORDER BY timestamp ASC`;
                 con.query(chatquery, [initialsession_uuid], (err, chat_history) => {
                     if (err) {
                         console.log(err);
@@ -1006,7 +1006,7 @@ app.get('/patient/ai', (req, res) => {
 
     })
 })
-app.get('patient/ai/chat/:session_uuid', (req, res) => {
+app.get('/patient/ai/chat/:session_uuid', (req, res) => {
     if (!req.session.patientId) {
         return res.redirect('/patientlogin');
     }
@@ -1022,7 +1022,7 @@ app.get('patient/ai/chat/:session_uuid', (req, res) => {
         if (sessions.length === 0) {
             return res.status(404).json({ "error": "Session not found" });
         }
-        const chatquery = `SELECT * FROM patient_chat_history WHERE session_uuid = ? ORDER BY timestamp ASC`;
+        const chatquery = `SELECT * FROM patient_chat_history WHERE session_id = ? ORDER BY timestamp ASC`;
         con.query(chatquery, [session_uuid], (err, chat_history) => {
             if (err) {
                 console.log(err);
