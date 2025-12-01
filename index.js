@@ -26,9 +26,7 @@ const chatNamespace = io.of('/chat');
 function getRoomId(userId1, userId2) {
     return [userId1, userId2].sort().join("_"); // Sort to keep consistent
 }
-
 const activeSockets = new Map(); // Track active sockets for each user
-
 chatNamespace.on('connection', async (socket) => {
     const { userId } = socket.handshake.query;  // ✅ MongoDB _id
 

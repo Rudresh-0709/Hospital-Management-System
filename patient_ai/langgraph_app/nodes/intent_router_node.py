@@ -20,7 +20,7 @@ def detect_intent(state:HMAIState)-> HMAIState:
     user_prompt=f"User_input:${state.user_input}"
     load_config()
     load_llms()
-    llm=llms["groq_fast"]
+    llm=llms["openai"]
     ai_response=llm.invoke(system_prompt + "\n" + user_prompt)
     response=ai_response.content
     
