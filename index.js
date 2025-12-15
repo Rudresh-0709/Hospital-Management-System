@@ -161,6 +161,7 @@ app.use((req, res, next) => {
     delete req.session.flashMessage;  // Clear the message after displaying it
     next();
 });
+
 const chatRoutes = require('./routes/chat/chatroute');
 app.use('/chat', chatRoutes);
 
@@ -1229,6 +1230,6 @@ app.post('/patient/ai/newchat', (req, res) => {
         }
     });
 })
-server.listen(3000, () => {
-    console.log(`Server running on port 3000`);
+server.listen(4000, () => {
+    console.log(`Server running on port 4000`);
 });

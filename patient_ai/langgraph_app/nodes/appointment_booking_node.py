@@ -292,13 +292,14 @@ def handle_booking(state: HMAIState) -> HMAIState:
 
     insert_appointment(
         name=state.appointee_name,
-        contact=state.appointee_contact,
         email=state.appointee_email,
+        contact=state.appointee_contact,
         doctor_name=state.selected_doctor,
         appointment_date=date_str,
         appointment_time=time_str,
         purpose=state.diagnosis_condition,
         status="Scheduled",
+        patient_id=state.patient_id,  # Link appointment to patient for future queries
     )
 
     state.final_response = f"Your appointment is booked with Doctor {state.selected_doctor} on {date_str} at {time_str}."
@@ -308,8 +309,23 @@ def handle_booking(state: HMAIState) -> HMAIState:
 
 
 def handle_sql_info(state: HMAIState) -> HMAIState:
+    """
+    Handle SQL-based queries for patient data with strict privacy enforcement.
+
+    This function:
+    1. Detects the query topic to determine allowed tables
+    2. Builds a SQL tool with patient_id enforcement
+    3. Executes the query and converts results to natural language
+    """
     print("Entered sql_info")
     user_query = state.user_input
+
+    # Check for patient_id - required for personal data queries
+    if state.patient_id is None:
+        state.final_response = "I need to verify your identity to access your personal records. Please make sure you're logged in."
+        state.follow_up_required = False
+        return state
+
     try:
         topic = detect_sql_topic(user_query)
         print(f"Detected topic: {topic}")
@@ -317,24 +333,50 @@ def handle_sql_info(state: HMAIState) -> HMAIState:
         print(f"Allowed tables: {allowed_tables}")
 
         if not allowed_tables:
-            state.final_response = "Sorry, I couldn't understand your query topic."
+            state.final_response = "Sorry, I couldn't understand what information you're looking for. You can ask me about your appointments, prescriptions, doctors, or admission history."
             print(f"Returning early, final_response: {state.final_response}")
             return state
 
-        patient_id = state.patient_id
         sql_tool = build_sql_tool(allowed_tables, patient_id=state.patient_id)
         result = sql_tool.run(user_query)
 
-        user_question = result["query"]
-        sql_answer = result["result"]
+        # Handle different result formats
+        if isinstance(result, dict):
+            # Check if query was blocked for privacy
+            if result.get("blocked"):
+                state.final_response = result.get(
+                    "result", "Query could not be processed."
+                )
+                state.follow_up_required = False
+                return state
+
+            user_question = result.get("query", user_query)
+            sql_answer = result.get("result", "")
+        else:
+            user_question = user_query
+            sql_answer = str(result)
+
         state.sql_response = sql_answer
-        final_answer = sql_to_nl(user_question, sql_answer)
-        state.final_response = str(final_answer) if final_answer else "No data found."
+
+        # Convert SQL results to natural language
+        if sql_answer and sql_answer not in ["No data found.", "[]", "None", ""]:
+            final_answer = sql_to_nl(user_question, sql_answer)
+            state.final_response = (
+                str(final_answer)
+                if final_answer
+                else "I found your records but couldn't format them properly. Please try asking in a different way."
+            )
+        else:
+            state.final_response = "I couldn't find any records matching your query. This could mean there are no matching records, or you might want to try rephrasing your question."
+
         state.follow_up_required = False
+
     except Exception as e:
-        state.final_response = f"Error accessing database: {str(e)}"
         print(f"SQL handler error: {e}")
-        print(f"Set final_response (exception): {state.final_response}")
+        import traceback
+
+        traceback.print_exc()
+        state.final_response = "I encountered an issue accessing your records. Please try again or contact support if the problem persists."
 
     state.follow_up_required = False
     print(f"Returning state, final_response: {state.final_response}")

@@ -1,65 +1,90 @@
-# from model_loader import load_config, load_llms, llms
-# from langchain_core.prompts import PromptTemplate
-# from langchain.chains import RetrievalQA
-# from langchain_community.vectorstores import FAISS
-# from langchain_groq import ChatGroq
-# from util.vector_store import load_faiss_vector_store
+"""
+PDF Node - Medical knowledge retrieval with conversation context.
 
-# load_config()
-# load_llms()
-
-# def medical_pdf_chain():
-#     custom_prompt_template = """
-#         You are an AI medical assistant specializing in hospital management. Your role is to assist patients by providing symptom-based diagnoses and medical recommendations.
-
-#         ### User Query:
-#         Context: {context}
-#         Question: {question}
-
-#         ### Instructions:
-#         - Directly provide a clear and concise response.
-#         - Do NOT include any internal thought processes, reasoning steps, or `<think>` sections.
-#         - If symptoms are mentioned, provide a possible diagnosis based on medical knowledge.
-#         - If unsure, state that a doctor's consultation is required.
-
-#         Respond ONLY with the answer.
-#     """
-
-#     vector_store=load_faiss_vector_store()
-
-#     retriever = vector_store.as_retriever(search_kwargs={'k':3})
-
-#     prompt=PromptTemplate(
-#         template=custom_prompt_template,
-#         input_variables=["context","question"]
-#         )
-
-#     llm=llms["groq"]
-
-#     qa_chain=RetrievalQA.from_chain_type(
-#         llm=llm,
-#         chain_type="stuff",
-#         retriever=retriever,
-#         return_source_documents=True,
-#         chain_type_kwargs={
-#             "prompt":prompt
-#         }
-#     )
-#     return qa_chain
-
+This module provides functions to search medical PDFs using RAG,
+incorporating conversation history for better context understanding.
+"""
 
 from patient_ai.tool_nodes.pdf_tool_node import medical_pdf_chain
+from patient_ai.langgraph_app.nodes.chat_memory_node import format_conversation_context
+
 
 def pdf_search_from_user(state):
-    query=state.user_input
-    qa=medical_pdf_chain()
-    result = qa.invoke({"query": query})
-    state.final_response=result["result"]
+    """
+    Search medical PDFs based on user query, incorporating conversation context.
+
+    This enables the AI to understand follow-up questions like:
+    - "What about treatment options?" (after discussing a disease)
+    - "Is it contagious?" (referring to previously mentioned condition)
+    """
+    # Build enhanced query with conversation context
+    conversation_context = ""
+    if state.messages:
+        conversation_context = format_conversation_context(
+            state.messages, max_messages=3
+        )
+
+    # Include previous diagnosis condition if available
+    context_info = ""
+    if state.diagnosis_condition:
+        context_info = f"Patient's condition: {state.diagnosis_condition}"
+
+    # Construct the enhanced query
+    if conversation_context or context_info:
+        enhanced_query = f"""Based on the following context:
+
+{f'Previous conversation:{chr(10)}{conversation_context}' if conversation_context else ''}
+{context_info}
+
+Current question: {state.user_input}
+
+Please provide relevant medical information."""
+    else:
+        enhanced_query = state.user_input
+
+    qa = medical_pdf_chain()
+    result = qa.invoke({"query": enhanced_query})
+
+    # Add safety disclaimer for medical advice
+    response = result["result"]
+    if not any(
+        disclaimer in response.lower()
+        for disclaimer in ["consult", "doctor", "medical professional", "healthcare"]
+    ):
+        response += "\n\n⚠️ *This information is for educational purposes only. Please consult a healthcare professional for medical advice.*"
+
+    state.final_response = response
     return state
 
+
 def pdf_search_from_image(state):
-    query=state.pdf_query_input
-    qa=medical_pdf_chain()
-    result=qa.invoke({"query":query})
-    state.final_response=result["result"]
+    """
+    Search medical PDFs based on image analysis results.
+
+    Uses the vision result (pdf_query_input) to find relevant medical information.
+    """
+    query = state.pdf_query_input
+
+    # Include any prior context
+    if state.vision_result:
+        enhanced_query = f"""Based on image analysis: {state.vision_result}
+
+Additional context: {query}
+
+Please provide relevant medical information and recommendations."""
+    else:
+        enhanced_query = query
+
+    qa = medical_pdf_chain()
+    result = qa.invoke({"query": enhanced_query})
+
+    # Add safety disclaimer
+    response = result["result"]
+    if not any(
+        disclaimer in response.lower()
+        for disclaimer in ["consult", "doctor", "medical professional", "healthcare"]
+    ):
+        response += "\n\n⚠️ *This information is for educational purposes only. Please consult a healthcare professional for proper diagnosis.*"
+
+    state.final_response = response
     return state
