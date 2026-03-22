@@ -1,0 +1,473 @@
+:root {
+  --sanctuary-bg: #e9ecef;
+  --sanctuary-panel: #f3f5f7;
+  --sanctuary-card: #f7f8fa;
+  --sanctuary-ink: #143233;
+  --sanctuary-muted: #5f7274;
+  --sanctuary-line: #d9dee2;
+  --sanctuary-teal-900: #013536;
+  --sanctuary-teal-800: #014547;
+  --sanctuary-teal-700: #026868;
+  --sanctuary-accent: #00a1c2;
+}
+
+.migrate-admin-dashboard.sanctuary-layout {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 248px minmax(0, 1fr);
+  background:
+    radial-gradient(circle at 95% 8%, rgba(0, 180, 178, 0.08), transparent 42%),
+    linear-gradient(180deg, #edf0f2 0%, #e6eaed 100%);
+  color: var(--sanctuary-ink);
+  font-family: 'Lora', Georgia, serif;
+}
+
+.migrate-admin-dashboard .sanctuary-sidebar {
+  background: linear-gradient(180deg, var(--sanctuary-teal-900) 0%, #02282a 100%);
+  color: #d7eceb;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  position: sticky;
+  top: 0;
+}
+
+.migrate-admin-dashboard .sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 22px 16px;
+  border-bottom: 1px solid rgba(176, 215, 214, 0.18);
+}
+
+.migrate-admin-dashboard .brand-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-size: 1.1rem;
+  font-weight: 800;
+  background: linear-gradient(160deg, #15cae5, #73f8de);
+  color: #033436;
+}
+
+.migrate-admin-dashboard .sidebar-brand h1 {
+  margin: 0;
+  color: #f3ffff;
+  font-family: 'Montserrat Alternates', sans-serif;
+  font-size: 1.12rem;
+}
+
+.migrate-admin-dashboard .sidebar-brand p {
+  margin: 3px 0 0;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.62rem;
+  color: #7cb6b6;
+}
+
+.migrate-admin-dashboard .sidebar-nav {
+  padding: 10px 12px;
+  display: grid;
+  gap: 4px;
+}
+
+.migrate-admin-dashboard .sidebar-nav a {
+  text-decoration: none;
+  color: #b0d0ce;
+  font-size: 0.85rem;
+  letter-spacing: 0.01em;
+  border-radius: 8px;
+  padding: 10px 12px;
+  border: 1px solid transparent;
+  transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
+}
+
+.migrate-admin-dashboard .sidebar-nav a.active,
+.migrate-admin-dashboard .sidebar-nav a:hover {
+  background-color: rgba(4, 130, 133, 0.28);
+  border-color: rgba(105, 223, 214, 0.35);
+  color: #e8ffff;
+}
+
+.migrate-admin-dashboard .sidebar-cta {
+  margin-top: auto;
+  padding: 12px;
+}
+
+.migrate-admin-dashboard .sidebar-cta a {
+  display: inline-flex;
+  width: 100%;
+  justify-content: center;
+  text-decoration: none;
+  border-radius: 8px;
+  color: #dbffff;
+  background: linear-gradient(180deg, #0d6f62 0%, #08564d 100%);
+  padding: 10px;
+  font-size: 0.86rem;
+  font-weight: 600;
+  border: 1px solid rgba(134, 241, 216, 0.35);
+}
+
+.migrate-admin-dashboard .sidebar-footer {
+  padding: 10px 12px 16px;
+  border-top: 1px solid rgba(176, 215, 214, 0.15);
+  display: grid;
+  gap: 6px;
+}
+
+.migrate-admin-dashboard .sidebar-footer a,
+.migrate-admin-dashboard .sidebar-footer button {
+  background: none;
+  border: none;
+  color: #8eb6b3;
+  text-align: left;
+  padding: 6px 4px;
+  font-size: 0.74rem;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.migrate-admin-dashboard .sidebar-footer a:hover,
+.migrate-admin-dashboard .sidebar-footer button:hover {
+  color: #dff9f8;
+}
+
+.migrate-admin-dashboard .sanctuary-main {
+  padding: 18px 28px 22px;
+}
+
+.migrate-admin-dashboard .admin-topbar {
+  display: grid;
+  grid-template-columns: 180px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+}
+
+.migrate-admin-dashboard .topbar-title p {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.7rem;
+  color: #567071;
+}
+
+.migrate-admin-dashboard .topbar-title h2 {
+  margin: 2px 0 0;
+  text-transform: uppercase;
+  font-family: 'Montserrat Alternates', sans-serif;
+  font-size: 1.8rem;
+  line-height: 1;
+  color: #123f3f;
+}
+
+.migrate-admin-dashboard .topbar-search input {
+  width: 100%;
+  border: 1px solid #cfd8de;
+  background: #e3e8ec;
+  border-radius: 999px;
+  height: 40px;
+  padding: 0 16px;
+  font-size: 0.86rem;
+  color: #244647;
+}
+
+.migrate-admin-dashboard .topbar-search input:focus-visible {
+  outline: 2px solid #4ba8ba;
+  outline-offset: 2px;
+}
+
+.migrate-admin-dashboard .topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.migrate-admin-dashboard .alert-btn {
+  border: 1px solid #ffd1d1;
+  background: #ffeef0;
+  color: #ab3535;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 9px 12px;
+}
+
+.migrate-admin-dashboard .admin-chip {
+  border: 1px solid #d0d9de;
+  background: #f7f9fb;
+  border-radius: 30px;
+  padding: 6px 14px;
+}
+
+.migrate-admin-dashboard .admin-chip strong {
+  display: block;
+  font-size: 0.75rem;
+  color: #163a3b;
+}
+
+.migrate-admin-dashboard .admin-chip span {
+  text-transform: uppercase;
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  color: #6a8384;
+}
+
+.migrate-admin-dashboard .admin-dashboard-hero {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 20px;
+  align-items: end;
+}
+
+.migrate-admin-dashboard .hero-kicker {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  color: #0088aa;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.migrate-admin-dashboard .admin-dashboard-hero h3 {
+  margin: 10px 0 0;
+  max-width: 560px;
+  font-family: 'Montserrat Alternates', sans-serif;
+  font-size: clamp(2.1rem, 5vw, 3.25rem);
+  line-height: 1.08;
+  color: #11494b;
+}
+
+.migrate-admin-dashboard .hero-subtitle {
+  margin: 12px 0 0;
+  max-width: 520px;
+  color: #567172;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.migrate-admin-dashboard .hero-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.migrate-admin-dashboard .hero-stat-card {
+  background: #eef2f5;
+  border: 1px solid #dde4e8;
+  border-radius: 14px;
+  min-height: 96px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.migrate-admin-dashboard .stat-value {
+  font-family: 'Montserrat Alternates', sans-serif;
+  color: #155859;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.migrate-admin-dashboard .stat-label {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #597475;
+  font-size: 0.58rem;
+}
+
+.migrate-admin-dashboard .modules-header {
+  margin-top: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.migrate-admin-dashboard .modules-header h4 {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: #173e3f;
+  font-size: 0.78rem;
+}
+
+.migrate-admin-dashboard .module-filters {
+  display: flex;
+  gap: 8px;
+}
+
+.migrate-admin-dashboard .module-filters button {
+  border: 1px solid #cad5da;
+  background: #edf1f4;
+  color: #456061;
+  border-radius: 999px;
+  padding: 7px 12px;
+  font-size: 0.68rem;
+  cursor: pointer;
+}
+
+.migrate-admin-dashboard .module-filters button.selected {
+  border-color: #0f5f60;
+  background: #0f5f60;
+  color: #f3fbfb;
+}
+
+.migrate-admin-dashboard .admin-links-grid {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(180px, 1fr));
+  gap: 14px;
+}
+
+.migrate-admin-dashboard .admin-link-card {
+  text-decoration: none;
+  border: 1px solid #dde3e7;
+  background: #f6f8f9;
+  border-radius: 8px;
+  padding: 14px;
+  min-height: 188px;
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  gap: 8px;
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.migrate-admin-dashboard .admin-link-card:hover {
+  transform: translateY(-2px);
+  border-color: #c7d9df;
+  box-shadow: 0 10px 24px rgba(46, 72, 84, 0.12);
+}
+
+.migrate-admin-dashboard .admin-link-tag {
+  width: max-content;
+  border-radius: 999px;
+  border: 1px solid #cde3e0;
+  background: #e8f5f2;
+  color: #29696a;
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 700;
+  padding: 4px 10px;
+}
+
+.migrate-admin-dashboard .admin-link-card h3 {
+  margin: 3px 0 0;
+  color: #173f40;
+  font-size: 1.06rem;
+  line-height: 1.2;
+}
+
+.migrate-admin-dashboard .admin-link-card p {
+  margin: 0;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  color: #647d7f;
+}
+
+.migrate-admin-dashboard .admin-link-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  width: max-content;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid #d0dade;
+  background: #ebeff2;
+  color: #35585a;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.58rem;
+  font-weight: 700;
+}
+
+.migrate-admin-dashboard .admin-footer-note {
+  margin-top: 18px;
+  border-top: 1px solid #d7dee2;
+  padding-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.migrate-admin-dashboard .admin-footer-note p {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #728b8c;
+  font-size: 0.58rem;
+}
+
+.migrate-admin-dashboard .admin-footer-note span {
+  color: #397f6e;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 0.6rem;
+  font-weight: 700;
+}
+
+@media (max-width: 1240px) {
+  .migrate-admin-dashboard .admin-links-grid {
+    grid-template-columns: repeat(3, minmax(180px, 1fr));
+  }
+
+  .migrate-admin-dashboard .admin-dashboard-hero {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 980px) {
+  .migrate-admin-dashboard.sanctuary-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .migrate-admin-dashboard .sanctuary-sidebar {
+    position: static;
+    min-height: auto;
+  }
+
+  .migrate-admin-dashboard .admin-topbar {
+    grid-template-columns: 1fr;
+  }
+
+  .migrate-admin-dashboard .topbar-actions {
+    justify-content: flex-start;
+  }
+
+  .migrate-admin-dashboard .admin-links-grid {
+    grid-template-columns: repeat(2, minmax(180px, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .migrate-admin-dashboard .sanctuary-main {
+    padding: 14px;
+  }
+
+  .migrate-admin-dashboard .topbar-title h2 {
+    font-size: 1.45rem;
+  }
+
+  .migrate-admin-dashboard .hero-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .migrate-admin-dashboard .admin-links-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .migrate-admin-dashboard .admin-footer-note {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

@@ -1,0 +1,12 @@
+.equipment-card {
+  width: min(980px, 96vw);
+}
+
+.equipment-table th {
+  background-color: #2e5668;
+  color: #ffffff;
+}
+
+.equipment-form-card {
+  width: min(980px, 96vw);
+}

@@ -125,6 +125,7 @@ const nurseroute = require('./routes/nurseroute');
 const diagnosisroute = require('./routes/diagnosisroute');
 const prescriptionroute = require('./routes/prescriptionroute');
 const newprescriptionroute = require('./routes/newprescriptionroute');
+const authApiRoute = require('./routes/api/authroute');
 app.use('/uploads', express.static(path.join(__dirname, 'routes', 'chat', 'uploads')));
 
 app.use('/profile-pictures', express.static(path.join(__dirname, 'routes/chat/uploads/Profile-pictures')));
@@ -162,10 +163,975 @@ app.use((req, res, next) => {
     next();
 });
 
+app.use('/api/auth', authApiRoute);
+
+app.get('/api/admin/patients/overview', (req, res) => {
+    if (!req.session.admin_id) {
+        return res.status(401).json({ message: 'Admin authentication required' });
+    }
+
+    const patientQuery = 'SELECT * FROM patients p JOIN admit a ON p.patient_id = a.patient_id JOIN emergency e ON e.patient_id = p.patient_id';
+    con.query(patientQuery, (patientError, patients) => {
+        if (patientError) {
+            console.error('Error loading patients overview:', patientError);
+            return res.status(500).json({ message: 'Failed to load patient overview' });
+        }
+
+        const doctorQuery = 'SELECT * FROM doctors';
+        con.query(doctorQuery, (doctorError, doctors) => {
+            if (doctorError) {
+                console.error('Error loading doctors:', doctorError);
+                return res.status(500).json({ message: 'Failed to load doctors' });
+            }
+
+            const roomQuery = 'SELECT * FROM rooms WHERE is_occupied = 0';
+            con.query(roomQuery, (roomError, rooms) => {
+                if (roomError) {
+                    console.error('Error loading rooms:', roomError);
+                    return res.status(500).json({ message: 'Failed to load rooms' });
+                }
+
+                return res.status(200).json({
+                    patients,
+                    doctors,
+                    rooms,
+                    message: req.flash('message'),
+                });
+            });
+        });
+    });
+});
+
+app.get('/api/admin/admit/overview', (req, res) => {
+    if (!req.session.admin_id) {
+        return res.status(401).json({ message: 'Admin authentication required' });
+    }
+
+    const patientQuery = `SELECT p.patient_id, p.first_name, p.last_name, MAX(a.discharge_date) AS discharge_date
+        FROM patients p
+        JOIN admit a ON p.patient_id = a.patient_id
+        WHERE a.discharge_date IS NOT NULL
+        GROUP BY p.patient_id, p.first_name, p.last_name;`;
+
+    con.query(patientQuery, (patientError, patients) => {
+        if (patientError) {
+            console.error('Error loading admit patients overview:', patientError);
+            return res.status(500).json({ message: 'Failed to load admit patients' });
+        }
+
+        const doctorQuery = 'SELECT * FROM doctors';
+        con.query(doctorQuery, (doctorError, doctors) => {
+            if (doctorError) {
+                console.error('Error loading doctors:', doctorError);
+                return res.status(500).json({ message: 'Failed to load doctors' });
+            }
+
+            const roomQuery = 'SELECT * FROM rooms WHERE is_occupied = 0';
+            con.query(roomQuery, (roomError, rooms) => {
+                if (roomError) {
+                    console.error('Error loading rooms:', roomError);
+                    return res.status(500).json({ message: 'Failed to load rooms' });
+                }
+
+                return res.status(200).json({
+                    patients,
+                    doctors,
+                    rooms,
+                    message: req.flash('message'),
+                });
+            });
+        });
+    });
+});
+
+app.get('/api/admin/discharge/overview', (req, res) => {
+    if (!req.session.admin_id) {
+        return res.status(401).json({ message: 'Admin authentication required' });
+    }
+
+    const activePatientsQuery = `SELECT 
+            patients.patient_id,
+            patients.first_name,
+            patients.last_name,
+            admit.doctor_assigned,
+            admit.admit_id,
+            admit.room_number
+        FROM patients
+        INNER JOIN admit ON patients.patient_id = admit.patient_id
+        WHERE admit.discharge_date IS NULL`;
+
+    con.query(activePatientsQuery, (error, patients) => {
+        if (error) {
+            console.error('Error loading discharge overview:', error);
+            return res.status(500).json({ message: 'Failed to load discharge overview' });
+        }
+
+        return res.status(200).json({
+            patients,
+            message: req.flash('message'),
+        });
+    });
+});
+
+app.post('/api/admin/discharge', (req, res) => {
+    if (!req.session.admin_id) {
+        return res.status(401).json({ message: 'Admin authentication required' });
+    }
+
+    const { first_name, last_name, reason_for_admission } = req.body;
+    if (!first_name || !last_name || !reason_for_admission) {
+        return res.status(400).json({ message: 'first_name, last_name, and reason_for_admission are required' });
+    }
+
+    const patientIdQuery = 'SELECT patient_id FROM patients WHERE first_name = ? AND last_name = ? LIMIT 1';
+    con.query(patientIdQuery, [first_name, last_name], (patientError, patientResult) => {
+        if (patientError) {
+            console.error('Error fetching patient details for discharge:', patientError);
+            return res.status(500).json({ message: 'Error fetching patient details.' });
+        }
+
+        if (!patientResult.length) {
+            return res.status(404).json({ message: 'Patient not found' });
+        }
+
+        const patient_id = patientResult[0].patient_id;
+        const activeAdmitQuery = `SELECT doctor_assigned, room_number, admit_id
+            FROM admit
+            WHERE patient_id = ? AND discharge_date IS NULL
+            LIMIT 1`;
+
+        con.query(activeAdmitQuery, [patient_id], (admitError, admitResult) => {
+            if (admitError) {
+                console.error('Error checking active admission:', admitError);
+                return res.status(500).json({ message: 'Error checking recovery status.' });
+            }
+
+            if (!admitResult.length) {
+                return res.status(400).json({ message: 'Patient is not admitted or already discharged.' });
+            }
+
+            const { room_number, admit_id, doctor_assigned } = admitResult[0];
+            const dischargeQuery = `
+                UPDATE admit
+                SET discharge_date = NOW(), reason_for_admission = ?
+                WHERE admit_id = ?
+            `;
+
+            con.query(dischargeQuery, [reason_for_admission, admit_id], (dischargeError) => {
+                if (dischargeError) {
+                    console.error('Error discharging patient:', dischargeError);
+                    return res.status(500).json({ message: 'Error discharging patient.' });
+                }
+
+                const roomUpdateQuery = 'UPDATE rooms SET is_occupied = 0 WHERE room_number = ?';
+                con.query(roomUpdateQuery, [room_number], (roomError) => {
+                    if (roomError) {
+                        console.error('Error updating room status:', roomError);
+                        return res.status(500).json({ message: 'Error updating room status.' });
+                    }
+
+                    const notificationQuery = `
+                        INSERT INTO notifications (doctor_assigned, patient_id, type, message, is_read, created_at)
+                        VALUES (?, ?, ?, ?, ?, NOW())
+                    `;
+
+                    con.query(
+                        notificationQuery,
+                        [doctor_assigned, patient_id, 'Patient Discharge Update', `Patient ${first_name} ${last_name} has been discharged.`, 0],
+                        (notificationError) => {
+                            if (notificationError) {
+                                console.error('Doctor Notification Error:', notificationError);
+                                return res.status(500).json({ message: 'Error notifying doctor.' });
+                            }
+
+                            return res.status(200).json({
+                                message: `Patient ${first_name} ${last_name} discharged successfully, and room ${room_number} is now available.`,
+                                room_number,
+                            });
+                        }
+                    );
+                });
+            });
+        });
+    });
+});
+
+app.get('/api/admin/patienthistory', (req, res) => {
+    if (!req.session.admin_id) {
+        return res.status(401).json({ message: 'Admin authentication required' });
+    }
+
+    const { gender, ward_preference, sort } = req.query;
+    let query = `
+        SELECT * FROM patients p
+        JOIN admit a ON p.patient_id = a.patient_id
+        JOIN emergency e ON e.patient_id = a.patient_id
+        WHERE 1=1
+    `;
+    const params = [];
+
+    if (gender) {
+        query += ' AND p.gender = ?';
+        params.push(gender);
+    }
+    if (ward_preference) {
+        query += ' AND a.ward_preference = ?';
+        params.push(ward_preference);
+    }
+
+    const sortMapping = {
+        admission_date_asc: ' ORDER BY a.admission_date ASC',
+        admission_date_desc: ' ORDER BY a.admission_date DESC',
+        discharge_date_asc: ' ORDER BY a.discharge_date ASC',
+        discharge_date_desc: ' ORDER BY a.discharge_date DESC',
+    };
+    if (sort && sortMapping[sort]) {
+        query += sortMapping[sort];
+    }
+
+    con.query(query, params, (error, patientdetails) => {
+        if (error) {
+            console.error('Error loading patient history:', error);
+            return res.status(500).json({ message: 'Failed to load patient history' });
+        }
+
+        return res.status(200).json({
+            patientdetails,
+            filters: {
+                gender: gender || '',
+                ward_preference: ward_preference || '',
+                sort: sort || '',
+            },
+        });
+    });
+});
+
+app.get('/api/admin/newvisitor/overview', (req, res) => {
+    if (!req.session.admin_id) {
+        return res.status(401).json({ message: 'Admin authentication required' });
+    }
+
+    const displayPatientsQuery = `
+        SELECT admit.admit_id, patients.patient_id, patients.first_name, patients.last_name
+        FROM patients
+        INNER JOIN admit ON patients.patient_id = admit.patient_id
+        WHERE admit.discharge_date IS NULL
+    `;
+
+    con.query(displayPatientsQuery, (error, patients) => {
+        if (error) {
+            console.error('Error fetching active patients for visitor flow:', error);
+            return res.status(500).json({ message: 'Error fetching active patients.' });
+        }
+
+        return res.status(200).json({
+            patients,
+            badges: null,
+            admit_id: null,
+            message: req.flash('message'),
+        });
+    });
+});
+
+app.post('/api/admin/newvisitor/search-badges', (req, res) => {
+    if (!req.session.admin_id) {
+        return res.status(401).json({ message: 'Admin authentication required' });
+    }
+
+    const { first_name, last_name } = req.body;
+    if (!first_name || !last_name) {
+        return res.status(400).json({ message: 'first_name and last_name are required' });
+    }
+
+    const patientQuery = `
+        SELECT patient_id
+        FROM patients
+        WHERE first_name = ? AND last_name = ?
+        LIMIT 1
+    `;
+
+    con.query(patientQuery, [first_name, last_name], (patientError, patientResult) => {
+        if (patientError) {
+            console.error('Error fetching patient_id for visitor flow:', patientError);
+            return res.status(500).json({ message: 'Error fetching patient information.' });
+        }
+
+        if (!patientResult.length) {
+            return res.status(404).json({ message: 'No patient found with the given name.' });
+        }
+
+        const patient_id = patientResult[0].patient_id;
+        const admitQuery = `
+            SELECT admit_id
+            FROM admit
+            WHERE patient_id = ? AND discharge_date IS NULL
+            LIMIT 1
+        `;
+
+        con.query(admitQuery, [patient_id], (admitError, admitResult) => {
+            if (admitError) {
+                console.error('Error fetching admit_id for visitor flow:', admitError);
+                return res.status(500).json({ message: 'Error fetching admission information.' });
+            }
+
+            if (!admitResult.length) {
+                return res.status(404).json({ message: 'No active admission found for this patient.' });
+            }
+
+            const admit_id = admitResult[0].admit_id;
+            const badgeQuery = `
+                SELECT badge_id
+                FROM badge
+                WHERE admit_id = ?
+            `;
+
+            con.query(badgeQuery, [admit_id], (badgeError, badgeResult) => {
+                if (badgeError) {
+                    console.error('Error fetching badge_id for visitor flow:', badgeError);
+                    return res.status(500).json({ message: 'Error fetching badge information.' });
+                }
+
+                if (!badgeResult.length) {
+                    return res.status(404).json({ message: 'No badges available for this admission.' });
+                }
+
+                return res.status(200).json({
+                    admit_id,
+                    badges: badgeResult,
+                    message: 'Badges loaded successfully.',
+                });
+            });
+        });
+    });
+});
+
+app.post('/api/admin/newvisitor/assign-badge', (req, res) => {
+    if (!req.session.admin_id) {
+        return res.status(401).json({ message: 'Admin authentication required' });
+    }
+
+    const { badge_id, admit_id } = req.body;
+    if (!badge_id || !admit_id) {
+        return res.status(400).json({ message: 'badge_id and admit_id are required' });
+    }
+
+    const visitQuery = `
+        INSERT INTO visits (badge_id, visit_time, visit_admit_id)
+        VALUES (?, NOW(), ?)
+    `;
+
+    con.query(visitQuery, [badge_id, admit_id], (error) => {
+        if (error) {
+            console.error('Error inserting visit:', error);
+            return res.status(500).json({ message: 'Error recording visit.' });
+        }
+
+        return res.status(200).json({ message: 'Visit recorded successfully.' });
+    });
+});
+
+app.get('/api/admin/visit-history', (req, res) => {
+    if (!req.session.admin_id) {
+        return res.status(401).json({ message: 'Admin authentication required' });
+    }
+
+    const { ward_preference = '', sort = '', search = '' } = req.query;
+    let query = `
+        SELECT
+            CONCAT(p.first_name, ' ', p.last_name) AS patient_name,
+            r.room_number,
+            r.ward_preference,
+            b.badge_id,
+            DATE_FORMAT(v.visit_time, '%Y-%m-%d %H:%i:%s') AS visit_time
+        FROM visits v
+        JOIN badge b ON v.badge_id = b.badge_id
+        JOIN admit a ON v.visit_admit_id = a.admit_id
+        JOIN patients p ON a.patient_id = p.patient_id
+        JOIN rooms r ON a.room_number = r.room_number AND a.ward_preference = r.ward_preference
+        WHERE 1=1
+    `;
+    const params = [];
+
+    if (ward_preference) {
+        query += ' AND r.ward_preference = ?';
+        params.push(ward_preference);
+    }
+
+    if (search) {
+        query += ' AND (p.first_name LIKE ? OR p.last_name LIKE ?)';
+        params.push(`%${search}%`, `%${search}%`);
+    }
+
+    if (sort === 'visit_time_asc') query += ' ORDER BY v.visit_time ASC';
+    if (sort === 'visit_time_desc') query += ' ORDER BY v.visit_time DESC';
+
+    con.query(query, params, (error, visits) => {
+        if (error) {
+            console.error('Error fetching visit history:', error);
+            return res.status(500).json({ message: 'Failed to load visit history' });
+        }
+
+        return res.status(200).json({
+            visits,
+            filters: { ward_preference, sort, search },
+        });
+    });
+});
+
+app.get('/api/admin/newdoctor/overview', (req, res) => {
+    if (!req.session.admin_id) {
+        return res.status(401).json({ message: 'Admin authentication required' });
+    }
+
+    return res.status(200).json({ message: req.flash('message') });
+});
+
+app.post('/api/admin/newdoctor', (req, res) => {
+    if (!req.session.admin_id) {
+        return res.status(401).json({ message: 'Admin authentication required' });
+    }
+
+    const { doctor_name, speciality, doctor_in, doctor_out, doctor_password } = req.body;
+    if (!doctor_name || !speciality || !doctor_in || !doctor_out || !doctor_password) {
+        return res.status(400).json({ message: 'All doctor fields are required' });
+    }
+
+    const insertDoctorQuery = `
+        INSERT INTO doctors (doctor_name, speciality, doctor_in, doctor_out, doctor_password)
+        VALUE (?, ?, ?, ?, ?)
+    `;
+
+    con.query(insertDoctorQuery, [doctor_name, speciality, doctor_in, doctor_out, doctor_password], (error) => {
+        if (error) {
+            console.error('Error adding doctor:', error);
+            return res.status(500).json({ message: 'Failed to add doctor' });
+        }
+
+        return res.status(200).json({ message: 'Doctor added successfully.' });
+    });
+});
+
+app.post('/api/admin/newstaff', (req, res) => {
+    if (!req.session.admin_id) {
+        return res.status(401).json({ message: 'Admin authentication required' });
+    }
+
+    const {
+        staff_first_name,
+        staff_last_name,
+        role,
+        department,
+        contact_number,
+        email,
+        hire_date,
+        address,
+        shift,
+    } = req.body;
+
+    if (!staff_first_name || !staff_last_name || !role) {
+        return res.status(400).json({ message: 'Staff first name, last name and role are required' });
+    }
+
+    const insertStaffQuery = `
+        INSERT INTO hospital_staff
+            (staff_first_name, staff_last_name, role, department, contact_number, email, hire_date, address, shift)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+    const values = [
+        staff_first_name,
+        staff_last_name,
+        role,
+        department || null,
+        contact_number || null,
+        email || null,
+        hire_date || null,
+        address || null,
+        shift || null,
+    ];
+
+    con.query(insertStaffQuery, values, (error) => {
+        if (error) {
+            console.error('Error adding staff member:', error);
+            return res.status(500).json({ message: 'Failed to add staff member' });
+        }
+
+        return res.status(200).json({ message: 'New staff member added successfully.' });
+    });
+});
+
+app.get('/api/admin/equipment/overview', (req, res) => {
+    if (!req.session.admin_id) {
+        return res.status(401).json({ message: 'Admin authentication required' });
+    }
+
+    const equipmentQuery = 'SELECT * FROM equipments';
+    con.query(equipmentQuery, (error, equipments) => {
+        if (error) {
+            console.error('Error loading equipments:', error);
+            return res.status(500).json({ message: 'Failed to load equipments' });
+        }
+
+        return res.status(200).json({
+            equipments,
+            message: req.flash('message'),
+        });
+    });
+});
+
+app.post('/api/admin/equipment/add', (req, res) => {
+    if (!req.session.admin_id) {
+        return res.status(401).json({ message: 'Admin authentication required' });
+    }
+
+    const { equipment_name, count } = req.body;
+    if (!equipment_name || !count) {
+        return res.status(400).json({ message: 'equipment_name and count are required' });
+    }
+
+    const insertEquipmentQuery = 'INSERT INTO equipments (equipment_name, count) VALUE (?, ?)';
+    con.query(insertEquipmentQuery, [equipment_name, count], (error) => {
+        if (error) {
+            console.error('Error adding equipment:', error);
+            return res.status(500).json({ message: 'Failed to add equipment' });
+        }
+
+        return res.status(200).json({ message: 'Equipment added successfully.' });
+    });
+});
+
+app.post('/api/admin/equipment/update', (req, res) => {
+    if (!req.session.admin_id) {
+        return res.status(401).json({ message: 'Admin authentication required' });
+    }
+
+    const { equipment_name, count } = req.body;
+    if (!equipment_name || !count) {
+        return res.status(400).json({ message: 'equipment_name and count are required' });
+    }
+
+    const updateEquipmentQuery = 'UPDATE equipments SET count = ? WHERE equipment_name = ?';
+    con.query(updateEquipmentQuery, [count, equipment_name], (error) => {
+        if (error) {
+            console.error('Error updating equipment:', error);
+            return res.status(500).json({ message: 'Failed to update equipment' });
+        }
+
+        return res.status(200).json({ message: 'Equipment updated successfully.' });
+    });
+});
+
+app.get('/api/doctor/visitnavigation', (req, res) => {
+    if (!req.session.doctor_name) {
+        return res.status(401).json({ message: 'Doctor authentication required' });
+    }
+
+    return res.status(200).json({
+        doctor_name: req.session.doctor_name,
+        links: {
+            appointmentApprove: '/migrate/doctor/appointmentapprove',
+            visits: '/migrate/doctor/dashboard',
+        },
+    });
+});
+
+app.get('/api/doctor/appointments/pending', (req, res) => {
+    if (!req.session.doctor_name) {
+        return res.status(401).json({ message: 'Doctor authentication required' });
+    }
+
+    const query = `SELECT * FROM appointments WHERE status = 'Pending' AND doctor_name = ?`;
+    con.query(query, [req.session.doctor_name], (err, results) => {
+        if (err) {
+            console.error('Error fetching pending appointments:', err);
+            return res.status(500).json({ message: 'Error fetching appointments' });
+        }
+
+        const appointments = (results || []).map((appointment) => ({
+            ...appointment,
+            appointment_date: moment(appointment.appointment_date).format('ddd DD MMM YYYY'),
+        }));
+
+        return res.status(200).json({ appointments });
+    });
+});
+
+app.post('/api/doctor/appointments/approve', (req, res) => {
+    if (!req.session.doctor_name) {
+        return res.status(401).json({ message: 'Doctor authentication required' });
+    }
+
+    const { appointment_id } = req.body;
+    if (!appointment_id) {
+        return res.status(400).json({ message: 'appointment_id is required' });
+    }
+
+    const updateQuery = `UPDATE appointments SET status = 'Scheduled' WHERE appointment_id = ?`;
+    con.query(updateQuery, [appointment_id], (updateErr) => {
+        if (updateErr) {
+            console.error('Error approving appointment:', updateErr);
+            return res.status(500).json({ message: 'Error approving appointment' });
+        }
+
+        const selectQuery = `SELECT appointee_name, appointee_email, doctor_name, appointment_date, appointment_time FROM appointments WHERE appointment_id = ?`;
+        con.query(selectQuery, [appointment_id], (selectErr, results) => {
+            if (selectErr) {
+                console.error('Error retrieving appointment details:', selectErr);
+                return res.status(500).json({ message: 'Error retrieving appointment details' });
+            }
+
+            if (!results.length) {
+                return res.status(404).json({ message: 'Appointment not found' });
+            }
+
+            const { appointee_name, appointee_email, doctor_name, appointment_date, appointment_time } = results[0];
+            const date = new Date(appointment_date);
+            const formattedDate = `${date.toDateString()} at ${appointment_time}`;
+
+            const transporter = nodemailer.createTransport({
+                service: 'gmail',
+                auth: {
+                    user: 'chauhanrudresh2005@gmail.com',
+                    pass: 'kemn rqkk hebi wzoc',
+                },
+            });
+
+            const mailOptions = {
+                from: 'chauhanrudresh2005@gmail.com',
+                to: appointee_email,
+                subject: 'Appointment Scheduled',
+                text: `Dear ${appointee_name},\n\nYour appointment with Dr. ${doctor_name} has been scheduled for ${formattedDate}.\n\nBest regards,\nHospital Management`,
+            };
+
+            transporter.sendMail(mailOptions, (mailErr) => {
+                if (mailErr) {
+                    console.error('Error sending email:', mailErr);
+                    return res.status(500).json({ message: 'Error sending email' });
+                }
+
+                return res.status(200).json({ message: 'Appointment approved and email sent.' });
+            });
+        });
+    });
+});
+
+app.post('/api/doctor/appointments/reject', (req, res) => {
+    if (!req.session.doctor_name) {
+        return res.status(401).json({ message: 'Doctor authentication required' });
+    }
+
+    const { appointment_id } = req.body;
+    if (!appointment_id) {
+        return res.status(400).json({ message: 'appointment_id is required' });
+    }
+
+    const query = `UPDATE appointments SET status = 'Cancelled' WHERE appointment_id = ?`;
+    con.query(query, [appointment_id], (err) => {
+        if (err) {
+            console.error('Error rejecting appointment:', err);
+            return res.status(500).json({ message: 'Error rejecting appointment' });
+        }
+
+        return res.status(200).json({ message: 'Appointment rejected.' });
+    });
+});
+
+app.get('/api/doctor/dashboard/overview', (req, res) => {
+    if (!req.session.doctor_name) {
+        return res.status(401).json({ message: 'Doctor authentication required' });
+    }
+
+    const doctor_name = req.session.doctor_name;
+    const doctorQuery = `SELECT * FROM doctors WHERE doctor_name = ?`;
+    con.query(doctorQuery, [doctor_name], (doctorError, doctordetails) => {
+        if (doctorError || !doctordetails?.length) {
+            console.error('Error loading doctor details:', doctorError);
+            return res.status(500).json({ message: 'Failed to load doctor details' });
+        }
+
+        const doctor_id = doctordetails[0].doctor_id;
+        const patientQuery = `SELECT admit.*, patients.*
+            FROM admit
+            JOIN patients ON admit.patient_id = patients.patient_id
+            WHERE doctor_assigned = ?`;
+
+        con.query(patientQuery, [doctor_name], (patientError, patientdetails) => {
+            if (patientError) {
+                console.error('Error loading patient details:', patientError);
+                return res.status(500).json({ message: 'Failed to load patient details' });
+            }
+
+            const appointmentQuery = `SELECT * FROM appointments WHERE doctor_name = ? AND appointment_date = NOW()`;
+            con.query(appointmentQuery, [doctor_name], (appointmentError, appointments) => {
+                if (appointmentError) {
+                    console.error('Error loading appointments:', appointmentError);
+                    return res.status(500).json({ message: 'Failed to load appointments' });
+                }
+
+                const chartQuery = `
+                    SELECT DATE(admission_date) AS admit_date, COUNT(*) AS patient_count
+                    FROM admit
+                    WHERE doctor_assigned = ?
+                    GROUP BY DATE(admission_date)
+                    ORDER BY admit_date;
+                `;
+                con.query(chartQuery, [doctor_name], (chartError, chartData) => {
+                    if (chartError) {
+                        console.error('Error loading chart data:', chartError);
+                        return res.status(500).json({ message: 'Failed to load chart data' });
+                    }
+
+                    const nurseQuery = `SELECT * FROM nurses WHERE doctor_id = ?;`;
+                    con.query(nurseQuery, [doctor_id], (nurseError, nurses) => {
+                        if (nurseError) {
+                            console.error('Error loading nurses:', nurseError);
+                            return res.status(500).json({ message: 'Failed to load nurses' });
+                        }
+
+                        const notificationQuery = `
+                            SELECT * FROM notifications
+                            WHERE doctor_id = ? AND is_read = 0
+                            UNION
+                            SELECT * FROM notifications
+                            WHERE doctor_assigned = ? AND is_read = 0
+                            ORDER BY created_at DESC;
+                        `;
+
+                        con.query(notificationQuery, [doctor_id, doctor_name], (notificationError, notifications) => {
+                            if (notificationError) {
+                                console.error('Error loading notifications:', notificationError);
+                                return res.status(500).json({ message: 'Failed to load notifications' });
+                            }
+
+                            return res.status(200).json({
+                                doctordetails: doctordetails[0],
+                                patientdetails,
+                                appointments,
+                                nurses,
+                                notifications,
+                                chartLabels: chartData.map((row) => row.admit_date),
+                                chartData: chartData.map((row) => row.patient_count),
+                            });
+                        });
+                    });
+                });
+            });
+        });
+    });
+});
+
+app.get('/api/patient/dashboard/overview', (req, res) => {
+    if (!req.session.patientId) {
+        return res.status(401).json({ message: 'Patient authentication required' });
+    }
+
+    const patientQuery = 'SELECT * FROM patients WHERE patient_id = ?';
+    con.query(patientQuery, [req.session.patientId], (patientError, patientResult) => {
+        if (patientError || !patientResult?.length) {
+            console.error('Error loading patient details:', patientError);
+            return res.status(500).json({ message: 'Failed to load patient details' });
+        }
+
+        const patient = patientResult[0];
+        const notificationQuery = 'SELECT * FROM notifications WHERE patient_id = ?';
+        con.query(notificationQuery, [req.session.patientId], (notificationError, notifications) => {
+            if (notificationError) {
+                console.error('Error loading patient notifications:', notificationError);
+                return res.status(500).json({ message: 'Failed to load notifications' });
+            }
+
+            const prescriptionQuery = `
+                SELECT p.*, pm.*
+                FROM prescriptions p
+                JOIN prescription_medicines pm
+                WHERE p.patient_id = ? AND p.prescription_id = pm.prescription_id
+            `;
+
+            con.query(prescriptionQuery, [req.session.patientId], (prescriptionError, prescriptions) => {
+                if (prescriptionError) {
+                    console.error('Error loading prescriptions:', prescriptionError);
+                    return res.status(500).json({ message: 'Failed to load prescriptions' });
+                }
+
+                return res.status(200).json({
+                    patient,
+                    notifications: notifications || [],
+                    prescriptions: prescriptions || [],
+                });
+            });
+        });
+    });
+});
+
+app.get('/api/admin/pharmacy/overview', (req, res) => {
+    if (!req.session.admin_id) {
+        return res.status(401).json({ message: 'Admin authentication required' });
+    }
+
+    const productQuery = 'SELECT * FROM medicine_products';
+    con.query(productQuery, (productError, products) => {
+        if (productError) {
+            console.error('Error fetching pharmacy products:', productError);
+            return res.status(500).json({ message: 'Error fetching products.' });
+        }
+
+        const consumerQuery = 'SELECT * FROM consumer_transactions';
+        con.query(consumerQuery, (consumerError, consumer) => {
+            if (consumerError) {
+                console.error('Error fetching consumer transactions:', consumerError);
+                return res.status(500).json({ message: 'Error fetching consumer transactions.' });
+            }
+
+            const totalAmountsQuery = `
+                SELECT DATE(transaction_date) AS date, SUM(total_cost) AS total_sales
+                FROM consumer_transactions
+                GROUP BY DATE(transaction_date)
+                ORDER BY DATE(transaction_date)
+            `;
+
+            con.query(totalAmountsQuery, (amountError, totalAmountsResults) => {
+                if (amountError) {
+                    console.error('Error fetching total sales amounts:', amountError);
+                    return res.status(500).json({ message: 'Error fetching total amounts data.' });
+                }
+
+                const totalAmounts = (totalAmountsResults || []).map((row) => ({
+                    date: row.date,
+                    total_sales: row.total_sales,
+                }));
+
+                return res.status(200).json({
+                    products: products || [],
+                    consumer: consumer || [],
+                    totalAmounts,
+                });
+            });
+        });
+    });
+});
+
+app.get('/api/admin/nurseallocate/overview', (req, res) => {
+    if (!req.session.admin_id) {
+        return res.status(401).json({ message: 'Admin authentication required' });
+    }
+
+    const query = `
+        SELECT * FROM patients p
+        JOIN admit a ON p.patient_id = a.patient_id
+        WHERE nurse_id IS NULL AND discharge_date IS NULL
+    `;
+    con.query(query, (error, patients) => {
+        if (error) {
+            console.error('Error fetching nurse allocation patients:', error);
+            return res.status(500).json({ message: 'Failed to load patients requiring nurse allocation' });
+        }
+
+        return res.status(200).json({
+            patients: patients || [],
+            flashMessage: req.session.flashMessage || null,
+        });
+    });
+});
+
+app.get('/api/admin/nurseallocate/nurses', (req, res) => {
+    if (!req.session.admin_id) {
+        return res.status(401).json({ message: 'Admin authentication required' });
+    }
+
+    const { admit_id } = req.query;
+    if (!admit_id) {
+        return res.status(400).json({ message: 'admit_id is required' });
+    }
+
+    const query = 'SELECT * FROM nurses WHERE available = 1';
+    con.query(query, (error, nurses) => {
+        if (error) {
+            console.error('Error fetching available nurses:', error);
+            return res.status(500).json({ message: 'Failed to load available nurses' });
+        }
+
+        return res.status(200).json({ nurses: nurses || [], admit_id });
+    });
+});
+
+app.post('/api/admin/nurseallocate/assign', (req, res) => {
+    if (!req.session.admin_id) {
+        return res.status(401).json({ message: 'Admin authentication required' });
+    }
+
+    const { admit_id, nurseid } = req.body;
+    if (!admit_id || !nurseid) {
+        return res.status(400).json({ message: 'admit_id and nurseid are required' });
+    }
+
+    const updateAdmitQuery = 'UPDATE admit SET nurse_id = ? WHERE admit_id = ?';
+    const updateNurseQuery = 'UPDATE nurses SET available = 0 WHERE nurse_id = ?';
+
+    con.query(updateAdmitQuery, [nurseid, admit_id], (admitErr) => {
+        if (admitErr) {
+            console.error('Error updating admit table:', admitErr);
+            return res.status(500).json({ message: 'Failed to allocate nurse' });
+        }
+
+        con.query(updateNurseQuery, [nurseid], (nurseErr) => {
+            if (nurseErr) {
+                console.error('Error updating nurse availability:', nurseErr);
+                return res.status(500).json({ message: 'Failed to update nurse availability' });
+            }
+
+            req.session.flashMessage = 'Nurse allocated successfully!';
+            return res.status(200).json({ message: 'Nurse allocated successfully!' });
+        });
+    });
+});
+
+app.get('/api/admin/ai/overview', (req, res) => {
+    if (!req.session.admin_id) {
+        return res.status(401).json({ message: 'Admin authentication required' });
+    }
+
+    const admin_id = req.session.admin_id;
+    const query = 'SELECT * FROM chat_session WHERE admin_id = ? ORDER BY created_at DESC';
+    con.query(query, [admin_id], (err, sessions) => {
+        if (err) {
+            console.error('Error fetching admin AI sessions:', err);
+            return res.status(500).json({ message: 'Error fetching sessions' });
+        }
+
+        if (!sessions.length) {
+            return res.status(200).json({
+                admin_id,
+                sessions: [],
+                initialSessionId: null,
+                initialChatHistory: [],
+            });
+        }
+
+        const initialSessionId = sessions[0].session_uuid;
+        const chatQuery = 'SELECT * FROM chat_history WHERE session_uuid = ? ORDER BY timestamp ASC';
+        con.query(chatQuery, [initialSessionId], (chatErr, chatHistory) => {
+            if (chatErr) {
+                console.error('Error fetching initial admin AI chat history:', chatErr);
+                return res.status(500).json({ message: 'Error fetching chat history' });
+            }
+
+            return res.status(200).json({
+                admin_id,
+                sessions,
+                initialSessionId,
+                initialChatHistory: chatHistory || [],
+            });
+        });
+    });
+});
+
 const chatRoutes = require('./routes/chat/chatroute');
 app.use('/chat', chatRoutes);
 
 app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, 'public/react-home', 'index.html'));
+})
+
+app.get('/migrate/*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public/react-home', 'index.html'));
 })
 app.get("/adminlogin", (req, res) => {

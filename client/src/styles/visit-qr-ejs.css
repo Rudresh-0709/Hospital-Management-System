@@ -1,0 +1,95 @@
+.migrate-visitqr-page {
+  min-height: 70vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.55)), url('/png/adminpng/pexels-pixabay-278430.jpg');
+  background-size: cover;
+  background-position: center;
+  border-radius: 10px;
+}
+
+.migrate-visitqr-container {
+  background-color: rgba(255, 255, 255, 0.84);
+  padding: 32px;
+  width: min(450px, 100%);
+  border-radius: 15px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(8px);
+  border: 1px solid #d1d8e0;
+}
+
+.migrate-visitqr-container h3 {
+  font-size: 36px;
+  margin: 0 0 24px;
+  color: #2c3e50;
+  font-family: 'Montserrat Alternates', sans-serif;
+}
+
+.migrate-visitqr-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.migrate-visitqr-form input[type='file'] {
+  padding: 12px;
+  font-size: 16px;
+  width: 86%;
+  border-radius: 8px;
+  border: 2px solid #aab7b8;
+  background-color: #f4f6f7;
+  color: #445;
+}
+
+.migrate-visitqr-form button {
+  background-color: #3498db;
+  color: #fff;
+  padding: 12px 22px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.migrate-visitqr-form button:hover {
+  background-color: #2980b9;
+}
+
+.migrate-visitqr-form button:disabled {
+  opacity: 0.75;
+  cursor: default;
+}
+
+.migrate-visitqr-status {
+  margin-top: 18px;
+  font-size: 18px;
+  font-weight: 600;
+  min-height: 24px;
+}
+
+.migrate-visitqr-status.success {
+  color: #27ae60;
+}
+
+.migrate-visitqr-status.error {
+  color: #e74c3c;
+}
+
+@media (max-width: 600px) {
+  .migrate-visitqr-container {
+    padding: 18px;
+  }
+
+  .migrate-visitqr-container h3 {
+    font-size: 30px;
+  }
+
+  .migrate-visitqr-form input[type='file'] {
+    width: 100%;
+  }
+}

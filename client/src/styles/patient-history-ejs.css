@@ -1,0 +1,117 @@
+.migrate-history-card {
+  max-width: 100%;
+  padding: 20px;
+  padding-top: 8px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+  border: 1px solid #ddd;
+}
+
+.migrate-history-scroll-wrapper {
+  display: inline-block;
+  min-width: 100%;
+}
+
+.migrate-history-title {
+  text-align: center;
+  font-size: 2.1rem;
+  margin-bottom: 20px;
+  font-family: 'Eagle Lake', 'Montserrat Alternates', cursive;
+  color: #2a3e59;
+  width: 100%;
+  padding-bottom: 10px;
+  border-bottom: 0.1px solid #2a3e5935;
+}
+
+.migrate-history-filter {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 15px;
+  min-width: max-content;
+}
+
+.migrate-history-filter select,
+.migrate-history-filter button,
+.migrate-history-filter input {
+  padding: 10px;
+  font-size: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  outline: none;
+}
+
+.migrate-history-filter select:focus,
+.migrate-history-filter button:focus {
+  border-color: #2a3e59;
+}
+
+.migrate-history-filter button {
+  background-color: #2a3e59;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.migrate-history-filter button:hover {
+  background-color: #1b2c40;
+}
+
+.migrate-history-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.migrate-history-table thead {
+  background-color: #2a3e59;
+  color: #fff;
+}
+
+.migrate-history-table thead th {
+  padding: 12px;
+  font-size: 1rem;
+  text-align: left;
+  border: 1px solid #ddd;
+}
+
+.migrate-history-table tbody tr:nth-child(odd) {
+  background-color: #f1f1f1;
+}
+
+.migrate-history-table tbody tr:nth-child(even) {
+  background-color: #ffffff;
+}
+
+.migrate-history-table tbody td {
+  padding: 10px;
+  font-size: 0.9rem;
+  color: #333;
+  border: 1px solid #ddd;
+}
+
+@media (max-width: 768px) {
+  .migrate-history-filter {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .migrate-history-filter select,
+  .migrate-history-filter button {
+    width: 100%;
+  }
+
+  .migrate-history-table {
+    font-size: 0.9rem;
+  }
+
+  .migrate-history-table thead th,
+  .migrate-history-table tbody td {
+    padding: 8px;
+  }
+}

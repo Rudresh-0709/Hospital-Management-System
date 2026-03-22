@@ -1,0 +1,12 @@
+.pharmacy-card {
+  width: min(1200px, 96vw);
+}
+
+.pharmacy-card table th {
+  background-color: rgba(0, 0, 0, 0.68);
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.pharmacy-card table td {
+  color: #334155;
+}

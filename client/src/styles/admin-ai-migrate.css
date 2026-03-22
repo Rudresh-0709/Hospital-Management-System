@@ -1,0 +1,150 @@
+.ai-shell {
+  width: min(1300px, 96vw);
+}
+
+.ai-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 16px;
+  min-height: 70vh;
+}
+
+.ai-sidebar {
+  border: 1px solid #dbeafe;
+  border-radius: 10px;
+  padding: 12px;
+  background: #f8fbff;
+}
+
+.ai-sidebar-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.ai-sidebar ul {
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+.ai-sidebar li {
+  border: 1px solid #d5e8ff;
+  border-radius: 8px;
+  padding: 8px;
+  background: #fff;
+}
+
+.ai-sidebar li.active {
+  background: #dff0ff;
+}
+
+.ai-sidebar li > button {
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #0f4e78;
+  font-weight: 600;
+}
+
+.ai-row-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.ai-row-actions button {
+  border: 1px solid #b7d8ff;
+  background: #fff;
+  border-radius: 6px;
+  padding: 4px 8px;
+  cursor: pointer;
+  color: #0f4e78;
+}
+
+.ai-main {
+  border: 1px solid #dbeafe;
+  border-radius: 10px;
+  padding: 12px;
+  background: #f8fbff;
+  display: flex;
+  flex-direction: column;
+}
+
+.ai-messages {
+  flex: 1;
+  border: 1px solid #d5e8ff;
+  border-radius: 10px;
+  background: #fff;
+  padding: 10px;
+  overflow-y: auto;
+  display: grid;
+  gap: 10px;
+  min-height: 280px;
+}
+
+.ai-bubble {
+  padding: 10px;
+  border-radius: 10px;
+  max-width: 70%;
+  white-space: pre-wrap;
+}
+
+.ai-bubble.user {
+  margin-left: auto;
+  background: rgba(0, 157, 248, 0.25);
+}
+
+.ai-bubble.ai {
+  margin-right: auto;
+  border: 1px solid rgba(0, 157, 248, 0.35);
+  background: #fff;
+}
+
+.ai-form {
+  margin-top: 10px;
+  display: grid;
+  gap: 10px;
+}
+
+.ai-form textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 56px;
+  border: 1px solid #b7d8ff;
+  border-radius: 8px;
+  padding: 10px;
+  font-family: inherit;
+}
+
+.ai-form-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.ai-tables {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ai-tables label {
+  border: 1px solid #d5e8ff;
+  border-radius: 6px;
+  padding: 4px 8px;
+  background: #fff;
+  font-size: 0.9rem;
+  color: #0f4e78;
+}
+
+@media (max-width: 960px) {
+  .ai-layout {
+    grid-template-columns: 1fr;
+  }
+}

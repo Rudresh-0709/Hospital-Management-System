@@ -1,0 +1,265 @@
+.migrate-ejs {
+  font-family: "Poppins", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: #2e5668;
+}
+
+.migrate-ejs .page {
+  min-height: 100vh;
+  background: #ffffff;
+}
+
+.migrate-ejs .section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 0 40px;
+}
+
+.migrate-ejs .heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  width: 100%;
+}
+
+.migrate-ejs .heading-title {
+  color: #091d34;
+  font-size: 40px;
+  font-family: "Montserrat Alternates", sans-serif;
+  margin-top: 1em;
+  width: 90%;
+  text-align: center;
+}
+
+.migrate-ejs .card {
+  width: min(860px, 94vw);
+  display: flex;
+  flex-direction: column;
+  border: 1px solid white;
+  padding: 32px;
+  background-color: whitesmoke;
+  border-radius: 8px;
+  box-shadow: 0 0 3px 0.01px rgba(0, 0, 0, 0.434);
+  margin: 12px 0;
+}
+
+.migrate-ejs .card-title {
+  width: 100%;
+  color: #2e5668;
+  font-size: 25px;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  text-align: start;
+  border-bottom: 0.2px solid #2e5668;
+}
+
+.migrate-ejs .summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(120px, 1fr));
+  gap: 12px;
+}
+
+.migrate-ejs .split-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(180px, 1fr));
+  gap: 14px;
+}
+
+.migrate-ejs .field-label {
+  font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", Arial, sans-serif;
+  font-size: 20px;
+  text-align: start;
+  width: 100%;
+  color: #3c7284;
+  margin-bottom: 0.3em;
+}
+
+.migrate-ejs .field,
+.migrate-ejs select,
+.migrate-ejs textarea {
+  width: 100%;
+  min-height: 2.5em;
+  background-color: #c3c7b347;
+  border-color: transparent;
+  border-radius: 7px;
+  margin-bottom: 1.2em;
+  color: #44626f;
+  padding: 6px 10px;
+  appearance: none;
+  font-size: large;
+}
+
+.migrate-ejs .toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.migrate-ejs .table-wrap {
+  overflow-x: auto;
+  margin-top: 12px;
+}
+
+.migrate-ejs table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #ffffff;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.migrate-ejs th,
+.migrate-ejs td {
+  padding: 10px 8px;
+  text-align: left;
+  border-bottom: 1px solid #edf2f7;
+}
+
+.migrate-ejs th {
+  color: #2e5668;
+  background: #f7fafc;
+}
+
+.migrate-ejs .nav-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.migrate-ejs .nav-row a {
+  color: #1d4f68;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.migrate-ejs .nav-row a:hover {
+  text-decoration: underline;
+}
+
+.migrate-ejs .btn {
+  width: 200px;
+  min-height: 3em;
+  font-size: 1rem;
+  background-color: #3a6592;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 0 3px 0.01px rgba(0, 0, 0, 0.434);
+}
+
+.migrate-ejs .error {
+  color: #721c24;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 6px;
+  padding: 10px;
+}
+
+.migrate-ejs .success {
+  color: #155724;
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+  border-radius: 6px;
+  padding: 10px;
+}
+
+.migrate-ejs .muted {
+  color: #5e6b73;
+}
+
+.migrate-ejs .card-title-tight {
+  margin-bottom: 0;
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.migrate-ejs .field-tight {
+  min-width: 280px;
+  margin-bottom: 0;
+}
+
+.migrate-ejs .mt-12 {
+  margin-top: 12px;
+}
+
+@media (max-width: 768px) {
+  .migrate-ejs .split-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .migrate-ejs .field-tight {
+    min-width: 100%;
+  }
+}
+
+.migrate-ejs.login-page .page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background-size: cover;
+  background-position: center;
+}
+
+.migrate-ejs.login-page .section {
+  padding: 0;
+  width: 100%;
+  max-width: 720px;
+}
+
+.migrate-ejs.login-page .heading-title {
+  margin-top: 0;
+  color: #ffffff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+  margin-bottom: 14px;
+}
+
+.migrate-ejs.login-page .card {
+  width: min(620px, 94vw);
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.22);
+}
+
+.migrate-ejs.login-page .card-title,
+.migrate-ejs.login-page .field-label {
+  color: #f2f7ff;
+}
+
+.migrate-ejs.login-page .field {
+  background: rgba(25, 70, 78, 0.55);
+  color: #ffffff;
+}
+
+.migrate-ejs.login-page .field::placeholder {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.migrate-ejs.login-page .btn {
+  background: rgba(25, 70, 78, 0.88);
+}
+
+.migrate-ejs.login-page .nav-row {
+  margin-top: 12px;
+}
+
+.migrate-ejs.login-page .nav-row a {
+  color: #e9f4ff;
+}
+
+.migrate-ejs.admin-login .page {
+  background-image:
+    linear-gradient(rgba(9, 20, 34, 0.52), rgba(9, 20, 34, 0.52)),
+    url('/png/adminpng/workplace-objects.jpg');
+}
+
+.migrate-ejs.doctor-login .page {
+  background-image:
+    linear-gradient(rgba(9, 20, 34, 0.48), rgba(9, 20, 34, 0.48)),
+    url('/png/doctorpng/pexels-pixabay-40568.jpg');
+}
