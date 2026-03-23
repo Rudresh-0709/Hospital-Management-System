@@ -26,8 +26,23 @@ function MigrationHome() {
         <Link to="/migrate/doctor/visitnavigation">Doctor Visit Navigation (React)</Link>
         <Link to="/migrate/doctor/appointmentapprove">Doctor Appointment Approval (React)</Link>
         <Link to="/migrate/doctor/dashboard">Doctor Dashboard (React)</Link>
+        <Link to="/migrate/doctor/diagnosis">Doctor Diagnosis (React)</Link>
+        <Link to="/migrate/doctor/prescription">Doctor Prescription (React)</Link>
+        <Link to="/migrate/doctor/newprescription">Doctor New Prescription (React)</Link>
+        <Link to="/migrate/appointmentbook">Appointment Book (React)</Link>
+        <Link to="/migrate/chat">Chat (React)</Link>
+        <Link to="/migrate/admin/nurse">Admin Nurse (React)</Link>
+        <Link to="/migrate/admin/equipment/newequipment">Admin New Equipment (React)</Link>
+        <Link to="/migrate/admin/equipment/updateequipment">Admin Update Equipment (React)</Link>
+        <Link to="/migrate/nurse/allocation-form?admit_id=1">Nurse Allocation Form (React)</Link>
         <Link to="/migrate/patient/dashboard">Patient Dashboard (React)</Link>
+        <Link to="/migrate/patient/ai">Patient AI (React)</Link>
+        <Link to="/migrate/chat/setting">Chat Settings (React)</Link>
+        <Link to="/migrate/video-chat">Video Chat (React)</Link>
         <Link to="/migrate/auth">Auth API Test Console</Link>
+        <a href="/legacy/admin">Legacy Admin via /legacy (EJS)</a>
+        <a href="/legacy/doctoradmin">Legacy Doctor via /legacy (EJS)</a>
+        <a href="/legacy/patientdashboard">Legacy Patient via /legacy (EJS)</a>
         <a href="/adminlogin">Legacy Admin Login (EJS)</a>
         <a href="/patientlogin">Legacy Patient Login (EJS)</a>
       </div>

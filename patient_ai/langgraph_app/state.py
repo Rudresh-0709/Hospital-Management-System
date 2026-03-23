@@ -30,6 +30,7 @@ class HMAIState(BaseModel):
 
     # Patient identification (CRITICAL for privacy)
     patient_id: Optional[int] = None
+    session_id: Optional[str] = None
 
     # Medical context
     last_disease_topic: Optional[str] = None

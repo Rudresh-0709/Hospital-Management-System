@@ -24,17 +24,18 @@ class BookingIntent(BaseModel):
         description="Preffered time of appointment"
     )
 
-@field_validator("date")
-def normalise_date(cls,v):
-    if v is None:
-        return v
-    iso_re = re.compile(r"^\d{4}-\d{2}-\d{2}$")
-    if iso_re.match(v):
-        return v
-    try:
-        return dtparser.parse(v, fuzzy=True).date().isoformat()
-    except Exception:
-        return v
+    @field_validator("appointment_date", mode="before")
+    @classmethod
+    def normalise_date(cls, v):
+        if v is None:
+            return v
+        iso_re = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+        if isinstance(v, str) and iso_re.match(v):
+            return v
+        try:
+            return dtparser.parse(str(v), fuzzy=True).date().isoformat()
+        except Exception:
+            return v
 
 parser = PydanticOutputParser(pydantic_object=BookingIntent)
 format_instructions = parser.get_format_instructions()

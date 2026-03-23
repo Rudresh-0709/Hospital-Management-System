@@ -1,56 +1,104 @@
-import { Link } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 function AdminShell({ title, children }) {
   const { user, logout } = useAuth();
+  const location = useLocation();
+
+  const navGroups = [
+    {
+      title: 'Core',
+      links: [
+        { to: '/migrate', label: 'Migration Home' },
+        { to: '/migrate/dashboard', label: 'Migration Dashboard' },
+        { to: '/migrate/admin/dashboard', label: 'Admin Dashboard' },
+      ],
+    },
+    {
+      title: 'Patients',
+      links: [
+        { to: '/migrate/admin/patients', label: 'New Patient Registration' },
+        { to: '/migrate/admin/admit', label: 'Admit Patient' },
+        { to: '/migrate/admin/discharge', label: 'Discharge Patient' },
+        { to: '/migrate/admin/patienthistory', label: 'Patient History' },
+      ],
+    },
+    {
+      title: 'Visits',
+      links: [
+        { to: '/migrate/admin/newvisitor', label: 'New Visitor' },
+        { to: '/migrate/admin/visit-history', label: 'Visit History' },
+        { to: '/migrate/admin/visitqr', label: 'Visit QR' },
+      ],
+    },
+    {
+      title: 'Staff',
+      links: [
+        { to: '/migrate/admin/newdoctor', label: 'New Doctor' },
+        { to: '/migrate/admin/newstaff', label: 'New Staff' },
+        { to: '/migrate/admin/nurse', label: 'New Nurse' },
+        { to: '/migrate/admin/nurseallocate', label: 'Nurse Allocation' },
+      ],
+    },
+    {
+      title: 'Equipment',
+      links: [
+        { to: '/migrate/admin/equipment', label: 'Equipment Overview' },
+        { to: '/migrate/admin/equipment/newequipment', label: 'Add Equipment' },
+        { to: '/migrate/admin/equipment/updateequipment', label: 'Update Equipment' },
+      ],
+    },
+    {
+      title: 'Clinical Ops',
+      links: [
+        { to: '/migrate/admin/pharmacy', label: 'Pharmacy' },
+        { to: '/migrate/admin/ai', label: 'Admin AI' },
+        { to: '/migrate/chat', label: 'Chat' },
+      ],
+    },
+  ];
+
+  const isGroupActive = (links) => links.some((link) => location.pathname.startsWith(link.to));
 
   return (
-    <div className="migrate-ejs">
-      <div className="page">
-        <section className="section">
-          <div className="heading">
-            <h1 className="heading-title">{title}</h1>
-          </div>
-          <div className="card" style={{ marginTop: 8 }}>
-            <p className="muted" style={{ margin: '8px 0' }}>
-            React migration admin module. Logged in as: {user?.name || 'Unknown'} ({user?.role || 'n/a'})
-            </p>
-            <div className="nav-row">
-            <Link to="/migrate">Migration Home</Link>
-            <Link to="/migrate/dashboard">Migration Dashboard</Link>
-            <Link to="/migrate/admin/dashboard">Admin Dashboard (React)</Link>
-            <Link to="/migrate/admin/patients">Admin Patients (React)</Link>
-            <Link to="/migrate/admin/admit">Admin Admit (React)</Link>
-            <Link to="/migrate/admin/discharge">Admin Discharge (React)</Link>
-            <Link to="/migrate/admin/patienthistory">Admin History (React)</Link>
-            <Link to="/migrate/admin/newvisitor">Admin New Visitor (React)</Link>
-            <Link to="/migrate/admin/visit-history">Admin Visit History (React)</Link>
-            <Link to="/migrate/admin/visitqr">Admin Visit QR (React)</Link>
-            <Link to="/migrate/admin/newdoctor">Admin New Doctor (React)</Link>
-            <Link to="/migrate/admin/newstaff">Admin New Staff (React)</Link>
-            <Link to="/migrate/admin/equipment">Admin Equipment (React)</Link>
-            <Link to="/migrate/admin/pharmacy">Admin Pharmacy (React)</Link>
-            <Link to="/migrate/admin/nurseallocate">Admin Nurse Allocate (React)</Link>
-            <Link to="/migrate/admin/ai">Admin AI (React)</Link>
-            <a href="/admin/patient">Legacy Admin Patients (EJS)</a>
-            <a href="/admin/admit">Legacy Admin Admit (EJS)</a>
-            <a href="/admin/discharge">Legacy Admin Discharge (EJS)</a>
-            <a href="/admin/patienthistory">Legacy Admin History (EJS)</a>
-            <a href="/admin/newvisitor">Legacy Admin New Visitor (EJS)</a>
-            <a href="/admin/visit-history">Legacy Admin Visit History (EJS)</a>
-            <a href="/admin/visitqr">Legacy Admin Visit QR (EJS)</a>
-            <a href="/admin/newdoctor">Legacy Admin New Doctor (EJS)</a>
-            <a href="/admin/newstaff">Legacy Admin New Staff (EJS)</a>
-            <a href="/admin/equipment">Legacy Admin Equipment (EJS)</a>
-            <a href="/admin/pharmacy">Legacy Admin Pharmacy (EJS)</a>
-            <a href="/admin/nurseallocate">Legacy Admin Nurse Allocate (EJS)</a>
-            <a href="/admin/ai">Legacy Admin AI (EJS)</a>
-              <button className="btn" onClick={logout}>Logout</button>
-            </div>
-          </div>
-          {children}
-        </section>
+    <div className="migrate-ejs migrate-shell">
+      <div className="migrate-shell-topbar">
+        <div className="migrate-shell-brand">
+          <div className="migrate-shell-brand-title">Clinical Sanctuary HMS</div>
+          <div className="migrate-shell-brand-subtitle">Admin Migration Workspace</div>
+        </div>
+        <div className="migrate-shell-user">
+          <span>
+            {user?.name || 'Unknown'} ({user?.role || 'n/a'})
+          </span>
+          <button className="btn" type="button" onClick={logout}>Logout</button>
+        </div>
       </div>
+
+      <nav className="migrate-shell-nav" aria-label="Form pages navigation">
+        {navGroups.map((group) => (
+          <details key={group.title} className="migrate-shell-nav-group" open={isGroupActive(group.links)}>
+            <summary>{group.title}</summary>
+            <div className="migrate-shell-nav-links">
+              {group.links.map((item) => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  className={({ isActive }) => (isActive ? 'active' : '')}
+                >
+                  {item.label}
+                </NavLink>
+              ))}
+            </div>
+          </details>
+        ))}
+      </nav>
+
+      <div className="migrate-shell-titlebar">
+        <h1>{title}</h1>
+      </div>
+
+      <main className="migrate-shell-content">{children}</main>
     </div>
   );
 }

@@ -1,0 +1,42 @@
+.video-chat-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f1f5f9;
+  padding: 16px;
+}
+
+.video-chat-card {
+  width: min(420px, 95vw);
+  background: #fff;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  display: grid;
+  gap: 10px;
+}
+
+.video-chat-card h2 {
+  margin-bottom: 8px;
+  color: #1e293b;
+}
+
+.video-chat-card input {
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.video-chat-card button {
+  background: #0ea5e9;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.video-status {
+  color: #0f766e;
+}

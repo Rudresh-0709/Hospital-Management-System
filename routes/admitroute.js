@@ -184,7 +184,16 @@ app.use((req, res, next) => {
 // });
 
 app.post("/admit_patient", (req, res) => {
-    const { first_name, last_name, reason_for_admission, doctor_assigned, ward_preference, room_number } = req.body;
+    const {
+        patient_id,
+        contact_number,
+        first_name,
+        last_name,
+        reason_for_admission,
+        doctor_assigned,
+        ward_preference,
+        room_number,
+    } = req.body;
 
     con.beginTransaction((transactionError) => {
         if (transactionError) {
@@ -193,8 +202,18 @@ app.post("/admit_patient", (req, res) => {
             return res.redirect('/admin/admit');
         }
 
-        const patientQuery = `SELECT patient_id, email FROM patients WHERE first_name = ? AND last_name = ?`;
-        con.query(patientQuery, [first_name, last_name], (err, patientResult) => {
+        let patientQuery = 'SELECT patient_id, email, first_name, last_name FROM patients WHERE first_name = ? AND last_name = ?';
+        let patientParams = [first_name, last_name];
+
+        if (patient_id) {
+            patientQuery = 'SELECT patient_id, email, first_name, last_name FROM patients WHERE patient_id = ? LIMIT 1';
+            patientParams = [patient_id];
+        } else if (contact_number) {
+            patientQuery = 'SELECT patient_id, email, first_name, last_name FROM patients WHERE contact_number = ?';
+            patientParams = [contact_number];
+        }
+
+        con.query(patientQuery, patientParams, (err, patientResult) => {
             if (err || patientResult.length === 0) {
                 return con.rollback(() => {
                     console.error("Patient Fetch Error:", err || "Patient not found");
@@ -203,11 +222,24 @@ app.post("/admit_patient", (req, res) => {
                 });
             }
 
-            const patient_id = patientResult[0].patient_id;
-            const emailadd = patientResult[0].email;
+            if (!patient_id && contact_number && patientResult.length > 1) {
+                return con.rollback(() => {
+                    req.session.flashMessage = {
+                        type: 'error',
+                        message: 'Multiple patients found with this mobile number. Please use patient ID.',
+                    };
+                    res.redirect('/admin/admit');
+                });
+            }
+
+            const resolvedPatient = patientResult[0];
+            const resolvedPatientId = resolvedPatient.patient_id;
+            const resolvedFirstName = resolvedPatient.first_name;
+            const resolvedLastName = resolvedPatient.last_name;
+            const emailadd = resolvedPatient.email;
 
             const admitQuery = `INSERT INTO admit (patient_id, reason_for_admission, doctor_assigned, ward_preference, room_number) VALUES (?, ?, ?, ?, ?)`;
-            con.query(admitQuery, [patient_id, reason_for_admission, doctor_assigned, ward_preference, room_number], (admitErr, admitResult) => {
+            con.query(admitQuery, [resolvedPatientId, reason_for_admission, doctor_assigned, ward_preference, room_number], (admitErr, admitResult) => {
                 if (admitErr) {
                     return con.rollback(() => {
                         console.error("Admit Insert Error:", admitErr);
@@ -232,7 +264,11 @@ app.post("/admit_patient", (req, res) => {
                         }
 
                         const badge_id = badgeResult.insertId;
-                        const badgeQRCodeData = JSON.stringify({ visit_admit_id: admit_id, badge_id: badge_id, patient_name: `${first_name} ${last_name}` });
+                        const badgeQRCodeData = JSON.stringify({
+                            visit_admit_id: admit_id,
+                            badge_id: badge_id,
+                            patient_name: `${resolvedFirstName} ${resolvedLastName}`,
+                        });
                         const qrFilePath = path.join(__dirname, `../qrcodes/badge_${badge_id}.png`);
 
                         QRCode.toFile(qrFilePath, badgeQRCodeData, (qrErr) => {
@@ -251,7 +287,7 @@ app.post("/admit_patient", (req, res) => {
                                 // **Insert Notifications for Doctor and Patient**
                                 const notificationQuery = `INSERT INTO notifications (doctor_assigned, patient_id, type, message, is_read, created_at) VALUES (?, ?, ?, ?, ?, NOW())`;
 
-                                con.query(notificationQuery, [doctor_assigned, patient_id, 'New Admission', `Patient ${first_name} ${last_name} admitted.`, 0], (doctorNotifErr) => {
+                                con.query(notificationQuery, [doctor_assigned, resolvedPatientId, 'New Admission', `Patient ${resolvedFirstName} ${resolvedLastName} admitted.`, 0], (doctorNotifErr) => {
                                     if (doctorNotifErr) {
                                         return con.rollback(() => {
                                             console.error("Doctor Notification Error:", doctorNotifErr);
@@ -260,7 +296,7 @@ app.post("/admit_patient", (req, res) => {
                                         });
                                     }
 
-                                    con.query(notificationQuery, [null, patient_id, 'Admission Confirmation', `Welcome ${first_name} ${last_name}, admitted under Dr. ${doctor_assigned}.`, 0], (patientNotifErr) => {
+                                    con.query(notificationQuery, [null, resolvedPatientId, 'Admission Confirmation', `Welcome ${resolvedFirstName} ${resolvedLastName}, admitted under Dr. ${doctor_assigned}.`, 0], (patientNotifErr) => {
                                         if (patientNotifErr) {
                                             return con.rollback(() => {
                                                 console.error("Patient Notification Error:", patientNotifErr);
@@ -281,7 +317,7 @@ app.post("/admit_patient", (req, res) => {
                                             from: process.env.EMAIL_USER,
                                             to: emailadd,
                                             subject: 'Admission Confirmation with Visitor Badges',
-                                            text: `Dear ${first_name} ${last_name},\n\nYou have been successfully admitted for ${reason_for_admission}. Your assigned doctor is ${doctor_assigned}, and your room is ${room_number} in the ${ward_preference} ward.\n\nAttached are your visitor badge QR codes.\n\nBest regards,\nHospital Management`,
+                                            text: `Dear ${resolvedFirstName} ${resolvedLastName},\n\nYou have been successfully admitted for ${reason_for_admission}. Your assigned doctor is ${doctor_assigned}, and your room is ${room_number} in the ${ward_preference} ward.\n\nAttached are your visitor badge QR codes.\n\nBest regards,\nHospital Management`,
                                             attachments: attachments,
                                         };
 

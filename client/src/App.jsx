@@ -28,11 +28,23 @@ import AdminEquipmentPage from './pages/migration/AdminEquipmentPage';
 import DoctorVisitNavigationPage from './pages/migration/DoctorVisitNavigationPage';
 import DoctorAppointmentApprovePage from './pages/migration/DoctorAppointmentApprovePage';
 import DoctorDashboardPage from './pages/migration/DoctorDashboardPage';
+import DoctorDiagnosisPage from './pages/migration/DoctorDiagnosisPage';
+import DoctorPrescriptionPage from './pages/migration/DoctorPrescriptionPage';
+import DoctorNewPrescriptionPage from './pages/migration/DoctorNewPrescriptionPage';
 import AdminDashboardPage from './pages/migration/AdminDashboardPage';
 import PatientDashboardPage from './pages/migration/PatientDashboardPage';
 import AdminPharmacyPage from './pages/migration/AdminPharmacyPage';
 import AdminNurseAllocatePage from './pages/migration/AdminNurseAllocatePage';
 import AdminAiDashboardPage from './pages/migration/AdminAiDashboardPage';
+import PatientAiDashboardPage from './pages/migration/PatientAiDashboardPage';
+import ChatSettingsPage from './pages/migration/ChatSettingsPage';
+import VideoChatPage from './pages/migration/VideoChatPage';
+import AppointmentBookPage from './pages/migration/AppointmentBookPage';
+import ChatPage from './pages/migration/ChatPage';
+import AdminNursePage from './pages/migration/AdminNursePage';
+import AdminNewEquipmentPage from './pages/migration/AdminNewEquipmentPage';
+import AdminUpdateEquipmentPage from './pages/migration/AdminUpdateEquipmentPage';
+import NurseAllocationFormPage from './pages/migration/NurseAllocationFormPage';
 import ProtectedRoute from './components/migration/ProtectedRoute';
 import './App.css';
 import './styles/migration-ejs.css';
@@ -77,6 +89,7 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
+      <Route path="/migrate/appointmentbook" element={<AppointmentBookPage />} />
       <Route path="/migrate" element={<MigrationHome />} />
       <Route path="/migrate/auth" element={<AuthMigrationPage />} />
       <Route path="/migrate/login/admin" element={<AdminLoginPage />} />
@@ -203,6 +216,38 @@ function App() {
         )}
       />
       <Route
+        path="/migrate/admin/nurse"
+        element={(
+          <ProtectedRoute allowedRoles={['admin']}>
+            <AdminNursePage />
+          </ProtectedRoute>
+        )}
+      />
+      <Route
+        path="/migrate/admin/equipment/newequipment"
+        element={(
+          <ProtectedRoute allowedRoles={['admin']}>
+            <AdminNewEquipmentPage />
+          </ProtectedRoute>
+        )}
+      />
+      <Route
+        path="/migrate/admin/equipment/updateequipment"
+        element={(
+          <ProtectedRoute allowedRoles={['admin']}>
+            <AdminUpdateEquipmentPage />
+          </ProtectedRoute>
+        )}
+      />
+      <Route
+        path="/migrate/nurse/allocation-form"
+        element={(
+          <ProtectedRoute allowedRoles={['admin']}>
+            <NurseAllocationFormPage />
+          </ProtectedRoute>
+        )}
+      />
+      <Route
         path="/migrate/doctor/visitnavigation"
         element={(
           <ProtectedRoute allowedRoles={['doctor']}>
@@ -227,10 +272,66 @@ function App() {
         )}
       />
       <Route
+        path="/migrate/doctor/diagnosis"
+        element={(
+          <ProtectedRoute allowedRoles={['doctor']}>
+            <DoctorDiagnosisPage />
+          </ProtectedRoute>
+        )}
+      />
+      <Route
+        path="/migrate/doctor/prescription"
+        element={(
+          <ProtectedRoute allowedRoles={['doctor']}>
+            <DoctorPrescriptionPage />
+          </ProtectedRoute>
+        )}
+      />
+      <Route
+        path="/migrate/doctor/newprescription"
+        element={(
+          <ProtectedRoute allowedRoles={['doctor']}>
+            <DoctorNewPrescriptionPage />
+          </ProtectedRoute>
+        )}
+      />
+      <Route
         path="/migrate/patient/dashboard"
         element={(
           <ProtectedRoute allowedRoles={['patient']}>
             <PatientDashboardPage />
+          </ProtectedRoute>
+        )}
+      />
+      <Route
+        path="/migrate/patient/ai"
+        element={(
+          <ProtectedRoute allowedRoles={['patient']}>
+            <PatientAiDashboardPage />
+          </ProtectedRoute>
+        )}
+      />
+      <Route
+        path="/migrate/chat/setting"
+        element={(
+          <ProtectedRoute>
+            <ChatSettingsPage />
+          </ProtectedRoute>
+        )}
+      />
+      <Route
+        path="/migrate/chat"
+        element={(
+          <ProtectedRoute>
+            <ChatPage />
+          </ProtectedRoute>
+        )}
+      />
+      <Route
+        path="/migrate/video-chat"
+        element={(
+          <ProtectedRoute>
+            <VideoChatPage />
           </ProtectedRoute>
         )}
       />

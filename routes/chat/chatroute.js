@@ -232,7 +232,7 @@ router.get('/settings', (req, res) => {
   if (!req.session.currentUser) {
       return res.redirect('/login'); // Redirect if not logged in
   }
-  res.render('settings', { userId: req.session.currentUser._id });
+    return res.redirect('/chat/setting');
 });
 router.get('/api/user/:userId', async (req, res) => {
   try {

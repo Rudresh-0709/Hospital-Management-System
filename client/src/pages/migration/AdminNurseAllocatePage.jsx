@@ -1,12 +1,16 @@
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import AdminShell from '../../components/migration/AdminShell';
 import {
   assignNurse,
   getAvailableNurses,
   getNurseAllocationOverview,
 } from '../../services/adminApi';
+import { getPatientFullName } from '../../utils/patientName';
 
 function AdminNurseAllocatePage() {
+  const [searchParams] = useSearchParams();
+  const preselectedAdmitId = searchParams.get('admit_id') || '';
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -36,6 +40,12 @@ function AdminNurseAllocatePage() {
   useEffect(() => {
     loadPatients();
   }, []);
+
+  useEffect(() => {
+    if (preselectedAdmitId) {
+      findNurses(preselectedAdmitId);
+    }
+  }, [preselectedAdmitId]);
 
   const findNurses = async (admitId) => {
     setSelectedAdmitId(admitId);
@@ -92,7 +102,7 @@ function AdminNurseAllocatePage() {
               <tbody>
                 {patients.length > 0 ? patients.map((patient, idx) => (
                   <tr key={`${patient.admit_id || idx}-${idx}`}>
-                    <td>{patient.first_name} {patient.last_name}</td>
+                    <td>{getPatientFullName(patient)}</td>
                     <td>{patient.reason_for_admission}</td>
                     <td>{patient.room_number}</td>
                     <td>{patient.doctor_assigned}</td>

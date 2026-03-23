@@ -1,90 +1,822 @@
-.migrate-patient-dashboard {
+.migrate-patient-dashboard.modern-pd {
+  --bg: #eceef2;
+  --panel: #f8f9fb;
+  --ink: #142f31;
+  --muted: #667a7b;
+  --line: #dce2e5;
+  --accent: #0c6f6c;
+  --accent-strong: #005445;
   min-height: 100vh;
-  background-color: aliceblue;
-  padding: 16px;
-  margin-left: 72px;
+  background: var(--bg);
+  color: var(--ink);
   font-family: 'Poppins', sans-serif;
+  display: grid;
+  grid-template-columns: 232px minmax(0, 1fr);
+  gap: 16px;
+  padding: 10px;
 }
 
-.migrate-patient-dashboard .pd-header {
+.migrate-patient-dashboard .pd-sidebar {
+  background: #f1f3f6;
+  border: 1px solid var(--line);
+  border-radius: 12px;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #ffffff;
-  border-radius: 10px;
+  flex-direction: column;
+  min-height: calc(100vh - 20px);
   padding: 14px;
-  margin-bottom: 16px;
 }
 
-.migrate-patient-dashboard .pd-profile {
+.migrate-patient-dashboard .pd-brand {
+  font-family: 'Montserrat Alternates', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #0d3b3f;
+}
+
+.migrate-patient-dashboard .pd-user-card {
+  margin-top: 18px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  background: #e9edf1;
+  border: 1px solid #d7dde2;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.migrate-patient-dashboard .avatar-circle {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(160deg, #0c6f6c, #13a39d);
+  color: #ffffff;
+  display: grid;
+  place-items: center;
+  font-size: 0.8rem;
   font-weight: 700;
 }
 
-.migrate-patient-dashboard .pd-actions {
-  display: flex;
-  gap: 10px;
-  align-items: center;
+.migrate-patient-dashboard .pd-user-card h4,
+.migrate-patient-dashboard .pd-user-card p {
+  margin: 0;
 }
 
-.migrate-patient-dashboard .pd-actions a,
-.migrate-patient-dashboard .pd-actions button {
+.migrate-patient-dashboard .pd-user-card h4 {
+  font-size: 0.88rem;
+  color: #143739;
+}
+
+.migrate-patient-dashboard .pd-user-card p {
+  font-size: 0.7rem;
+  color: #6d8284;
+}
+
+.migrate-patient-dashboard .pd-menu {
+  margin-top: 16px;
+  display: grid;
+  gap: 6px;
+}
+
+.migrate-patient-dashboard .pd-menu a {
   text-decoration: none;
-  border: none;
-  background-image: linear-gradient(to right, #50b9e9, #1bb1f7);
-  color: #fff;
-  padding: 8px 12px;
+  color: #4f6669;
+  font-size: 0.92rem;
+  padding: 10px;
   border-radius: 8px;
-  cursor: pointer;
+  border-left: 3px solid transparent;
+}
+
+.migrate-patient-dashboard .pd-menu a.active {
+  background: #e7ecef;
+  border-left-color: #0fa9a0;
+  color: #103c3f;
+  font-weight: 600;
+}
+
+.migrate-patient-dashboard .pd-side-bottom {
+  margin-top: auto;
+  display: grid;
+  gap: 8px;
+}
+
+.migrate-patient-dashboard .pd-side-bottom a {
+  text-decoration: none;
+  color: #617779;
+  font-size: 0.86rem;
+  padding: 8px 10px;
+}
+
+.migrate-patient-dashboard .pd-side-bottom .chat-btn {
+  text-align: center;
+  border-radius: 8px;
+  background: linear-gradient(160deg, var(--accent-strong), #0a6e65);
+  color: #ffffff;
+  font-weight: 600;
 }
 
 .migrate-patient-dashboard .pd-main {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  padding-right: 8px;
 }
 
-.migrate-patient-dashboard .pd-card {
-  background-color: #fff;
+.migrate-patient-dashboard .pd-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.migrate-patient-dashboard .pd-topbar input {
+  flex: 1;
+  max-width: 520px;
+  height: 42px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  padding: 0 14px;
+  background: #e7eaee;
+}
+
+.migrate-patient-dashboard .pd-topbar input:focus-visible {
+  outline: 2px solid #2ba9af;
+  outline-offset: 2px;
+}
+
+.migrate-patient-dashboard .topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.migrate-patient-dashboard .icon-btn,
+.migrate-patient-dashboard .ghost-btn,
+.migrate-patient-dashboard .solid-btn {
+  border: 1px solid var(--line);
+  background: #f4f6f8;
+  color: #214245;
   border-radius: 8px;
-  padding: 16px;
-  box-shadow: rgba(100, 100, 111, 0.1) 0px 3px 49px 0px;
+  height: 36px;
+  padding: 0 12px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.8rem;
+  cursor: pointer;
 }
 
-.migrate-patient-dashboard .pd-card h3 {
-  margin-bottom: 10px;
-  font-family: 'Montserrat Alternates', sans-serif;
+.migrate-patient-dashboard .icon-btn {
+  width: 32px;
+  justify-content: center;
+  padding: 0;
 }
 
-.migrate-patient-dashboard .pd-card ul {
-  list-style: none;
+.migrate-patient-dashboard .solid-btn {
+  background: linear-gradient(160deg, #005445, #0c7568);
+  border-color: #055f50;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.migrate-patient-dashboard .pd-content-grid {
+  margin-top: 16px;
   display: grid;
+  grid-template-columns: 1.25fr 1fr 0.7fr;
+  gap: 14px;
+}
+
+.migrate-patient-dashboard .core-column,
+.migrate-patient-dashboard .middle-column,
+.migrate-patient-dashboard .side-column {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+
+.migrate-patient-dashboard .kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(120px, 1fr));
   gap: 10px;
 }
 
-.migrate-patient-dashboard .pd-card li {
-  border-radius: 6px;
+.migrate-patient-dashboard .kpi-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.migrate-patient-dashboard .kpi-card h5,
+.migrate-patient-dashboard .kpi-card strong {
+  margin: 0;
+}
+
+.migrate-patient-dashboard .kpi-card h5 {
+  color: #6a7f82;
+  text-transform: uppercase;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+}
+
+.migrate-patient-dashboard .kpi-card strong {
+  display: block;
+  margin-top: 10px;
+  font-size: 1.9rem;
+  color: #122f31;
+}
+
+.migrate-patient-dashboard .visit-hero {
+  background: linear-gradient(160deg, #004f47, #075f53);
+  color: #f4fffd;
+  border-radius: 14px;
+  padding: 16px;
+  border: 1px solid rgba(152, 232, 215, 0.25);
+}
+
+.migrate-patient-dashboard .visit-hero p,
+.migrate-patient-dashboard .visit-hero h3 {
+  margin: 0;
+}
+
+.migrate-patient-dashboard .visit-hero p {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.64rem;
+  opacity: 0.9;
+}
+
+.migrate-patient-dashboard .visit-hero h3 {
+  margin-top: 8px;
+  font-size: 2rem;
+  line-height: 1.05;
+  font-family: 'Montserrat Alternates', sans-serif;
+}
+
+.migrate-patient-dashboard .visit-meta {
+  margin-top: 12px;
+  display: flex;
+  gap: 14px;
+  font-size: 0.85rem;
+}
+
+.migrate-patient-dashboard .visit-actions {
+  margin-top: 14px;
+  display: flex;
+  gap: 8px;
+}
+
+.migrate-patient-dashboard .visit-actions button {
+  border: none;
+  border-radius: 8px;
+  height: 34px;
+  padding: 0 14px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.migrate-patient-dashboard .visit-actions .muted {
+  background: rgba(255, 255, 255, 0.18);
+  color: #e9fffa;
+}
+
+.migrate-patient-dashboard .adherence-card,
+.migrate-patient-dashboard .schedule-card,
+.migrate-patient-dashboard .vital-card,
+.migrate-patient-dashboard .lab-card,
+.migrate-patient-dashboard .goals-card,
+.migrate-patient-dashboard .team-card,
+.migrate-patient-dashboard .billing-card,
+.migrate-patient-dashboard .emergency-card,
+.migrate-patient-dashboard .notification-strip,
+.migrate-patient-dashboard .update-card,
+.migrate-patient-dashboard .pd-block {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.migrate-patient-dashboard .adherence-card {
+  padding: 14px;
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.migrate-patient-dashboard .ring {
+  width: 78px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  color: #0c5f62;
+  background: conic-gradient(#1f9f95 85%, #d9e7e8 0);
+  border: 6px solid #edf5f5;
+}
+
+.migrate-patient-dashboard .adherence-card h4,
+.migrate-patient-dashboard .adherence-card p {
+  margin: 0;
+}
+
+.migrate-patient-dashboard .adherence-card h4 {
+  font-size: 0.98rem;
+}
+
+.migrate-patient-dashboard .adherence-card p {
+  margin-top: 4px;
+  color: #697e80;
+  font-size: 0.82rem;
+}
+
+.migrate-patient-dashboard .schedule-card {
+  padding: 14px;
+}
+
+.migrate-patient-dashboard .schedule-card h3,
+.migrate-patient-dashboard .lab-card h3,
+.migrate-patient-dashboard .goals-card h3,
+.migrate-patient-dashboard .team-card h3,
+.migrate-patient-dashboard .billing-card h3,
+.migrate-patient-dashboard .notification-strip h3,
+.migrate-patient-dashboard .updates-section h3 {
+  margin: 0;
+  font-size: 1.06rem;
+  color: #17393b;
+}
+
+.migrate-patient-dashboard .schedule-card ul,
+.migrate-patient-dashboard .lab-card ul,
+.migrate-patient-dashboard .goals-card ul,
+.migrate-patient-dashboard .team-card ul,
+.migrate-patient-dashboard .notification-strip ul {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.migrate-patient-dashboard .schedule-card li,
+.migrate-patient-dashboard .lab-card li,
+.migrate-patient-dashboard .notification-strip li {
+  background: #eff2f5;
+  border: 1px solid #dde5e7;
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.migrate-patient-dashboard .dose-strip {
+  width: 4px;
+  align-self: stretch;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #17afa2, #0f6f69);
+}
+
+.migrate-patient-dashboard .schedule-card h4,
+.migrate-patient-dashboard .schedule-card p {
+  margin: 0;
+}
+
+.migrate-patient-dashboard .schedule-card h4 {
+  font-size: 0.86rem;
+}
+
+.migrate-patient-dashboard .schedule-card p {
+  color: #708688;
+  font-size: 0.73rem;
+}
+
+.migrate-patient-dashboard .status-dot {
+  margin-left: auto;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #cad4d7;
+}
+
+.migrate-patient-dashboard .status-dot.done {
+  background: #0f9b72;
+}
+
+.migrate-patient-dashboard .vital-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(120px, 1fr));
+  gap: 10px;
+}
+
+.migrate-patient-dashboard .vital-card {
+  padding: 12px;
+  position: relative;
+}
+
+.migrate-patient-dashboard .vital-card .badge {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  border-radius: 999px;
+  background: #ecf6ff;
+  color: #1974c6;
+  border: 1px solid #d2e8ff;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 3px 6px;
+}
+
+.migrate-patient-dashboard .vital-card h4,
+.migrate-patient-dashboard .vital-card strong,
+.migrate-patient-dashboard .vital-card .unit {
+  margin: 0;
+}
+
+.migrate-patient-dashboard .vital-card h4 {
+  margin-top: 20px;
+  color: #50686a;
+  font-size: 0.8rem;
+}
+
+.migrate-patient-dashboard .vital-card strong {
+  margin-top: 6px;
+  display: block;
+  font-size: 2rem;
+  line-height: 1;
+  font-weight: 700;
+  color: #123335;
+}
+
+.migrate-patient-dashboard .vital-card .unit {
+  margin-top: 4px;
+  display: block;
+  color: #6f8385;
+  font-size: 0.72rem;
+}
+
+.migrate-patient-dashboard .lab-card {
+  padding: 14px;
+}
+
+.migrate-patient-dashboard .lab-card h4,
+.migrate-patient-dashboard .lab-card p {
+  margin: 0;
+}
+
+.migrate-patient-dashboard .lab-card h4 {
+  font-size: 0.86rem;
+}
+
+.migrate-patient-dashboard .lab-card p {
+  margin-top: 2px;
+  color: #71888a;
+  font-size: 0.72rem;
+}
+
+.migrate-patient-dashboard .lab-state {
+  margin-left: auto;
+  border-radius: 999px;
+  padding: 3px 8px;
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border: 1px solid;
+}
+
+.migrate-patient-dashboard .lab-state.normal {
+  color: #107c4f;
+  background: #e8faf1;
+  border-color: #c8efd9;
+}
+
+.migrate-patient-dashboard .lab-state.attention {
+  color: #af6d06;
+  background: #fff7e7;
+  border-color: #ffe2af;
+}
+
+.migrate-patient-dashboard .lab-state.critical {
+  color: #c32430;
+  background: #ffeef0;
+  border-color: #ffc8ce;
+}
+
+.migrate-patient-dashboard .goals-card,
+.migrate-patient-dashboard .team-card,
+.migrate-patient-dashboard .billing-card {
+  padding: 14px;
+}
+
+.migrate-patient-dashboard .goals-card li {
+  display: grid;
+  gap: 6px;
+}
+
+.migrate-patient-dashboard .goal-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #486266;
+  font-size: 0.77rem;
+}
+
+.migrate-patient-dashboard .goal-track {
+  height: 6px;
+  border-radius: 999px;
+  background: #dae4e6;
+  overflow: hidden;
+}
+
+.migrate-patient-dashboard .goal-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #0d9087, #24c6a1);
+}
+
+.migrate-patient-dashboard .team-card li {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  background: #eff3f5;
+  border: 1px solid #dce3e6;
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.migrate-patient-dashboard .avatar-sm {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #d4ece8;
+  color: #115a5b;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 0.78rem;
+}
+
+.migrate-patient-dashboard .team-card h4,
+.migrate-patient-dashboard .team-card p {
+  margin: 0;
+}
+
+.migrate-patient-dashboard .team-card h4 {
+  font-size: 0.79rem;
+}
+
+.migrate-patient-dashboard .team-card p {
+  font-size: 0.68rem;
+  color: #6d8385;
+}
+
+.migrate-patient-dashboard .billing-panel {
+  margin-top: 10px;
+  border-radius: 8px;
+  border: 1px solid #d9dfe4;
+  background: #eef2f4;
   padding: 10px;
-  box-shadow: rgba(100, 100, 111, 0.1) 0px 3px 20px 0px;
+}
+
+.migrate-patient-dashboard .billing-panel p,
+.migrate-patient-dashboard .billing-panel h4 {
+  margin: 0;
+}
+
+.migrate-patient-dashboard .billing-panel p {
+  text-transform: uppercase;
+  font-size: 0.62rem;
+  color: #718689;
+  letter-spacing: 0.06em;
+}
+
+.migrate-patient-dashboard .billing-panel h4 {
+  margin-top: 6px;
+  font-size: 0.84rem;
+}
+
+.migrate-patient-dashboard .billing-row {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.migrate-patient-dashboard .billing-row span {
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.migrate-patient-dashboard .billing-row button {
+  height: 30px;
+  border: none;
+  border-radius: 6px;
+  background: #005f48;
+  color: #fff;
+  padding: 0 10px;
+  font-size: 0.72rem;
+  cursor: pointer;
+}
+
+.migrate-patient-dashboard .emergency-card {
+  padding: 12px;
+  background: #ffedf0;
+  border-color: #ffd2da;
+}
+
+.migrate-patient-dashboard .emergency-card p,
+.migrate-patient-dashboard .emergency-card h4,
+.migrate-patient-dashboard .emergency-card span {
+  margin: 0;
+}
+
+.migrate-patient-dashboard .emergency-card p {
+  text-transform: uppercase;
+  color: #ba3048;
+  letter-spacing: 0.08em;
+  font-size: 0.62rem;
+  font-weight: 700;
+}
+
+.migrate-patient-dashboard .emergency-card h4 {
+  margin-top: 6px;
+  font-size: 0.86rem;
+}
+
+.migrate-patient-dashboard .emergency-card span {
+  margin-top: 3px;
+  display: block;
+  color: #b13a4c;
+  font-size: 0.76rem;
+}
+
+.migrate-patient-dashboard .side-tools {
+  display: flex;
+  gap: 8px;
+}
+
+.migrate-patient-dashboard .side-tools button {
+  flex: 1;
+  border: 1px solid var(--line);
+  background: #f5f7f9;
+  color: #395154;
+  border-radius: 8px;
+  height: 32px;
+  font-size: 0.72rem;
+}
+
+.migrate-patient-dashboard .notification-strip {
+  margin-top: 14px;
+  padding: 12px;
+}
+
+.migrate-patient-dashboard .notification-strip li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.migrate-patient-dashboard .notification-strip span {
+  font-size: 0.82rem;
+  color: #3c5658;
+}
+
+.migrate-patient-dashboard .notification-strip small {
+  color: #7a8f91;
+  font-size: 0.7rem;
+}
+
+.migrate-patient-dashboard .updates-section {
+  margin-top: 16px;
+}
+
+.migrate-patient-dashboard .updates-grid {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.migrate-patient-dashboard .update-card {
+  padding: 12px;
+}
+
+.migrate-patient-dashboard .update-media {
+  height: 100px;
+  border-radius: 8px;
+  background: linear-gradient(145deg, #bfd0d2, #84a2a5);
+}
+
+.migrate-patient-dashboard .update-card span,
+.migrate-patient-dashboard .update-card h4,
+.migrate-patient-dashboard .update-card p {
+  display: block;
+  margin: 0;
+}
+
+.migrate-patient-dashboard .update-card span {
+  margin-top: 10px;
+  text-transform: uppercase;
+  color: #0f8ea6;
+  letter-spacing: 0.08em;
+  font-size: 0.62rem;
+  font-weight: 700;
+}
+
+.migrate-patient-dashboard .update-card h4 {
+  margin-top: 7px;
+  font-size: 0.95rem;
+}
+
+.migrate-patient-dashboard .update-card p {
+  margin-top: 6px;
+  color: #6f8587;
+  font-size: 0.76rem;
+  line-height: 1.4;
+}
+
+.migrate-patient-dashboard .pd-block {
+  margin-top: 14px;
+  padding: 14px;
 }
 
 .migrate-patient-dashboard .pd-error {
-  border: 1px solid #f5c6cb;
-  background-color: #f8d7da;
-  color: #721c24;
+  background: #fbe8ec;
+  border-color: #f3c8d1;
+  color: #8f1e3a;
 }
 
-@media (max-width: 900px) {
-  .migrate-patient-dashboard {
-    margin-left: 0;
+.migrate-patient-dashboard .pd-bottom-tools {
+  margin-top: 12px;
+}
+
+.migrate-patient-dashboard .pd-bottom-tools button {
+  border: 1px solid var(--line);
+  background: #f6f8fa;
+  color: #425c5f;
+  border-radius: 8px;
+  height: 34px;
+  padding: 0 12px;
+}
+
+@media (max-width: 1280px) {
+  .migrate-patient-dashboard .pd-content-grid {
+    grid-template-columns: 1fr 1fr;
   }
 
-  .migrate-patient-dashboard .pd-main {
+  .migrate-patient-dashboard .side-column {
+    grid-column: span 2;
+    grid-template-columns: repeat(3, minmax(180px, 1fr));
+  }
+}
+
+@media (max-width: 1000px) {
+  .migrate-patient-dashboard.modern-pd {
     grid-template-columns: 1fr;
   }
 
-  .migrate-patient-dashboard .pd-header {
+  .migrate-patient-dashboard .pd-sidebar {
+    min-height: auto;
+  }
+
+  .migrate-patient-dashboard .pd-menu {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .migrate-patient-dashboard .pd-topbar {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
+    align-items: stretch;
+  }
+
+  .migrate-patient-dashboard .topbar-actions {
+    flex-wrap: wrap;
+  }
+
+  .migrate-patient-dashboard .pd-content-grid,
+  .migrate-patient-dashboard .updates-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .migrate-patient-dashboard .side-column {
+    grid-column: auto;
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .migrate-patient-dashboard.modern-pd {
+    padding: 8px;
+  }
+
+  .migrate-patient-dashboard .kpi-grid,
+  .migrate-patient-dashboard .vital-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .migrate-patient-dashboard .visit-hero h3 {
+    font-size: 1.4rem;
+  }
+
+  .migrate-patient-dashboard .visit-actions {
+    flex-direction: column;
   }
 }

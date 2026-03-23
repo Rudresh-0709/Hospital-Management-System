@@ -5,13 +5,15 @@ import {
   getAdminNewVisitorOverview,
   searchVisitorBadges,
 } from '../../services/adminApi';
+import { getPatientFullName, getPatientSearchName } from '../../utils/patientName';
+import '../../styles/modern-form-migrate.css';
 
 function AdminNewVisitorPage() {
   const [loading, setLoading] = useState(true);
   const [patients, setPatients] = useState([]);
   const [badges, setBadges] = useState([]);
   const [admitId, setAdmitId] = useState('');
-  const [form, setForm] = useState({ first_name: '', last_name: '' });
+  const [form, setForm] = useState({ patient_id: '', contact_number: '' });
   const [selectedBadge, setSelectedBadge] = useState('');
   const [search, setSearch] = useState('');
   const [error, setError] = useState('');
@@ -32,8 +34,8 @@ function AdminNewVisitorPage() {
     const nextPatients = response.data.patients || [];
     setPatients(nextPatients);
     setForm((prev) => ({
-      first_name: prev.first_name || nextPatients[0]?.first_name || '',
-      last_name: prev.last_name || nextPatients[0]?.last_name || '',
+      patient_id: prev.patient_id || nextPatients[0]?.patient_id || '',
+      contact_number: prev.contact_number || nextPatients[0]?.contact_number || '',
     }));
     setLoading(false);
   };
@@ -47,13 +49,18 @@ function AdminNewVisitorPage() {
     if (!term) return patients;
 
     return patients.filter((patient) => {
-      const fullName = `${patient.first_name || ''} ${patient.last_name || ''}`.toLowerCase();
+      const fullName = getPatientSearchName(patient);
       return fullName.includes(term) || String(patient.patient_id || '').includes(term);
     });
   }, [patients, search]);
 
   const onSearchBadges = async (event) => {
     event.preventDefault();
+    if (!form.patient_id && !form.contact_number) {
+      setError('Please provide Patient ID or Mobile Number.');
+      return;
+    }
+
     setError('');
     setSuccess('');
 
@@ -97,107 +104,128 @@ function AdminNewVisitorPage() {
 
   return (
     <AdminShell title="New Visitor">
-      <section className="card">
-        <h3 className="card-title">Visitor Badge Allocation</h3>
-
-        {loading && <p className="muted">Loading active patients...</p>}
-        {!loading && error && <p className="error">{error}</p>}
-        {!loading && success && <p className="success">{success}</p>}
-
-        {!loading && patients.length > 0 && (
-          <form onSubmit={onSearchBadges}>
-            <div className="split-grid">
-              <div>
-                <label className="field-label" htmlFor="visitor_first_name">First name:</label>
-                <select
-                  id="visitor_first_name"
-                  className="field"
-                  value={form.first_name}
-                  onChange={(e) => setForm({ ...form, first_name: e.target.value })}
-                  required
-                >
-                  {patients.map((patient, idx) => (
-                    <option key={`${patient.admit_id || idx}-first`} value={patient.first_name}>{patient.first_name}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="field-label" htmlFor="visitor_last_name">Last name:</label>
-                <select
-                  id="visitor_last_name"
-                  className="field"
-                  value={form.last_name}
-                  onChange={(e) => setForm({ ...form, last_name: e.target.value })}
-                  required
-                >
-                  {patients.map((patient, idx) => (
-                    <option key={`${patient.admit_id || idx}-last`} value={patient.last_name}>{patient.last_name}</option>
-                  ))}
-                </select>
-              </div>
+      <div className="modern-form-page">
+        <div className="form-main">
+          <div className="form-header">
+            <div className="form-header-content">
+              <h1 className="form-title">Visitor Badge Allocation</h1>
+              <p className="form-subtitle">Search active admissions and assign a visitor badge.</p>
             </div>
+          </div>
 
-            <button type="submit" className="btn">Search Badges</button>
-          </form>
-        )}
+          {loading && <div className="form-alert info"><span className="form-alert-icon">i</span><span>Loading active patients...</span></div>}
+          {!loading && error && <div className="form-alert error"><span className="form-alert-icon">!</span><span>{error}</span></div>}
+          {!loading && success && <div className="form-alert success"><span className="form-alert-icon">OK</span><span>{success}</span></div>}
 
-        {!loading && badges.length > 0 && (
-          <form onSubmit={onAssignBadge} style={{ marginTop: 18 }}>
-            <label className="field-label" htmlFor="visitor_badge">Select Badge ID:</label>
-            <select
-              id="visitor_badge"
-              className="field"
-              value={selectedBadge}
-              onChange={(e) => setSelectedBadge(e.target.value)}
-              required
-            >
-              {badges.map((badge, idx) => (
-                <option key={`${badge.badge_id}-${idx}`} value={badge.badge_id}>Badge ID: {badge.badge_id}</option>
-              ))}
-            </select>
-            <button type="submit" className="btn">Assign Badge</button>
-          </form>
-        )}
+          {!loading && patients.length > 0 && (
+            <section className="form-section">
+              <div className="form-section-header"><h3 className="form-section-title">Find Patient And Badge</h3></div>
+              <form onSubmit={onSearchBadges}>
+                <div className="form-field-row">
+                  <div>
+                    <label className="form-label" htmlFor="visitor_patient_id">Patient ID (preferred)</label>
+                    <input
+                      id="visitor_patient_id"
+                      className="form-input"
+                      value={form.patient_id}
+                      onChange={(e) => setForm({ ...form, patient_id: e.target.value.trim() })}
+                      placeholder="e.g. 1024"
+                    />
+                  </div>
+                  <div>
+                    <label className="form-label" htmlFor="visitor_contact_number">Mobile Number (backup)</label>
+                    <input
+                      id="visitor_contact_number"
+                      className="form-input"
+                      value={form.contact_number}
+                      onChange={(e) => setForm({ ...form, contact_number: e.target.value.trim() })}
+                      placeholder="e.g. 9876543210"
+                    />
+                  </div>
+                </div>
+                <div className="form-button-group right">
+                  <button type="submit" className="form-button primary">Search Badges</button>
+                </div>
+              </form>
 
-        {!loading && !patients.length && (
-          <p className="muted">No admitted patients found for visitor registration.</p>
-        )}
-      </section>
+              {badges.length > 0 && (
+                <form onSubmit={onAssignBadge}>
+                  <div className="form-field-row full">
+                    <div>
+                      <label className="form-label required" htmlFor="visitor_badge">Select Badge ID</label>
+                      <select
+                        id="visitor_badge"
+                        className="form-select"
+                        value={selectedBadge}
+                        onChange={(e) => setSelectedBadge(e.target.value)}
+                        required
+                      >
+                        {badges.map((badge, idx) => (
+                          <option key={`${badge.badge_id}-${idx}`} value={badge.badge_id}>Badge ID: {badge.badge_id}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                  <div className="form-button-group right">
+                    <button type="submit" className="form-button success">Assign Badge</button>
+                  </div>
+                </form>
+              )}
+            </section>
+          )}
 
-      <section className="card">
-        <div className="toolbar">
-          <h3 className="card-title card-title-tight">Active Patients</h3>
-          <input
-            className="field field-tight"
-            placeholder="Search by patient id or name"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+          {!loading && !patients.length && (
+            <section className="form-section">
+              <div className="form-empty"><p>No admitted patients found for visitor registration.</p></div>
+            </section>
+          )}
         </div>
 
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Admit ID</th>
-                <th>Patient ID</th>
-                <th>Name</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredPatients.map((patient, idx) => (
-                <tr key={`${patient.admit_id || patient.patient_id}-${idx}`}>
-                  <td>{patient.admit_id}</td>
-                  <td>{patient.patient_id}</td>
-                  <td>{patient.first_name} {patient.last_name}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {!filteredPatients.length && <p className="muted mt-12">No matching patients found.</p>}
-        </div>
-      </section>
+        <aside className="form-aside">
+          <section className="form-section">
+            <div className="form-section-header"><h3 className="form-section-title">Active Patients</h3></div>
+            <input
+              className="form-input"
+              placeholder="Search by patient id or name"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+
+            <div style={{ overflowY: 'auto', marginTop: '14px', maxHeight: '520px' }}>
+              <table className="form-table">
+                <thead>
+                  <tr>
+                    <th>Admit ID</th>
+                    <th>Patient ID</th>
+                    <th>Name</th>
+                    <th>Mobile</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredPatients.map((patient, idx) => (
+                    <tr key={`${patient.admit_id || patient.patient_id}-${idx}`}>
+                      <td>{patient.admit_id}</td>
+                      <td>{patient.patient_id}</td>
+                      <td>{getPatientFullName(patient)}</td>
+                      <td>{patient.contact_number || '-'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {!filteredPatients.length && <p className="muted mt-12">No matching patients found.</p>}
+            </div>
+          </section>
+        </aside>
+
+        <aside className="form-sidebar">
+          <div className="form-sidebar-section">
+            <div className="form-sidebar-title">Visitor Flow</div>
+            <div className="form-sidebar-item">1. Search patient</div>
+            <div className="form-sidebar-item">2. Load available badges</div>
+            <div className="form-sidebar-item">3. Assign selected badge</div>
+          </div>
+        </aside>
+      </div>
     </AdminShell>
   );
 }

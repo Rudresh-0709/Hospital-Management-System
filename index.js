@@ -19,9 +19,43 @@ const io = socketio(server);
 
 app.use(express.json());
 
+function ensurePatientFullNameColumn() {
+    const checkColumnQuery = "SHOW COLUMNS FROM patients LIKE 'full_name'";
+    con.query(checkColumnQuery, (checkError, columns) => {
+        if (checkError) {
+            console.error('Error checking full_name column:', checkError);
+            return;
+        }
+
+        if (columns && columns.length > 0) {
+            return;
+        }
+
+        const addColumnQuery = `
+            ALTER TABLE patients
+            ADD COLUMN full_name VARCHAR(255)
+            GENERATED ALWAYS AS (
+                TRIM(CONCAT(COALESCE(first_name, ''), ' ', COALESCE(last_name, '')))
+            ) STORED
+        `;
+
+        con.query(addColumnQuery, (alterError) => {
+            if (alterError) {
+                console.error('Error adding full_name column:', alterError);
+                return;
+            }
+
+            console.log('Added generated patients.full_name column successfully.');
+        });
+    });
+}
+
+ensurePatientFullNameColumn();
+
 const User = require('./models/userModel.js');
 const ChatMessage = require('./models/chatModel');
 const chatNamespace = io.of('/chat');
+const REACT_TEST_MODE = process.env.REACT_TEST_MODE !== 'false';
 
 function getRoomId(userId1, userId2) {
     return [userId1, userId2].sort().join("_"); // Sort to keep consistent
@@ -207,11 +241,11 @@ app.get('/api/admin/admit/overview', (req, res) => {
         return res.status(401).json({ message: 'Admin authentication required' });
     }
 
-    const patientQuery = `SELECT p.patient_id, p.first_name, p.last_name, MAX(a.discharge_date) AS discharge_date
+    const patientQuery = `SELECT p.patient_id, p.full_name, p.first_name, p.last_name, p.contact_number, MAX(a.discharge_date) AS discharge_date
         FROM patients p
         JOIN admit a ON p.patient_id = a.patient_id
         WHERE a.discharge_date IS NOT NULL
-        GROUP BY p.patient_id, p.first_name, p.last_name;`;
+        GROUP BY p.patient_id, p.full_name, p.first_name, p.last_name, p.contact_number;`;
 
     con.query(patientQuery, (patientError, patients) => {
         if (patientError) {
@@ -251,8 +285,10 @@ app.get('/api/admin/discharge/overview', (req, res) => {
 
     const activePatientsQuery = `SELECT 
             patients.patient_id,
+            patients.full_name,
             patients.first_name,
             patients.last_name,
+            patients.contact_number,
             admit.doctor_assigned,
             admit.admit_id,
             admit.room_number
@@ -278,13 +314,20 @@ app.post('/api/admin/discharge', (req, res) => {
         return res.status(401).json({ message: 'Admin authentication required' });
     }
 
-    const { first_name, last_name, reason_for_admission } = req.body;
-    if (!first_name || !last_name || !reason_for_admission) {
-        return res.status(400).json({ message: 'first_name, last_name, and reason_for_admission are required' });
+    const { patient_id, contact_number, reason_for_admission } = req.body;
+    if ((!patient_id && !contact_number) || !reason_for_admission) {
+        return res.status(400).json({ message: 'Provide patient_id or contact_number, and reason_for_admission.' });
     }
 
-    const patientIdQuery = 'SELECT patient_id FROM patients WHERE first_name = ? AND last_name = ? LIMIT 1';
-    con.query(patientIdQuery, [first_name, last_name], (patientError, patientResult) => {
+    let patientLookupQuery = 'SELECT patient_id, full_name, first_name, last_name FROM patients WHERE patient_id = ? LIMIT 1';
+    let lookupParams = [patient_id];
+
+    if (!patient_id) {
+        patientLookupQuery = 'SELECT patient_id, full_name, first_name, last_name FROM patients WHERE contact_number = ?';
+        lookupParams = [contact_number];
+    }
+
+    con.query(patientLookupQuery, lookupParams, (patientError, patientResult) => {
         if (patientError) {
             console.error('Error fetching patient details for discharge:', patientError);
             return res.status(500).json({ message: 'Error fetching patient details.' });
@@ -294,13 +337,21 @@ app.post('/api/admin/discharge', (req, res) => {
             return res.status(404).json({ message: 'Patient not found' });
         }
 
-        const patient_id = patientResult[0].patient_id;
+        if (!patient_id && patientResult.length > 1) {
+            return res.status(409).json({
+                message: 'Multiple patients found with this mobile number. Please use patient ID.',
+            });
+        }
+
+        const resolvedPatient = patientResult[0];
+        const resolvedPatientId = resolvedPatient.patient_id;
+        const resolvedPatientName = String(resolvedPatient.full_name || '').trim() || `${resolvedPatient.first_name} ${resolvedPatient.last_name}`;
         const activeAdmitQuery = `SELECT doctor_assigned, room_number, admit_id
             FROM admit
             WHERE patient_id = ? AND discharge_date IS NULL
             LIMIT 1`;
 
-        con.query(activeAdmitQuery, [patient_id], (admitError, admitResult) => {
+        con.query(activeAdmitQuery, [resolvedPatientId], (admitError, admitResult) => {
             if (admitError) {
                 console.error('Error checking active admission:', admitError);
                 return res.status(500).json({ message: 'Error checking recovery status.' });
@@ -337,7 +388,7 @@ app.post('/api/admin/discharge', (req, res) => {
 
                     con.query(
                         notificationQuery,
-                        [doctor_assigned, patient_id, 'Patient Discharge Update', `Patient ${first_name} ${last_name} has been discharged.`, 0],
+                        [doctor_assigned, resolvedPatientId, 'Patient Discharge Update', `Patient ${resolvedPatientName} has been discharged.`, 0],
                         (notificationError) => {
                             if (notificationError) {
                                 console.error('Doctor Notification Error:', notificationError);
@@ -345,7 +396,7 @@ app.post('/api/admin/discharge', (req, res) => {
                             }
 
                             return res.status(200).json({
-                                message: `Patient ${first_name} ${last_name} discharged successfully, and room ${room_number} is now available.`,
+                                message: `Patient ${resolvedPatientName} discharged successfully, and room ${room_number} is now available.`,
                                 room_number,
                             });
                         }
@@ -412,7 +463,7 @@ app.get('/api/admin/newvisitor/overview', (req, res) => {
     }
 
     const displayPatientsQuery = `
-        SELECT admit.admit_id, patients.patient_id, patients.first_name, patients.last_name
+        SELECT admit.admit_id, patients.patient_id, patients.full_name, patients.first_name, patients.last_name, patients.contact_number
         FROM patients
         INNER JOIN admit ON patients.patient_id = admit.patient_id
         WHERE admit.discharge_date IS NULL
@@ -438,29 +489,36 @@ app.post('/api/admin/newvisitor/search-badges', (req, res) => {
         return res.status(401).json({ message: 'Admin authentication required' });
     }
 
-    const { first_name, last_name } = req.body;
-    if (!first_name || !last_name) {
-        return res.status(400).json({ message: 'first_name and last_name are required' });
+    const { patient_id, contact_number } = req.body;
+    if (!patient_id && !contact_number) {
+        return res.status(400).json({ message: 'Provide patient_id or contact_number.' });
     }
 
-    const patientQuery = `
-        SELECT patient_id
-        FROM patients
-        WHERE first_name = ? AND last_name = ?
-        LIMIT 1
-    `;
+    let patientQuery = 'SELECT patient_id FROM patients WHERE patient_id = ? LIMIT 1';
+    let patientParams = [patient_id];
 
-    con.query(patientQuery, [first_name, last_name], (patientError, patientResult) => {
+    if (!patient_id) {
+        patientQuery = 'SELECT patient_id FROM patients WHERE contact_number = ?';
+        patientParams = [contact_number];
+    }
+
+    con.query(patientQuery, patientParams, (patientError, patientResult) => {
         if (patientError) {
             console.error('Error fetching patient_id for visitor flow:', patientError);
             return res.status(500).json({ message: 'Error fetching patient information.' });
         }
 
         if (!patientResult.length) {
-            return res.status(404).json({ message: 'No patient found with the given name.' });
+            return res.status(404).json({ message: 'No patient found with the provided details.' });
         }
 
-        const patient_id = patientResult[0].patient_id;
+        if (!patient_id && patientResult.length > 1) {
+            return res.status(409).json({
+                message: 'Multiple patients found with this mobile number. Please use patient ID.',
+            });
+        }
+
+        const resolvedPatientId = patientResult[0].patient_id;
         const admitQuery = `
             SELECT admit_id
             FROM admit
@@ -468,7 +526,7 @@ app.post('/api/admin/newvisitor/search-badges', (req, res) => {
             LIMIT 1
         `;
 
-        con.query(admitQuery, [patient_id], (admitError, admitResult) => {
+        con.query(admitQuery, [resolvedPatientId], (admitError, admitResult) => {
             if (admitError) {
                 console.error('Error fetching admit_id for visitor flow:', admitError);
                 return res.status(500).json({ message: 'Error fetching admission information.' });
@@ -734,6 +792,328 @@ app.get('/api/doctor/visitnavigation', (req, res) => {
     });
 });
 
+app.get('/api/doctor/diagnosis/form-data', (req, res) => {
+    if (!req.session.doctor_name) {
+        return res.status(401).json({ message: 'Doctor authentication required' });
+    }
+
+    const doctor_name = req.session.doctor_name;
+    const doctorQuery = 'SELECT doctor_id FROM doctors WHERE doctor_name = ?';
+    con.query(doctorQuery, [doctor_name], (doctorError, doctorRows) => {
+        if (doctorError || !doctorRows?.length) {
+            console.error('Error fetching doctor ID for diagnosis form:', doctorError);
+            return res.status(500).json({ message: 'Doctor not found' });
+        }
+
+        const doctor_id = doctorRows[0].doctor_id;
+        const patientQuery = `
+            SELECT patient_id, patient_name, patient_type FROM (
+                SELECT DISTINCT p.patient_id AS patient_id,
+                                COALESCE(NULLIF(p.full_name, ''), CONCAT(p.first_name, ' ', p.last_name)) AS patient_name,
+                                'admitted' AS patient_type
+                FROM patients p
+                JOIN admit a ON p.patient_id = a.patient_id
+                WHERE a.doctor_assigned = ?
+
+                UNION
+
+                SELECT DISTINCT a.appointment_id AS patient_id,
+                                a.appointee_name AS patient_name,
+                                'appointment' AS patient_type
+                FROM appointments a
+                WHERE a.doctor_name = ?
+            ) AS combined_patients
+            ORDER BY patient_name;
+        `;
+
+        con.query(patientQuery, [doctor_name, doctor_name], (patientError, patients) => {
+            if (patientError) {
+                console.error('Error fetching diagnosis patients:', patientError);
+                return res.status(500).json({ message: 'Error fetching patient data' });
+            }
+
+            return res.status(200).json({
+                doctor_id,
+                doctor_name,
+                patients: patients || [],
+            });
+        });
+    });
+});
+
+app.post('/api/doctor/diagnosis/submit', (req, res) => {
+    if (!req.session.doctor_name) {
+        return res.status(401).json({ message: 'Doctor authentication required' });
+    }
+
+    const {
+        patient,
+        doctor_id,
+        diagnosis_date,
+        diagnosis_name,
+        severity,
+        symptoms,
+        follow_up_date,
+        notes,
+        diagnosis_details,
+        running,
+        walking,
+        swimming,
+        cycling,
+        yoga,
+        diet_plan,
+        patient_type,
+    } = req.body;
+
+    if (!patient || !doctor_id || !diagnosis_date || !diagnosis_name || !symptoms || !diagnosis_details || !patient_type) {
+        return res.status(400).json({ message: 'Missing required diagnosis fields' });
+    }
+
+    const diagnosisQuery = `
+        INSERT INTO diagnosis
+        (patient_id, doctor_id, patient_type, diagnosis_date, diagnosis_name, severity, symptoms, attached_reports, follow_up_date, notes, diagnosis_details, running, walking, swimming, cycling, yoga, diet_plan)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    const values = [
+        patient,
+        doctor_id,
+        patient_type,
+        diagnosis_date,
+        diagnosis_name,
+        severity || 'Mild',
+        symptoms,
+        null,
+        follow_up_date || null,
+        notes || null,
+        diagnosis_details,
+        running || null,
+        walking || null,
+        swimming || null,
+        cycling || null,
+        yoga || null,
+        diet_plan || null,
+    ];
+
+    con.query(diagnosisQuery, values, (diagnosisError, result) => {
+        if (diagnosisError) {
+            console.error('Error inserting diagnosis:', diagnosisError);
+            return res.status(500).json({ message: 'Error saving diagnosis' });
+        }
+
+        const diagnosis_id = result.insertId;
+        return res.status(200).json({
+            message: 'Diagnosis saved successfully',
+            diagnosis_id,
+            patient_id: patient,
+            patient_type,
+            redirect: `/migrate/doctor/prescription?diagnosis_id=${diagnosis_id}&patient_id=${patient}&patient_type=${patient_type}`,
+        });
+    });
+});
+
+app.get('/api/doctor/prescription/form-data', (req, res) => {
+    if (!req.session.doctor_name) {
+        return res.status(401).json({ message: 'Doctor authentication required' });
+    }
+
+    const { diagnosis_id, patient_id, patient_type } = req.query;
+    if (!diagnosis_id || !patient_id || !patient_type) {
+        return res.status(400).json({ message: 'diagnosis_id, patient_id and patient_type are required' });
+    }
+
+    let patientQuery = '';
+    let patientParams = [patient_id];
+    if (patient_type === 'admitted') {
+        patientQuery = 'SELECT full_name, first_name, last_name FROM patients WHERE patient_id = ?';
+    } else {
+        patientQuery = 'SELECT appointee_name AS full_name, appointee_name AS first_name, "" AS last_name FROM appointments WHERE appointment_id = ?';
+    }
+
+    con.query(patientQuery, patientParams, (patientError, patientResult) => {
+        if (patientError) {
+            console.error('Error fetching prescription patient details:', patientError);
+            return res.status(500).json({ message: 'Error fetching patient details' });
+        }
+        if (!patientResult?.length) {
+            return res.status(404).json({ message: 'Patient not found' });
+        }
+
+        const medicineQuery = 'SELECT medicine_id, medicine_name, manufacturer, batch_number, stock_quantity FROM medicine_products';
+        con.query(medicineQuery, (medicineError, medicines) => {
+            if (medicineError) {
+                console.error('Error fetching medicines:', medicineError);
+                return res.status(500).json({ message: 'Error fetching medicines' });
+            }
+
+            return res.status(200).json({
+                diagnosis_id,
+                patient_id,
+                patient_type,
+                patient: patientResult[0],
+                medicines: medicines || [],
+            });
+        });
+    });
+});
+
+app.post('/api/doctor/prescription/submit', (req, res) => {
+    if (!req.session.doctor_name) {
+        return res.status(401).json({ message: 'Doctor authentication required' });
+    }
+
+    const { diagnosis_id, patient_id, patient_type, medicines } = req.body;
+    const medicineRows = Array.isArray(medicines) ? medicines.filter((row) => row?.medicine_name) : [];
+
+    if (!diagnosis_id || !patient_id || !patient_type) {
+        return res.status(400).json({ message: 'diagnosis_id, patient_id and patient_type are required' });
+    }
+    if (!medicineRows.length) {
+        return res.status(400).json({ message: 'At least one medicine must be prescribed' });
+    }
+
+    const prescriptionQuery = patient_type === 'admitted'
+        ? 'INSERT INTO prescriptions (diagnosis_id, patient_id) VALUES (?, ?)'
+        : 'INSERT INTO prescriptions (diagnosis_id, appointment_id) VALUES (?, ?)';
+
+    con.query(prescriptionQuery, [diagnosis_id, patient_id], (prescriptionError, prescriptionResult) => {
+        if (prescriptionError) {
+            console.error('Error inserting prescription:', prescriptionError);
+            return res.status(500).json({ message: 'Error saving prescription' });
+        }
+
+        const prescription_id = prescriptionResult.insertId;
+        const medicineQuery = 'INSERT INTO prescription_medicines (prescription_id, medicine_name, dosage, time_of_intake) VALUES (?, ?, ?, ?)';
+
+        let insertedCount = 0;
+        let failed = false;
+        medicineRows.forEach((row) => {
+            con.query(
+                medicineQuery,
+                [prescription_id, row.medicine_name, row.dosage || null, row.time_of_intake || null],
+                (medicineError) => {
+                    if (medicineError && !failed) {
+                        failed = true;
+                        console.error('Error inserting prescription medicine:', medicineError);
+                        return res.status(500).json({ message: 'Error saving prescribed medicines' });
+                    }
+
+                    insertedCount += 1;
+                    if (!failed && insertedCount === medicineRows.length) {
+                        return res.status(200).json({
+                            message: 'Prescription saved successfully',
+                            prescription_id,
+                        });
+                    }
+                }
+            );
+        });
+    });
+});
+
+app.get('/api/doctor/newprescription/form-data', (req, res) => {
+    if (!req.session.doctor_name) {
+        return res.status(401).json({ message: 'Doctor authentication required' });
+    }
+
+    const doctor_name = req.session.doctor_name;
+    const doctorQuery = 'SELECT doctor_id FROM doctors WHERE doctor_name = ?';
+    con.query(doctorQuery, [doctor_name], (doctorError, doctorRows) => {
+        if (doctorError || !doctorRows?.length) {
+            console.error('Error fetching doctor ID for new prescription:', doctorError);
+            return res.status(500).json({ message: 'Doctor not found' });
+        }
+
+        const doctor_id = doctorRows[0].doctor_id;
+        const patientQuery = `
+            SELECT patient_id, patient_name, patient_type FROM (
+                SELECT DISTINCT p.patient_id AS patient_id,
+                                CONCAT(p.first_name, ' ', p.last_name) AS patient_name,
+                                'admitted' AS patient_type
+                FROM patients p
+                JOIN admit a ON p.patient_id = a.patient_id
+                WHERE a.doctor_assigned = ?
+
+                UNION
+
+                SELECT DISTINCT a.appointment_id AS patient_id,
+                                a.appointee_name AS patient_name,
+                                'appointment' AS patient_type
+                FROM appointments a
+                WHERE a.doctor_name = ?
+            ) AS combined_patients
+            ORDER BY patient_name;
+        `;
+
+        con.query(patientQuery, [doctor_name, doctor_name], (patientError, patients) => {
+            if (patientError) {
+                console.error('Error loading new prescription patients:', patientError);
+                return res.status(500).json({ message: 'Error fetching patient data' });
+            }
+
+            return res.status(200).json({
+                doctor_id,
+                doctor_name,
+                patients: patients || [],
+            });
+        });
+    });
+});
+
+app.post('/api/doctor/newprescription/submit', (req, res) => {
+    if (!req.session.doctor_name) {
+        return res.status(401).json({ message: 'Doctor authentication required' });
+    }
+
+    const { patient_id, patient_type, medicines } = req.body;
+    const medicineRows = Array.isArray(medicines) ? medicines.filter((row) => row?.medicine_name) : [];
+
+    if (!patient_id || !patient_type) {
+        return res.status(400).json({ message: 'patient_id and patient_type are required' });
+    }
+    if (!medicineRows.length) {
+        return res.status(400).json({ message: 'At least one medicine must be prescribed' });
+    }
+
+    const prescriptionQuery = patient_type === 'admitted'
+        ? 'INSERT INTO prescriptions (patient_id) VALUES (?)'
+        : 'INSERT INTO prescriptions (appointment_id) VALUES (?)';
+
+    con.query(prescriptionQuery, [patient_id], (prescriptionError, prescriptionResult) => {
+        if (prescriptionError) {
+            console.error('Error inserting standalone prescription:', prescriptionError);
+            return res.status(500).json({ message: 'Error saving prescription' });
+        }
+
+        const prescription_id = prescriptionResult.insertId;
+        const medicineQuery = 'INSERT INTO prescription_medicines (prescription_id, medicine_name, dosage, time_of_intake) VALUES (?, ?, ?, ?)';
+
+        let insertedCount = 0;
+        let failed = false;
+        medicineRows.forEach((row) => {
+            con.query(
+                medicineQuery,
+                [prescription_id, row.medicine_name, row.dosage || null, row.time_of_intake || null],
+                (medicineError) => {
+                    if (medicineError && !failed) {
+                        failed = true;
+                        console.error('Error inserting standalone prescription medicine:', medicineError);
+                        return res.status(500).json({ message: 'Error saving prescribed medicines' });
+                    }
+
+                    insertedCount += 1;
+                    if (!failed && insertedCount === medicineRows.length) {
+                        return res.status(200).json({
+                            message: 'Prescription saved successfully',
+                            prescription_id,
+                        });
+                    }
+                }
+            );
+        });
+    });
+});
+
 app.get('/api/doctor/appointments/pending', (req, res) => {
     if (!req.session.doctor_name) {
         return res.status(401).json({ message: 'Doctor authentication required' });
@@ -932,7 +1312,9 @@ app.get('/api/patient/dashboard/overview', (req, res) => {
         }
 
         const patient = patientResult[0];
-        const notificationQuery = 'SELECT * FROM notifications WHERE patient_id = ?';
+        const fullName = `${patient.first_name || ''} ${patient.last_name || ''}`.trim();
+
+        const notificationQuery = 'SELECT * FROM notifications WHERE patient_id = ? ORDER BY created_at DESC';
         con.query(notificationQuery, [req.session.patientId], (notificationError, notifications) => {
             if (notificationError) {
                 console.error('Error loading patient notifications:', notificationError);
@@ -944,6 +1326,7 @@ app.get('/api/patient/dashboard/overview', (req, res) => {
                 FROM prescriptions p
                 JOIN prescription_medicines pm
                 WHERE p.patient_id = ? AND p.prescription_id = pm.prescription_id
+                ORDER BY p.prescription_id DESC
             `;
 
             con.query(prescriptionQuery, [req.session.patientId], (prescriptionError, prescriptions) => {
@@ -952,13 +1335,465 @@ app.get('/api/patient/dashboard/overview', (req, res) => {
                     return res.status(500).json({ message: 'Failed to load prescriptions' });
                 }
 
-                return res.status(200).json({
-                    patient,
-                    notifications: notifications || [],
-                    prescriptions: prescriptions || [],
+                const emergencyQuery = `
+                    SELECT *
+                    FROM emergency
+                    WHERE patient_id = ?
+                    LIMIT 1
+                `;
+
+                con.query(emergencyQuery, [req.session.patientId], (emergencyError, emergencyResult) => {
+                    if (emergencyError) {
+                        console.error('Error loading emergency contact:', emergencyError);
+                        return res.status(500).json({ message: 'Failed to load emergency contact' });
+                    }
+
+                    const admissionQuery = `
+                        SELECT *
+                        FROM admit
+                        WHERE patient_id = ?
+                        ORDER BY (discharge_date IS NULL) DESC, admit_id DESC
+                        LIMIT 1
+                    `;
+
+                    con.query(admissionQuery, [req.session.patientId], (admissionError, admissionResult) => {
+                        if (admissionError) {
+                            console.error('Error loading admission details:', admissionError);
+                            return res.status(500).json({ message: 'Failed to load admission details' });
+                        }
+
+                        const appointmentQuery = `
+                            SELECT *
+                            FROM appointments
+                            WHERE appointee_email = ? OR appointee_name = ?
+                            ORDER BY appointment_date ASC, appointment_time ASC
+                            LIMIT 10
+                        `;
+
+                        con.query(appointmentQuery, [patient.email || '', fullName], (appointmentError, appointments) => {
+                            if (appointmentError) {
+                                console.error('Error loading appointments:', appointmentError);
+                                return res.status(500).json({ message: 'Failed to load appointments' });
+                            }
+
+                            const diagnosisQuery = `
+                                SELECT
+                                    d.diagnosis_id,
+                                    d.patient_id,
+                                    d.patient_type,
+                                    d.diagnosis_date,
+                                    d.diagnosis_name,
+                                    d.severity,
+                                    d.attached_reports,
+                                    d.follow_up_date,
+                                    doc.doctor_name
+                                FROM diagnosis d
+                                LEFT JOIN doctors doc ON d.doctor_id = doc.doctor_id
+                                WHERE
+                                    (d.patient_type = 'admitted' AND d.patient_id = ?)
+                                    OR (
+                                        d.patient_type <> 'admitted'
+                                        AND EXISTS (
+                                            SELECT 1
+                                            FROM appointments a
+                                            WHERE a.appointment_id = d.patient_id
+                                            AND (a.appointee_email = ? OR a.appointee_name = ?)
+                                        )
+                                    )
+                                ORDER BY d.diagnosis_date DESC
+                                LIMIT 10
+                            `;
+
+                            con.query(
+                                diagnosisQuery,
+                                [req.session.patientId, patient.email || '', fullName],
+                                (diagnosisError, diagnoses) => {
+                                    if (diagnosisError) {
+                                        console.error('Error loading diagnosis reports:', diagnosisError);
+                                        return res.status(500).json({ message: 'Failed to load diagnosis reports' });
+                                    }
+
+                                    return res.status(200).json({
+                                        patient,
+                                        emergencyContact: emergencyResult?.[0] || null,
+                                        admission: admissionResult?.[0] || null,
+                                        appointments: appointments || [],
+                                        diagnoses: diagnoses || [],
+                                        notifications: notifications || [],
+                                        prescriptions: prescriptions || [],
+                                    });
+                                }
+                            );
+                        });
+                    });
                 });
             });
         });
+    });
+});
+
+app.get('/api/patient/ai/overview', (req, res) => {
+    if (!req.session.patientId) {
+        return res.status(401).json({ message: 'Patient authentication required' });
+    }
+
+    const patient_id = req.session.patientId;
+    const query = 'SELECT * FROM patient_chat_session WHERE patient_id = ?';
+    con.query(query, [patient_id], (err, sessions) => {
+        if (err) {
+            console.error('Error fetching patient AI sessions:', err);
+            return res.status(500).json({ message: 'Error fetching patient sessions' });
+        }
+
+        if (!sessions.length) {
+            return res.status(200).json({
+                patient_id,
+                sessions: [],
+                initialSessionId: null,
+                initialChatHistory: [],
+            });
+        }
+
+        const initialSessionId = sessions[0].session_uuid;
+        const chatQuery = 'SELECT * FROM patient_chat_history WHERE session_id = ? ORDER BY timestamp ASC';
+        con.query(chatQuery, [initialSessionId], (chatErr, chatHistory) => {
+            if (chatErr) {
+                console.error('Error fetching patient AI chat history:', chatErr);
+                return res.status(500).json({ message: 'Error fetching chat history' });
+            }
+
+            return res.status(200).json({
+                patient_id,
+                sessions,
+                initialSessionId,
+                initialChatHistory: chatHistory || [],
+            });
+        });
+    });
+});
+
+app.post('/api/patient/ai/ask', async (req, res) => {
+    if (!req.session.patientId) {
+        return res.status(401).json({ message: 'Patient authentication required' });
+    }
+
+    const { message, session_id, image_base64 = null } = req.body || {};
+    if (!message || !session_id) {
+        return res.status(400).json({ message: 'message and session_id are required' });
+    }
+
+    const patient_id = req.session.patientId;
+    const runQuery = (sql, params = []) => new Promise((resolve, reject) => {
+        con.query(sql, params, (error, results) => {
+            if (error) {
+                return reject(error);
+            }
+            return resolve(results);
+        });
+    });
+
+    try {
+        const sessions = await runQuery(
+            'SELECT session_uuid FROM patient_chat_session WHERE patient_id = ? AND session_uuid = ? LIMIT 1',
+            [patient_id, session_id]
+        );
+
+        if (!sessions.length) {
+            return res.status(404).json({ message: 'Session not found for this patient' });
+        }
+
+        const aiResponse = await fetch('http://localhost:8000/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                message,
+                session_id,
+                patient_id,
+                image_base64,
+            }),
+        });
+
+        let aiData = {};
+        try {
+            aiData = await aiResponse.json();
+        } catch (parseError) {
+            aiData = {};
+        }
+
+        if (!aiResponse.ok) {
+            return res.status(502).json({
+                message: aiData?.detail || aiData?.message || 'AI service request failed',
+            });
+        }
+
+        const answer = aiData?.reply || aiData?.answer || aiData?.response || '';
+        if (!answer) {
+            return res.status(502).json({ message: 'AI service returned an empty response' });
+        }
+
+        let persisted = false;
+        try {
+            await runQuery(
+                'INSERT INTO patient_chat_history (session_id, question, answer) VALUES (?, ?, ?)',
+                [session_id, message, answer]
+            );
+            persisted = true;
+        } catch (primaryInsertError) {
+            try {
+                await runQuery(
+                    'INSERT INTO patient_chat_history (session_id, message, role) VALUES (?, ?, ?), (?, ?, ?)',
+                    [session_id, message, 'user', session_id, answer, 'ai']
+                );
+                persisted = true;
+            } catch (fallbackInsertError) {
+                console.error('Error persisting patient AI chat history:', primaryInsertError, fallbackInsertError);
+            }
+        }
+
+        return res.status(200).json({
+            answer,
+            reply: answer,
+            response: answer,
+            persisted,
+        });
+    } catch (error) {
+        console.error('Error in patient AI ask endpoint:', error);
+        return res.status(500).json({ message: 'Failed to process patient AI request' });
+    }
+});
+
+app.get('/api/patient/ai/chat/:session_uuid', (req, res) => {
+    if (!req.session.patientId) {
+        return res.status(401).json({ error: 'Patient authentication required' });
+    }
+
+    const patient_id = req.session.patientId;
+    const session_uuid = req.params.session_uuid;
+
+    const sessionquery = 'SELECT * FROM patient_chat_session WHERE patient_id = ? AND session_uuid = ?';
+    con.query(sessionquery, [patient_id, session_uuid], (err, sessions) => {
+        if (err) {
+            console.error('Error fetching patient AI session details:', err);
+            return res.status(500).json({ error: 'Error fetching session details' });
+        }
+
+        if (!sessions.length) {
+            return res.status(404).json({ error: 'Session not found' });
+        }
+
+        const chatquery = 'SELECT * FROM patient_chat_history WHERE session_id = ? ORDER BY timestamp ASC';
+        con.query(chatquery, [session_uuid], (chatErr, chat_history) => {
+            if (chatErr) {
+                console.error('Error fetching patient AI chat history:', chatErr);
+                return res.status(500).json({ error: 'Error fetching chat history' });
+            }
+
+            return res.status(200).json({ chat_history: chat_history || [], session: sessions[0] });
+        });
+    });
+});
+
+app.post('/api/patient/ai/newchat', (req, res) => {
+    if (!req.session.patientId) {
+        return res.status(401).json({ error: 'Patient authentication required' });
+    }
+
+    const patient_id = req.session.patientId;
+    const session_uuid = uuidv4();
+    const query = 'INSERT INTO patient_chat_session (patient_id, session_uuid) VALUES (?, ?)';
+
+    con.query(query, [patient_id, session_uuid], (err) => {
+        if (err) {
+            console.error('Error creating patient AI session:', err);
+            return res.status(500).json({ error: 'Error creating chat session' });
+        }
+
+        return res.status(200).json({ session_uuid });
+    });
+});
+
+
+app.get('/api/appointments/form-data', (req, res) => {
+    const doctorsQuery = 'SELECT doctor_id, doctor_name FROM doctors ORDER BY doctor_name';
+    con.query(doctorsQuery, (error, doctors) => {
+        if (error) {
+            console.error('Error loading appointment form data:', error);
+            return res.status(500).json({ message: 'Failed to load doctors' });
+        }
+
+        return res.status(200).json({ doctors: doctors || [] });
+    });
+});
+
+app.post('/api/appointments/book', (req, res) => {
+    const {
+        appointee_name,
+        appointee_email,
+        doctor_name,
+        appointment_date,
+        appointee_contact,
+        appointment_time,
+        purpose,
+    } = req.body;
+
+    if (!appointee_name || !appointee_email || !doctor_name || !appointment_date || !appointee_contact || !appointment_time || !purpose) {
+        return res.status(400).json({ message: 'All appointment fields are required' });
+    }
+
+    const insertQuery = `
+        INSERT INTO appointments
+        (appointee_name, appointee_email, appointee_contact, doctor_name, appointment_date, appointment_time, purpose, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    con.query(
+        insertQuery,
+        [appointee_name, appointee_email, appointee_contact, doctor_name, appointment_date, appointment_time, purpose, 'Pending'],
+        (insertError) => {
+            if (insertError) {
+                console.error('Error inserting appointment:', insertError);
+                return res.status(500).json({ message: 'Error saving appointment' });
+            }
+
+            const transporter = nodemailer.createTransport({
+                service: 'gmail',
+                auth: {
+                    user: 'chauhanrudresh2005@gmail.com',
+                    pass: 'kemn rqkk hebi wzoc',
+                },
+            });
+
+            const mailOptions = {
+                from: 'chauhanrudresh2005@gmail.com',
+                to: appointee_email,
+                subject: 'Appointment Confirmation',
+                text: `Dear ${appointee_name},\n\nYour appointment request has been submitted successfully.\nDoctor: ${doctor_name}\nDate: ${appointment_date}\nTime: ${appointment_time}\nPurpose: ${purpose}\n\nWe will notify you after confirmation.\n\nHospital Management`,
+            };
+
+            transporter.sendMail(mailOptions, (mailError) => {
+                if (mailError) {
+                    console.error('Error sending appointment confirmation email:', mailError);
+                }
+
+                return res.status(200).json({
+                    message: `Appointment request submitted successfully for ${appointee_email}`,
+                });
+            });
+        }
+    );
+});
+
+app.get('/api/chat/overview', async (req, res) => {
+    try {
+        if (!req.session.currentUser?._id) {
+            return res.status(401).json({ message: 'Authentication required' });
+        }
+
+        const currentUser = await User.findById(req.session.currentUser._id);
+        if (!currentUser) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const allowedUserIds = currentUser.allowedUsers || [];
+        const allowedUsers = allowedUserIds.length
+            ? await User.find({ userId: { $in: allowedUserIds } })
+            : [];
+
+        const users = allowedUsers.map((user) => ({
+            _id: user._id,
+            userId: user.userId,
+            name: user.name,
+            role: user.role,
+            is_online: user.is_online,
+            profilePicture: user.profilePicture,
+        }));
+
+        return res.status(200).json({
+            currentUser: {
+                _id: currentUser._id,
+                userId: currentUser.userId,
+                name: currentUser.name,
+                role: currentUser.role,
+                profilePicture: currentUser.profilePicture,
+            },
+            users,
+        });
+    } catch (error) {
+        console.error('Error loading chat overview:', error);
+        return res.status(500).json({ message: 'Error loading chat overview' });
+    }
+});
+
+app.post('/api/chat/add-user', async (req, res) => {
+    try {
+        const { userId } = req.body;
+        const currentUserId = req.session.currentUser?._id;
+
+        if (!currentUserId) {
+            return res.status(401).json({ message: 'Authentication required' });
+        }
+
+        if (!userId || !/^\d{6}$/.test(String(userId))) {
+            return res.status(400).json({ message: 'Valid 6-digit user ID is required' });
+        }
+
+        const sender = await User.findById(currentUserId);
+        const receiver = await User.findOne({ userId: String(userId) });
+
+        if (!sender || !receiver) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        if (!sender.allowedUsers.includes(receiver.userId)) {
+            sender.allowedUsers.push(receiver.userId);
+            await sender.save();
+        }
+
+        if (!receiver.allowedUsers.includes(sender.userId)) {
+            receiver.allowedUsers.push(sender.userId);
+            await receiver.save();
+        }
+
+        return res.status(200).json({ message: 'User added to chat list' });
+    } catch (error) {
+        console.error('Error adding chat user:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+app.get('/api/admin/nurse/form-data', (req, res) => {
+    if (!req.session.admin_id) {
+        return res.status(401).json({ message: 'Admin authentication required' });
+    }
+
+    return res.status(200).json({
+        shifts: ['Morning', 'Evening', 'Night'],
+        roles: ['Head Nurse', 'Assistant Nurse', 'Trainee Nurse'],
+    });
+});
+
+app.post('/api/admin/nurse/add', (req, res) => {
+    if (!req.session.admin_id) {
+        return res.status(401).json({ message: 'Admin authentication required' });
+    }
+
+    const { name, email, phone_number, specialization, role, shift, ward_assigned } = req.body;
+    if (!name || !email || !phone_number || !specialization || !role || !shift) {
+        return res.status(400).json({ message: 'Missing required nurse fields' });
+    }
+
+    const nursequery = `
+        INSERT INTO nurses(name, email, phone_number, specialization, role, shift, ward_assigned, available)
+        VALUE(?, ?, ?, ?, ?, ?, ?, 1)
+    `;
+
+    con.query(nursequery, [name, email, phone_number, specialization, role, shift, ward_assigned || null], (nurseerror) => {
+        if (nurseerror) {
+            console.error('Nurse insert error:', nurseerror);
+            return res.status(500).json({ message: 'Error inserting nurse details' });
+        }
+
+        return res.status(200).json({ message: 'Nurse hired successfully.' });
     });
 });
 
@@ -1125,7 +1960,18 @@ app.get('/api/admin/ai/overview', (req, res) => {
 });
 
 const chatRoutes = require('./routes/chat/chatroute');
-app.use('/chat', chatRoutes);
+app.use('/chat', (req, res, next) => {
+    if (REACT_TEST_MODE && req.query.legacy !== '1') {
+        if (req.path === '/' || req.path === '') {
+            return res.redirect('/migrate/chat');
+        }
+        if (req.path === '/setting') {
+            return res.redirect('/migrate/chat/setting');
+        }
+    }
+
+    return chatRoutes(req, res, next);
+});
 
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, 'public/react-home', 'index.html'));
@@ -1134,6 +1980,88 @@ app.get("/", (req, res) => {
 app.get('/migrate/*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public/react-home', 'index.html'));
 })
+
+app.get('/react', (req, res) => {
+    res.redirect('/migrate');
+});
+
+app.get('/react/*', (req, res) => {
+    res.redirect(`/migrate/${req.params[0] || ''}`);
+});
+
+const legacyToMigrateMap = {
+    '/adminlogin': '/migrate/login/admin',
+    '/admin': '/migrate/admin/dashboard',
+    '/admin/patient': '/migrate/admin/patients',
+    '/admin/admit': '/migrate/admin/admit',
+    '/admin/discharge': '/migrate/admin/discharge',
+    '/admin/newvisitor': '/migrate/admin/newvisitor',
+    '/admin/patienthistory': '/migrate/admin/patienthistory',
+    '/admin/newdoctor': '/migrate/admin/newdoctor',
+    '/admin/newstaff': '/migrate/admin/newstaff',
+    '/admin/equipment': '/migrate/admin/equipment',
+    '/admin/equipment/newequipment': '/migrate/admin/equipment/newequipment',
+    '/admin/equipment/updateequipment': '/migrate/admin/equipment/updateequipment',
+    '/admin/pharmacy': '/migrate/admin/pharmacy',
+    '/admin/nurseallocate': '/migrate/admin/nurseallocate',
+    '/admin/nurse': '/migrate/admin/nurse',
+    '/admin/visit-history': '/migrate/admin/visit-history',
+    '/admin/visitqr': '/migrate/admin/visitqr',
+    '/admin/ai': '/migrate/admin/ai',
+    '/admin/doctorlogin': '/migrate/login/doctor',
+    '/doctor/visitnavigation': '/migrate/doctor/visitnavigation',
+    '/doctor/appointmentapprove': '/migrate/doctor/appointmentapprove',
+    '/doctoradmin': '/migrate/doctor/dashboard',
+    '/doctoradmin/diagnosis': '/migrate/doctor/diagnosis',
+    '/doctoradmin/prescription': '/migrate/doctor/prescription',
+    '/doctoradmin/newprescription': '/migrate/doctor/newprescription',
+    '/appointmentbook': '/migrate/appointmentbook',
+    '/patientlogin': '/migrate/login/patient',
+    '/patientdashboard': '/migrate/patient/dashboard',
+    '/patient/ai': '/migrate/patient/ai',
+    '/chat': '/migrate/chat',
+    '/chat/setting': '/migrate/chat/setting',
+    '/video-chat': '/migrate/video-chat',
+    '/nurse/allocation-form': '/migrate/nurse/allocation-form',
+};
+
+function withLegacyQuery(url) {
+    return url.includes('?') ? `${url}&legacy=1` : `${url}?legacy=1`;
+}
+
+app.get('/legacy/*', (req, res) => {
+    const rawPath = `/${req.params[0] || ''}`;
+    const search = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';
+    return res.redirect(withLegacyQuery(`${rawPath}${search}`));
+});
+
+app.use((req, res, next) => {
+    if (!REACT_TEST_MODE) {
+        return next();
+    }
+
+    if (req.method !== 'GET') {
+        return next();
+    }
+
+    if (req.query.legacy === '1') {
+        return next();
+    }
+
+    if (req.path.startsWith('/api/') || req.path.startsWith('/migrate') || req.path.startsWith('/react') || req.path.startsWith('/assets/')) {
+        return next();
+    }
+
+    const normalizedPath = req.path.length > 1 && req.path.endsWith('/') ? req.path.slice(0, -1) : req.path;
+    const mapped = legacyToMigrateMap[normalizedPath];
+    if (!mapped) {
+        return next();
+    }
+
+    const qs = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';
+    return res.redirect(`${mapped}${qs}`);
+});
+
 app.get("/adminlogin", (req, res) => {
     res.render("adminpage/adminlogin");
 })
@@ -1173,7 +2101,7 @@ app.get("/admin/patient", (req, res) => {
     })
 })
 app.get("/admin/admit", (req, res) => {
-    var displayname = "SELECT p.patient_id, p.first_name,p.last_name, MAX(a.discharge_date) AS discharge_date FROM patients p JOIN admit a ON p.patient_id = a.patient_id WHERE a.discharge_date IS NOT NULL GROUP BY p.patient_id, p.first_name, p.last_name;";
+    var displayname = "SELECT p.patient_id, p.full_name, p.first_name,p.last_name, MAX(a.discharge_date) AS discharge_date FROM patients p JOIN admit a ON p.patient_id = a.patient_id WHERE a.discharge_date IS NOT NULL GROUP BY p.patient_id, p.full_name, p.first_name, p.last_name;";
     con.query(displayname, function (nameerror, nameresult) {
         if (nameerror) {
             console.log(nameerror);
@@ -1207,6 +2135,7 @@ app.get("/admin/admit", (req, res) => {
 app.get("/admin/discharge", (req, res) => {
     var displayname = `SELECT 
             patients.patient_id, 
+            patients.full_name,
             patients.first_name, 
             patients.last_name, 
             admit.doctor_assigned 
@@ -1225,7 +2154,7 @@ app.get("/admin/discharge", (req, res) => {
 })
 app.get("/admin/newvisitor", (req, res) => {
     const displayPatientsQuery = `
-        SELECT admit.admit_id, patients.patient_id, patients.first_name, patients.last_name
+        SELECT admit.admit_id, patients.patient_id, patients.full_name, patients.first_name, patients.last_name
         FROM patients
         INNER JOIN admit ON patients.patient_id = admit.patient_id
         WHERE admit.discharge_date IS NULL
@@ -1700,7 +2629,7 @@ app.get('/doctoradmin/diagnosis', (req, res) => {
             SELECT patient_id, patient_name, patient_type FROM (
                 -- Admitted patients
                 SELECT DISTINCT p.patient_id AS patient_id, 
-                                CONCAT(p.first_name, ' ', p.last_name) AS patient_name, 
+                                COALESCE(NULLIF(p.full_name, ''), CONCAT(p.first_name, ' ', p.last_name)) AS patient_name, 
                                 'Admitted' AS patient_type
                 FROM patients p
                 JOIN admit a ON p.patient_id = a.patient_id
@@ -1741,11 +2670,11 @@ app.get('/doctoradmin/prescription', (req, res) => {
 
     if (patient_type == 'admitted') {
         // Query for admitted patients
-        patientQuery = `SELECT first_name, last_name FROM patients WHERE patient_id = ?`;
+        patientQuery = `SELECT full_name, first_name, last_name FROM patients WHERE patient_id = ?`;
         queryParams = [patient_id];
     } else {
         // Query for appointment patients
-        patientQuery = `SELECT appointee_name AS first_name FROM appointments WHERE appointment_id = ?`;
+        patientQuery = `SELECT appointee_name AS full_name, appointee_name AS first_name FROM appointments WHERE appointment_id = ?`;
         queryParams = [patient_id];
     }
 
@@ -1808,7 +2737,7 @@ app.get('/doctoradmin/newprescription', (req, res) => {
         const patientquery = `SELECT patient_id, patient_name, patient_type FROM (
                     -- Admitted patients
                     SELECT DISTINCT p.patient_id AS patient_id, 
-                                    CONCAT(p.first_name, ' ', p.last_name) AS patient_name, 
+                                    COALESCE(NULLIF(p.full_name, ''), CONCAT(p.first_name, ' ', p.last_name)) AS patient_name, 
                                     'Admitted' AS patient_type
                     FROM patients p
                     JOIN admit a ON p.patient_id = a.patient_id
@@ -1975,6 +2904,8 @@ app.get('/patient/ai/chat/:session_uuid', (req, res) => {
     if (!req.session.patientId) {
         return res.redirect('/patientlogin');
     }
+    res.setHeader('Deprecation', 'true');
+    res.setHeader('Warning', '299 - Deprecated route. Use /api/patient/ai/chat/:session_uuid instead.');
     const patient_id = req.session.patientId;
     const session_uuid = req.params.session_uuid
 
@@ -2178,6 +3109,8 @@ app.delete("/admin/ai/chat/:session_uuid/delete", (req, res) => {
     })
 })
 app.post('/patient/ai/newchat', (req, res) => {
+    res.setHeader('Deprecation', 'true');
+    res.setHeader('Warning', '299 - Deprecated route. Use /api/patient/ai/newchat instead.');
     if (!req.session.patientId) {
         return res.status(400).json({ error: "Patient_id is required" })
     }

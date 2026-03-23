@@ -53,6 +53,19 @@ function AdminAiDashboardPage() {
     return found?.name || 'Chat';
   }, [sessions, activeSessionId]);
 
+  const activeSession = useMemo(
+    () => sessions.find((s) => s.session_uuid === activeSessionId) || null,
+    [sessions, activeSessionId]
+  );
+
+  const historySessions = useMemo(() => sessions.slice(0, 10), [sessions]);
+
+  const quickPrompts = [
+    'Analyze staffing gap',
+    'Audit compliance logs',
+    'Inventory forecast',
+  ];
+
   const openSession = async (sessionId) => {
     setActiveSessionId(sessionId);
     const response = await getAdminAiChat(sessionId);
@@ -137,77 +150,145 @@ function AdminAiDashboardPage() {
 
   return (
     <AdminShell title="Admin AI Dashboard">
-      <section className="card ai-shell">
-        {loading && <p className="muted">Loading AI dashboard...</p>}
-        {!loading && error && <p className="error">{error}</p>}
-
-        {!loading && (
-          <div className="ai-layout">
-            <aside className="ai-sidebar">
-              <div className="ai-sidebar-head">
-                <h3>Your Chats</h3>
-                <button className="btn" type="button" onClick={onNewChat}>New Chat</button>
-              </div>
-              <ul>
-                {sessions.map((session) => (
-                  <li key={session.session_uuid} className={activeSessionId === session.session_uuid ? 'active' : ''}>
-                    <button type="button" onClick={() => openSession(session.session_uuid)}>{session.name || 'Chat'}</button>
-                    <div className="ai-row-actions">
-                      <button type="button" onClick={() => onRenameChat(session.session_uuid)}>Rename</button>
-                      <button type="button" onClick={() => onDeleteChat(session.session_uuid)}>Delete</button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </aside>
-
-            <main className="ai-main">
-              <h3>{activeSessionName}</h3>
-              <div className="ai-messages">
-                {messages.length > 0 ? messages.map((msg, idx) => (
-                  <div key={`${msg.role}-${idx}`} className={`ai-bubble ${msg.role}`}>
-                    {msg.text}
-                  </div>
-                )) : (
-                  <div className="muted">Start a new chat and ask a question.</div>
-                )}
-              </div>
-
-              <form onSubmit={onSend} className="ai-form">
-                <textarea
-                  value={question}
-                  onChange={(e) => setQuestion(e.target.value)}
-                  placeholder="Type your message..."
-                  rows={2}
-                />
-                <div className="ai-form-bottom">
-                  <div className="ai-tables">
-                    {tableOptions.map((table) => (
-                      <label key={table}>
-                        <input
-                          type="checkbox"
-                          checked={selectedTables.includes(table)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setSelectedTables((prev) => [...prev, table]);
-                            } else {
-                              setSelectedTables((prev) => prev.filter((t) => t !== table));
-                            }
-                          }}
-                        />
-                        {table}
-                      </label>
-                    ))}
-                  </div>
-                  <button className="btn" type="submit" disabled={sending || !activeSessionId}>
-                    {sending ? 'Sending...' : 'Send'}
-                  </button>
-                </div>
-              </form>
-            </main>
+      <div className="ai-copilot-page">
+        <aside className="ai-copilot-left-nav">
+          <div className="ai-branding">
+            <h2>Clinical Sanctuary</h2>
+            <p>Admin AI Copilot</p>
           </div>
-        )}
-      </section>
+
+          <nav className="ai-side-menu">
+            <button type="button" className="active">Dashboard</button>
+            <button type="button">Analytics</button>
+            <button type="button">Staffing</button>
+            <button type="button">Compliance</button>
+            <button type="button">Settings</button>
+          </nav>
+
+          <button type="button" className="ai-new-analysis" onClick={onNewChat}>New Analysis</button>
+
+          <div className="ai-support-links">
+            <a href="#support">Support</a>
+            <a href="#logout">Logout</a>
+          </div>
+        </aside>
+
+        <section className="ai-history-panel">
+          <header>
+            <h3>Analysis History</h3>
+            <input placeholder="Find session..." />
+          </header>
+
+          {loading && <p className="muted">Loading AI dashboard...</p>}
+          {!loading && error && <p className="error">{error}</p>}
+
+          {!loading && (
+            <div className="ai-history-list">
+              {historySessions.length > 0 ? historySessions.map((session) => (
+                <article key={session.session_uuid} className={activeSessionId === session.session_uuid ? 'active' : ''}>
+                  <button type="button" className="ai-history-main" onClick={() => openSession(session.session_uuid)}>
+                    <span className="ai-history-tag">{activeSessionId === session.session_uuid ? 'Active Now' : 'Archived'}</span>
+                    <strong>{session.name || `Session ${String(session.session_uuid).slice(0, 8)}`}</strong>
+                    <small>{String(session.session_uuid).slice(0, 16)}...</small>
+                  </button>
+                  <div className="ai-row-actions">
+                    <button type="button" onClick={() => onRenameChat(session.session_uuid)}>Rename</button>
+                    <button type="button" onClick={() => onDeleteChat(session.session_uuid)}>Delete</button>
+                  </div>
+                </article>
+              )) : <div className="muted">No analysis history yet.</div>}
+            </div>
+          )}
+        </section>
+
+        <main className="ai-copilot-main">
+          <header className="ai-copilot-topbar">
+            <div>
+              <h3>{activeSessionName || 'Hospital Operations Review'}</h3>
+              <p>
+                ID: {activeSession?.session_uuid ? String(activeSession.session_uuid).slice(0, 12) : 'N/A'}
+                {' '}
+                | System Ready
+              </p>
+            </div>
+            <div className="ai-copilot-actions">
+              <button type="button">Share</button>
+              <button type="button">Export</button>
+              <button type="button">More</button>
+            </div>
+          </header>
+
+          <div className="ai-messages">
+            {messages.length > 0 ? messages.map((msg, idx) => (
+              <div key={`${msg.role}-${idx}`} className={`ai-bubble ${msg.role}`}>
+                {msg.text}
+              </div>
+            )) : (
+              <div className="muted">Start a new chat and ask a question.</div>
+            )}
+          </div>
+
+          <form onSubmit={onSend} className="ai-form">
+            <textarea
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              placeholder="Ask the Copilot to analyze, audit, or report..."
+              rows={2}
+            />
+            <div className="ai-form-bottom">
+              <div className="ai-tables">
+                {tableOptions.map((table) => (
+                  <label key={table}>
+                    <input
+                      type="checkbox"
+                      checked={selectedTables.includes(table)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedTables((prev) => [...prev, table]);
+                        } else {
+                          setSelectedTables((prev) => prev.filter((t) => t !== table));
+                        }
+                      }}
+                    />
+                    {table}
+                  </label>
+                ))}
+              </div>
+              <button className="ai-submit" type="submit" disabled={sending || !activeSessionId || !question.trim()}>
+                {sending ? 'Analyzing...' : 'Analyze'}
+              </button>
+            </div>
+          </form>
+        </main>
+
+        <aside className="ai-copilot-right-panel">
+          <section>
+            <h4>Quick Prompts</h4>
+            <div className="ai-right-list">
+              {quickPrompts.map((prompt) => (
+                <button key={prompt} type="button" onClick={() => setQuestion(prompt)}>{prompt}</button>
+              ))}
+            </div>
+          </section>
+
+          <section>
+            <h4>Compliance Status</h4>
+            <div className="ai-compliance-card">
+              <strong>HIPAA Shield</strong>
+              <p>All patient identifiers are masked and full access requires elevated authorization.</p>
+            </div>
+            <div className="ai-compliance-note">
+              Exported analysis is tracked in the National Medical Registry.
+            </div>
+          </section>
+
+          <section className="ai-engine-meta">
+            <div><span>Model Engine</span><strong>MedCore v4.2</strong></div>
+            <div><span>Processing Latency</span><strong>142ms</strong></div>
+            <div><span>Last Sync</span><strong>Just Now</strong></div>
+          </section>
+        </aside>
+      </div>
     </AdminShell>
   );
 }

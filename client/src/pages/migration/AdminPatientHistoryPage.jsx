@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import AdminShell from '../../components/migration/AdminShell';
 import { getAdminPatientHistory } from '../../services/adminApi';
+import { getPatientFullName } from '../../utils/patientName';
 import '../../styles/patient-history-ejs.css';
 
 const defaultFilters = {
@@ -97,8 +98,7 @@ function AdminPatientHistoryPage() {
               <table className="migrate-history-table">
                 <thead>
                   <tr>
-                    <th>First Name</th>
-                    <th>Last Name</th>
+                    <th>Full Name</th>
                     <th>Date of Birth</th>
                     <th>Gender</th>
                     <th>Contact Number</th>
@@ -118,8 +118,7 @@ function AdminPatientHistoryPage() {
                 <tbody>
                   {rows.map((row, idx) => (
                     <tr key={`${row.patient_id || idx}-${idx}`}>
-                      <td>{row.first_name}</td>
-                      <td>{row.last_name}</td>
+                      <td>{getPatientFullName(row)}</td>
                       <td>{row.dob ? String(row.dob).slice(0, 10) : '-'}</td>
                       <td>{row.gender || '-'}</td>
                       <td>{row.contact_number || '-'}</td>

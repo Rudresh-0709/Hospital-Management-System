@@ -10,6 +10,7 @@ from ..state import HMAIState
 from ...tool_nodes.doctor_tool import sql_connector
 
 MAX_HISTORY_MESSAGES = 10  # Number of recent messages to include in context
+AI_MEMORY_TABLE = "patient_ai_messages"
 
 
 def load_chat_history(state: HMAIState) -> HMAIState:
@@ -28,18 +29,22 @@ def load_chat_history(state: HMAIState) -> HMAIState:
         conn = sql_connector()
         cursor = conn.cursor(dictionary=True)
 
-        # Fetch recent messages for this patient, ordered by timestamp
-        cursor.execute(
-            """
+        # Read only from dedicated AI memory table to avoid overlap with other chat systems.
+        query = f"""
             SELECT message, role, timestamp
-            FROM chats
-            WHERE patient_id = %s
+            FROM {AI_MEMORY_TABLE}
+            WHERE patient_id = %s {{session_filter}}
             ORDER BY timestamp DESC
             LIMIT %s
-        """,
-            (state.patient_id, MAX_HISTORY_MESSAGES),
-        )
+        """
+        params = [state.patient_id]
+        session_filter = ""
+        if state.session_id:
+            session_filter = "AND session_id = %s"
+            params.append(state.session_id)
+        params.append(MAX_HISTORY_MESSAGES)
 
+        cursor.execute(query.format(session_filter=session_filter), tuple(params))
         rows = cursor.fetchall()
         cursor.close()
         conn.close()

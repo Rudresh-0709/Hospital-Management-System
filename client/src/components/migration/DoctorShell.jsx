@@ -21,6 +21,10 @@ function DoctorShell({ title, children }) {
               <Link to="/migrate/doctor/visitnavigation">Doctor Visit Navigation (React)</Link>
               <Link to="/migrate/doctor/appointmentapprove">Doctor Appointment Approval (React)</Link>
               <Link to="/migrate/doctor/dashboard">Doctor Dashboard (React)</Link>
+              <Link to="/migrate/doctor/diagnosis">Doctor Diagnosis (React)</Link>
+              <Link to="/migrate/doctor/prescription">Doctor Prescription (React)</Link>
+              <Link to="/migrate/doctor/newprescription">Doctor New Prescription (React)</Link>
+              <Link to="/migrate/chat">Chat (React)</Link>
               <a href="/doctor/visitnavigation">Legacy Visit Navigation (EJS)</a>
               <a href="/doctor/appointmentapprove">Legacy Appointment Approval (EJS)</a>
               <a href="/doctoradmin">Legacy Doctor Dashboard (EJS)</a>

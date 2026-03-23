@@ -308,3 +308,27 @@ export async function askAdminAi(payload) {
   const data = await response.json();
   return { ok: response.ok, status: response.status, data };
 }
+
+export async function getAdminNurseFormData() {
+  const response = await fetch('/api/admin/nurse/form-data', {
+    method: 'GET',
+    credentials: 'include',
+  });
+
+  const data = await response.json();
+  return { ok: response.ok, status: response.status, data };
+}
+
+export async function addNurse(payload) {
+  const response = await fetch('/api/admin/nurse/add', {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const data = await response.json();
+  return { ok: response.ok, status: response.status, data };
+}

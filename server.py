@@ -49,6 +49,7 @@ async def chat_endpoint(request: ChatRequest):
             initial_state = HMAIState(
                 user_input=request.message,
                 patient_id=request.patient_id,
+                session_id=session_id,
                 image_base64=request.image_base64
             )
             current_state_dict = initial_state.dict()
@@ -59,6 +60,7 @@ async def chat_endpoint(request: ChatRequest):
             # Reset per-turn fields that should be fresh for each message
             current_state_dict["user_input"] = request.message
             current_state_dict["image_base64"] = request.image_base64
+            current_state_dict["session_id"] = session_id
             current_state_dict["intent"] = None
             current_state_dict["final_response"] = None
             current_state_dict["next_prompt"] = None

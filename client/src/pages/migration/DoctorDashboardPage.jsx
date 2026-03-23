@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import DoctorShell from '../../components/migration/DoctorShell';
 import { getDoctorDashboardOverview } from '../../services/doctorApi';
+import { getPatientFullName } from '../../utils/patientName';
 
 function DoctorDashboardPage() {
   const [loading, setLoading] = useState(true);
@@ -74,7 +75,7 @@ function DoctorDashboardPage() {
                     {payload.patientdetails.length > 0 ? (
                       payload.patientdetails.slice(-5).reverse().map((patient, idx) => (
                         <tr key={`${patient.patient_id}-${idx}`}>
-                          <td>{patient.first_name} {patient.last_name}</td>
+                          <td>{getPatientFullName(patient)}</td>
                           <td>{patient.reason_for_admission || '-'}</td>
                           <td>{patient.room_number || '-'}</td>
                           <td>{patient.ward_preference || '-'}</td>

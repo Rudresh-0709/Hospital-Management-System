@@ -1,0 +1,41 @@
+.doctor-rx .form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.doctor-rx .field-full {
+  grid-column: 1 / -1;
+}
+
+.doctor-rx .medicine-table input {
+  width: 100%;
+  min-height: 2.2em;
+  border-radius: 7px;
+  border: 1px solid #d2dbe2;
+  padding: 6px 8px;
+}
+
+.doctor-rx .mini-btn {
+  min-height: 34px;
+  border-radius: 8px;
+  border: none;
+  color: #ffffff;
+  background: #3a6592;
+  cursor: pointer;
+  padding: 0 12px;
+}
+
+.doctor-rx .mini-btn.warn {
+  background: #9a3340;
+}
+
+.doctor-rx .toolbar {
+  margin-top: 8px;
+}
+
+@media (max-width: 768px) {
+  .doctor-rx .form-grid {
+    grid-template-columns: 1fr;
+  }
+}

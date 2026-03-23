@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import AdminShell from '../../components/migration/AdminShell';
 import { dischargePatient, getAdminDischargeOverview } from '../../services/adminApi';
+import { getPatientFullName, getPatientSearchName } from '../../utils/patientName';
+import '../../styles/modern-form-migrate.css';
 
 function AdminDischargePage() {
   const [loading, setLoading] = useState(true);
@@ -10,8 +12,8 @@ function AdminDischargePage() {
   const [patients, setPatients] = useState([]);
   const [search, setSearch] = useState('');
   const [form, setForm] = useState({
-    first_name: '',
-    last_name: '',
+    patient_id: '',
+    contact_number: '',
     reason_for_admission: '',
   });
 
@@ -31,8 +33,8 @@ function AdminDischargePage() {
     setPatients(nextPatients);
     setForm((prev) => ({
       ...prev,
-      first_name: prev.first_name || nextPatients[0]?.first_name || '',
-      last_name: prev.last_name || nextPatients[0]?.last_name || '',
+      patient_id: prev.patient_id || nextPatients[0]?.patient_id || '',
+      contact_number: prev.contact_number || nextPatients[0]?.contact_number || '',
     }));
     setLoading(false);
   };
@@ -46,13 +48,18 @@ function AdminDischargePage() {
     if (!term) return patients;
 
     return patients.filter((patient) => {
-      const fullName = `${patient.first_name || ''} ${patient.last_name || ''}`.toLowerCase();
+      const fullName = getPatientSearchName(patient);
       return fullName.includes(term) || String(patient.patient_id || '').includes(term);
     });
   }, [patients, search]);
 
   const onSubmit = async (event) => {
     event.preventDefault();
+    if (!form.patient_id && !form.contact_number) {
+      setError('Please provide Patient ID or Mobile Number.');
+      return;
+    }
+
     setSubmitting(true);
     setError('');
     setSuccess('');
@@ -72,101 +79,194 @@ function AdminDischargePage() {
 
   return (
     <AdminShell title="Discharge Patient">
-      <section className="card">
-        <h3 className="card-title">Discharge Details</h3>
+      <div className="modern-form-page">
+        {/* Main Form Section */}
+        <div className="form-main">
+          {/* Page Header */}
+          <div className="form-header">
+            <div className="form-header-content">
+              <h1 className="form-title">🏥 Patient Discharge</h1>
+              <p className="form-subtitle">
+                Complete the discharge process for admitted patients. Ensure all details are verified before submission.
+              </p>
+            </div>
+          </div>
 
-        {loading && <p className="muted">Loading discharge overview...</p>}
-        {!loading && error && <p className="error">{error}</p>}
-        {!loading && success && <p className="success">{success}</p>}
+          {/* Status Messages */}
+          {loading && (
+            <div className="form-alert info">
+              <span className="form-alert-icon">ℹ️</span>
+              <span>Loading discharge overview...</span>
+            </div>
+          )}
+          {!loading && error && (
+            <div className="form-alert error">
+              <span className="form-alert-icon">⚠️</span>
+              <span>{error}</span>
+            </div>
+          )}
+          {!loading && success && (
+            <div className="form-alert success">
+              <span className="form-alert-icon">✓</span>
+              <span>{success}</span>
+            </div>
+          )}
 
-        {!loading && !patients.length && <p className="muted">No admitted patients available for discharge.</p>}
+          {!loading && patients.length > 0 && (
+            <form onSubmit={onSubmit}>
+              {/* Discharge Form Section */}
+              <div className="form-section">
+                <div className="form-section-header">
+                  <span className="form-section-icon">📋</span>
+                  <h2 className="form-section-title">Discharge Details</h2>
+                </div>
 
-        {!loading && patients.length > 0 && (
-          <form onSubmit={onSubmit}>
-            <div className="split-grid">
-              <div>
-                <label className="field-label" htmlFor="discharge_first_name">First name:</label>
-                <select
-                  id="discharge_first_name"
-                  className="field"
-                  value={form.first_name}
-                  onChange={(e) => setForm({ ...form, first_name: e.target.value })}
-                  required
-                >
-                  {patients.map((patient, idx) => (
-                    <option key={`${patient.patient_id}-first-${idx}`} value={patient.first_name}>{patient.first_name}</option>
-                  ))}
-                </select>
+                <div className="form-field-row">
+                  <div>
+                    <label className="form-label">Patient ID</label>
+                    <span className="form-label-hint">Preferred for exact match</span>
+                    <input
+                      id="discharge_patient_id"
+                      className="form-input"
+                      placeholder="e.g., 1024"
+                      value={form.patient_id}
+                      onChange={(e) => setForm({ ...form, patient_id: e.target.value.trim() })}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="form-label">Mobile Number (Backup)</label>
+                    <span className="form-label-hint">Use this if patient does not remember ID</span>
+                    <input
+                      id="discharge_contact_number"
+                      className="form-input"
+                      placeholder="e.g., 9876543210"
+                      value={form.contact_number}
+                      onChange={(e) => setForm({ ...form, contact_number: e.target.value.trim() })}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="form-label required">Discharge Reason</label>
+                  <span className="form-label-hint">Provide details about the patient's discharge</span>
+                  <textarea
+                    id="discharge_reason"
+                    className="form-textarea"
+                    rows={4}
+                    placeholder="e.g., Patient has recovered and is discharged for home care..."
+                    value={form.reason_for_admission}
+                    onChange={(e) => setForm({ ...form, reason_for_admission: e.target.value })}
+                    required
+                  />
+                </div>
+
+                <div className="form-button-group right">
+                  <button className="form-button secondary" type="reset">
+                    ↻ Reset
+                  </button>
+                  <button className="form-button success" type="submit" disabled={submitting}>
+                    {submitting ? '⏳ Processing...' : '✓ Discharge Patient'}
+                  </button>
+                </div>
               </div>
+            </form>
+          )}
 
-              <div>
-                <label className="field-label" htmlFor="discharge_last_name">Last name:</label>
-                <select
-                  id="discharge_last_name"
-                  className="field"
-                  value={form.last_name}
-                  onChange={(e) => setForm({ ...form, last_name: e.target.value })}
-                  required
-                >
-                  {patients.map((patient, idx) => (
-                    <option key={`${patient.patient_id}-last-${idx}`} value={patient.last_name}>{patient.last_name}</option>
-                  ))}
-                </select>
+          {!loading && !patients.length && (
+            <div className="form-section">
+              <div className="form-empty">
+                <div className="form-empty-icon">🚫</div>
+                <p>No admitted patients available for discharge.</p>
               </div>
             </div>
-
-            <label className="field-label" htmlFor="discharge_reason">Reason for Discharge:</label>
-            <textarea
-              id="discharge_reason"
-              className="field"
-              rows={3}
-              value={form.reason_for_admission}
-              onChange={(e) => setForm({ ...form, reason_for_admission: e.target.value })}
-              required
-            />
-
-            <button className="btn" type="submit" disabled={submitting}>
-              {submitting ? 'Processing...' : 'Discharge Patient'}
-            </button>
-          </form>
-        )}
-      </section>
-
-      <section className="card">
-        <div className="toolbar">
-          <h3 className="card-title card-title-tight">Current Admitted Patients</h3>
-          <input
-            className="field field-tight"
-            placeholder="Search by patient id or name"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+          )}
         </div>
 
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Patient ID</th>
-                <th>Name</th>
-                <th>Doctor Assigned</th>
-                <th>Room Number</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredPatients.map((patient, idx) => (
-                <tr key={`${patient.admit_id || patient.patient_id}-${idx}`}>
-                  <td>{patient.patient_id}</td>
-                  <td>{patient.first_name} {patient.last_name}</td>
-                  <td>{patient.doctor_assigned || '-'}</td>
-                  <td>{patient.room_number || '-'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {!filteredPatients.length && <p className="muted mt-12">No matching patients found.</p>}
+        {/* Right Column - Patient List */}
+        <div className="form-aside">
+          <div className="form-section">
+            <div className="form-section-header">
+              <span className="form-section-icon">👥</span>
+              <h3 className="form-section-title">Admitted Patients</h3>
+            </div>
+
+            <div>
+              <input
+                className="form-input"
+                placeholder="Search by ID or name..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+
+            {filteredPatients.length > 0 ? (
+              <div style={{ overflowY: 'auto', maxHeight: '500px' }}>
+                <table className="form-table" style={{ marginTop: '16px' }}>
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Name</th>
+                      <th>Doctor</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredPatients.map((patient, idx) => (
+                      <tr key={`${patient.admit_id || patient.patient_id}-${idx}`}>
+                        <td><strong>{patient.patient_id}</strong></td>
+                        <td>{getPatientFullName(patient)}</td>
+                        <td style={{ fontSize: '12px' }}>{patient.doctor_assigned || '—'} / {patient.contact_number || 'No mobile'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="form-empty" style={{ padding: '20px' }}>
+                <div className="form-empty-icon">📋</div>
+                <p style={{ fontSize: '12px' }}>No matching patients found.</p>
+              </div>
+            )}
+          </div>
+
+          {/* Info Card */}
+          <div className="form-info-card">
+            <strong>💡 Discharge Checklist</strong>
+            <p>Ensure patient prescriptions are ready, follow-up appointments are scheduled, and discharge summary is documented.</p>
+          </div>
         </div>
-      </section>
+
+        {/* Right Sidebar - Tips */}
+        <aside className="form-sidebar">
+          <div className="form-sidebar-section">
+            <div className="form-sidebar-title">ℹ️ DISCHARGE TIPS</div>
+            <div className="form-tip-card">
+              <strong>Verify Details</strong>
+              <p>Confirm patient name and ID before discharge</p>
+            </div>
+            <div className="form-tip-card">
+              <strong>Document Reason</strong>
+              <p>Always provide discharge reason for records</p>
+            </div>
+            <div className="form-tip-card">
+              <strong>Clear Instructions</strong>
+              <p>Give aftercare instructions to patient</p>
+            </div>
+          </div>
+
+          <div className="form-sidebar-section">
+            <div className="form-sidebar-title">📊 STATISTICS</div>
+            <div className="form-sidebar-item">
+              <span>👥 Patients:</span>
+              <strong>{patients.length}</strong>
+            </div>
+            <div className="form-sidebar-item">
+              <span>🔍 Filtered:</span>
+              <strong>{filteredPatients.length}</strong>
+            </div>
+          </div>
+        </aside>
+      </div>
     </AdminShell>
   );
 }
