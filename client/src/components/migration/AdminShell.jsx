@@ -9,51 +9,51 @@ function AdminShell({ title, children }) {
     {
       title: 'Core',
       links: [
-        { to: '/migrate', label: 'Migration Home' },
-        { to: '/migrate/dashboard', label: 'Migration Dashboard' },
-        { to: '/migrate/admin/dashboard', label: 'Admin Dashboard' },
+        { to: '', label: 'Migration Home' },
+        { to: '/dashboard', label: 'Migration Dashboard' },
+        { to: '/admin/dashboard', label: 'Admin Dashboard' },
       ],
     },
     {
       title: 'Patients',
       links: [
-        { to: '/migrate/admin/patients', label: 'New Patient Registration' },
-        { to: '/migrate/admin/admit', label: 'Admit Patient' },
-        { to: '/migrate/admin/discharge', label: 'Discharge Patient' },
-        { to: '/migrate/admin/patienthistory', label: 'Patient History' },
+        { to: '/admin/patients', label: 'New Patient Registration' },
+        { to: '/admin/admit', label: 'Admit Patient' },
+        { to: '/admin/discharge', label: 'Discharge Patient' },
+        { to: '/admin/patienthistory', label: 'Patient History' },
       ],
     },
     {
       title: 'Visits',
       links: [
-        { to: '/migrate/admin/newvisitor', label: 'New Visitor' },
-        { to: '/migrate/admin/visit-history', label: 'Visit History' },
-        { to: '/migrate/admin/visitqr', label: 'Visit QR' },
+        { to: '/admin/newvisitor', label: 'New Visitor' },
+        { to: '/admin/visit-history', label: 'Visit History' },
+        { to: '/admin/visitqr', label: 'Visit QR' },
       ],
     },
     {
       title: 'Staff',
       links: [
-        { to: '/migrate/admin/newdoctor', label: 'New Doctor' },
-        { to: '/migrate/admin/newstaff', label: 'New Staff' },
-        { to: '/migrate/admin/nurse', label: 'New Nurse' },
-        { to: '/migrate/admin/nurseallocate', label: 'Nurse Allocation' },
+        { to: '/admin/newdoctor', label: 'New Doctor' },
+        { to: '/admin/newstaff', label: 'New Staff' },
+        { to: '/admin/nurse', label: 'New Nurse' },
+        { to: '/admin/nurseallocate', label: 'Nurse Allocation' },
       ],
     },
     {
       title: 'Equipment',
       links: [
-        { to: '/migrate/admin/equipment', label: 'Equipment Overview' },
-        { to: '/migrate/admin/equipment/newequipment', label: 'Add Equipment' },
-        { to: '/migrate/admin/equipment/updateequipment', label: 'Update Equipment' },
+        { to: '/admin/equipment', label: 'Equipment Overview' },
+        { to: '/admin/equipment/newequipment', label: 'Add Equipment' },
+        { to: '/admin/equipment/updateequipment', label: 'Update Equipment' },
       ],
     },
     {
       title: 'Clinical Ops',
       links: [
-        { to: '/migrate/admin/pharmacy', label: 'Pharmacy' },
-        { to: '/migrate/admin/ai', label: 'Admin AI' },
-        { to: '/migrate/chat', label: 'Chat' },
+        { to: '/admin/pharmacy', label: 'Pharmacy' },
+        { to: '/admin/ai', label: 'Admin AI' },
+        { to: '/chat', label: 'Chat' },
       ],
     },
   ];
@@ -104,3 +104,4 @@ function AdminShell({ title, children }) {
 }
 
 export default AdminShell;
+

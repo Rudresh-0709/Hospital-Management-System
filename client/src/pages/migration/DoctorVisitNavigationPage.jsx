@@ -36,12 +36,12 @@ function DoctorVisitNavigationPage() {
             <div className="card" style={{ margin: 0 }}>
               <h3 className="card-title">Manage Appointments</h3>
               <p className="muted">View and schedule appointments for new patients.</p>
-              <Link to="/migrate/doctor/appointmentapprove">Go to Appointments</Link>
+              <Link to="/doctor/appointmentapprove">Go to Appointments</Link>
             </div>
             <div className="card" style={{ margin: 0 }}>
               <h3 className="card-title">Manage Visits</h3>
               <p className="muted">Track visits and provide medical care for admitted patients.</p>
-              <Link to="/migrate/doctor/dashboard">Go to Visits</Link>
+              <Link to="/doctor/dashboard">Go to Visits</Link>
             </div>
           </div>
         )}
@@ -51,3 +51,4 @@ function DoctorVisitNavigationPage() {
 }
 
 export default DoctorVisitNavigationPage;
+

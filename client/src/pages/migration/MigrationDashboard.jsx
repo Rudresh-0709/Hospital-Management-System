@@ -16,7 +16,7 @@ function MigrationDashboard() {
       </div>
 
       <div style={{ display: 'grid', gap: 8 }}>
-        <Link to="/migrate">Back to migration home</Link>
+        <Link to="/portal">Back to migration home</Link>
         <a href="/admin">Legacy Admin Dashboard (EJS)</a>
         <a href="/doctoradmin">Legacy Doctor Dashboard (EJS)</a>
         <a href="/patientdashboard">Legacy Patient Dashboard (EJS)</a>
@@ -26,3 +26,5 @@ function MigrationDashboard() {
 }
 
 export default MigrationDashboard;
+
+

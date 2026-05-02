@@ -10,10 +10,6 @@ import {
 } from '../../services/adminApi';
 import '../../styles/admin-ai-migrate.css';
 
-const tableOptions = [
-  'patients', 'doctors', 'appointments', 'emergency', 'equipments', 'hospital_staff', 'nurses', 'rooms', 'visits',
-];
-
 function AdminAiDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -22,7 +18,7 @@ function AdminAiDashboardPage() {
   const [messages, setMessages] = useState([]);
   const [question, setQuestion] = useState('');
   const [sending, setSending] = useState(false);
-  const [selectedTables, setSelectedTables] = useState([]);
+  const [inferredTables, setInferredTables] = useState([]);
 
   const loadOverview = async () => {
     setLoading(true);
@@ -79,6 +75,7 @@ function AdminAiDashboardPage() {
       { role: 'user', text: msg.question },
       { role: 'ai', text: msg.answer },
     ])));
+    setInferredTables([]);
   };
 
   const onNewChat = async () => {
@@ -136,7 +133,7 @@ function AdminAiDashboardPage() {
     const response = await askAdminAi({
       question: message,
       session_id: activeSessionId,
-      selected_tables: selectedTables,
+      selected_tables: [],
     });
     setSending(false);
 
@@ -146,6 +143,16 @@ function AdminAiDashboardPage() {
     }
 
     setMessages((prev) => [...prev, { role: 'ai', text: response.data?.answer || 'No response.' }]);
+    setInferredTables(Array.isArray(response.data?.selected_tables) ? response.data.selected_tables : []);
+    
+      // Handle auto-generated chat name on first message
+      if (response.data?.generated_name) {
+        setSessions((prev) =>
+          prev.map((s) =>
+            s.session_uuid === activeSessionId ? { ...s, name: response.data.generated_name } : s
+          )
+        );
+      }
   };
 
   return (
@@ -212,6 +219,7 @@ function AdminAiDashboardPage() {
               </p>
             </div>
             <div className="ai-copilot-actions">
+              <button type="button" onClick={onNewChat}>New Chat</button>
               <button type="button">Share</button>
               <button type="button">Export</button>
               <button type="button">More</button>
@@ -236,23 +244,11 @@ function AdminAiDashboardPage() {
               rows={2}
             />
             <div className="ai-form-bottom">
-              <div className="ai-tables">
-                {tableOptions.map((table) => (
-                  <label key={table}>
-                    <input
-                      type="checkbox"
-                      checked={selectedTables.includes(table)}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setSelectedTables((prev) => [...prev, table]);
-                        } else {
-                          setSelectedTables((prev) => prev.filter((t) => t !== table));
-                        }
-                      }}
-                    />
-                    {table}
-                  </label>
-                ))}
+              <div className="ai-inferred-tables" aria-live="polite">
+                <span className="label">Auto-selected tables:</span>
+                {inferredTables.length > 0 ? inferredTables.map((table) => (
+                  <span key={table} className="chip">{table}</span>
+                )) : <span className="hint">Will appear after you ask a question</span>}
               </div>
               <button className="ai-submit" type="submit" disabled={sending || !activeSessionId || !question.trim()}>
                 {sending ? 'Analyzing...' : 'Analyze'}

@@ -164,6 +164,26 @@
   gap: 8px;
 }
 
+.patient-ai-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.patient-ai-new-chat-inline {
+  border: none;
+  border-radius: 10px;
+  background: #0a5a49;
+  color: #fff;
+  padding: 9px 14px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.patient-ai-new-chat-inline:hover {
+  background: #0b6c59;
+}
+
 .patient-ai-topbar-icons button {
   width: 34px;
   height: 34px;

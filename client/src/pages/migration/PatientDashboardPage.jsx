@@ -206,7 +206,7 @@ function PatientDashboardPage() {
 
         <div className="pd-side-bottom">
           <a href="#">Settings</a>
-          <Link to="/migrate/patient/ai" className="chat-btn">Chat with Agent</Link>
+          <Link to="/patient/ai" className="chat-btn">Chat with Agent</Link>
         </div>
       </aside>
 
@@ -216,7 +216,7 @@ function PatientDashboardPage() {
           <div className="topbar-actions">
             <button type="button" className="icon-btn" aria-label="Notifications">!</button>
             <button type="button" className="icon-btn" aria-label="Help">?</button>
-            <Link to="/migrate/chat" className="ghost-btn">Contact Doctor</Link>
+            <Link to="/chat" className="ghost-btn">Contact Doctor</Link>
             <button type="button" className="solid-btn">Request Refill</button>
           </div>
         </header>
@@ -418,3 +418,4 @@ function PatientDashboardPage() {
 }
 
 export default PatientDashboardPage;
+

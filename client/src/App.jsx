@@ -89,14 +89,17 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
-      <Route path="/migrate/appointmentbook" element={<AppointmentBookPage />} />
-      <Route path="/migrate" element={<MigrationHome />} />
-      <Route path="/migrate/auth" element={<AuthMigrationPage />} />
-      <Route path="/migrate/login/admin" element={<AdminLoginPage />} />
-      <Route path="/migrate/login/doctor" element={<DoctorLoginPage />} />
-      <Route path="/migrate/login/patient" element={<PatientLoginPage />} />
+      <Route path="/appointmentbook" element={<AppointmentBookPage />} />
+      <Route path="/portal" element={<MigrationHome />} />
+      <Route path="/auth" element={<AuthMigrationPage />} />
+      <Route path="/login/admin" element={<AdminLoginPage />} />
+      <Route path="/adminlogin" element={<AdminLoginPage />} />
+      <Route path="/login/doctor" element={<DoctorLoginPage />} />
+      <Route path="/admin/doctorlogin" element={<DoctorLoginPage />} />
+      <Route path="/login/patient" element={<PatientLoginPage />} />
+      <Route path="/patientlogin" element={<PatientLoginPage />} />
       <Route
-        path="/migrate/dashboard"
+        path="/dashboard"
         element={(
           <ProtectedRoute>
             <MigrationDashboard />
@@ -104,7 +107,7 @@ function App() {
         )}
       />
       <Route
-        path="/migrate/admin/patients"
+        path="/admin/patients"
         element={(
           <ProtectedRoute allowedRoles={['admin']}>
             <AdminPatientsPage />
@@ -112,7 +115,15 @@ function App() {
         )}
       />
       <Route
-        path="/migrate/admin/admit"
+        path="/admin/patient"
+        element={(
+          <ProtectedRoute allowedRoles={['admin']}>
+            <AdminPatientsPage />
+          </ProtectedRoute>
+        )}
+      />
+      <Route
+        path="/admin/admit"
         element={(
           <ProtectedRoute allowedRoles={['admin']}>
             <AdminAdmitPage />
@@ -120,7 +131,7 @@ function App() {
         )}
       />
       <Route
-        path="/migrate/admin/discharge"
+        path="/admin/discharge"
         element={(
           <ProtectedRoute allowedRoles={['admin']}>
             <AdminDischargePage />
@@ -128,7 +139,7 @@ function App() {
         )}
       />
       <Route
-        path="/migrate/admin/patienthistory"
+        path="/admin/patienthistory"
         element={(
           <ProtectedRoute allowedRoles={['admin']}>
             <AdminPatientHistoryPage />
@@ -136,7 +147,7 @@ function App() {
         )}
       />
       <Route
-        path="/migrate/admin/newvisitor"
+        path="/admin/newvisitor"
         element={(
           <ProtectedRoute allowedRoles={['admin']}>
             <AdminNewVisitorPage />
@@ -144,7 +155,7 @@ function App() {
         )}
       />
       <Route
-        path="/migrate/admin/visit-history"
+        path="/admin/visit-history"
         element={(
           <ProtectedRoute allowedRoles={['admin']}>
             <AdminVisitHistoryPage />
@@ -152,7 +163,7 @@ function App() {
         )}
       />
       <Route
-        path="/migrate/admin/visitqr"
+        path="/admin/visitqr"
         element={(
           <ProtectedRoute allowedRoles={['admin']}>
             <AdminVisitQrPage />
@@ -160,7 +171,7 @@ function App() {
         )}
       />
       <Route
-        path="/migrate/admin/newdoctor"
+        path="/admin/newdoctor"
         element={(
           <ProtectedRoute allowedRoles={['admin']}>
             <AdminNewDoctorPage />
@@ -168,7 +179,7 @@ function App() {
         )}
       />
       <Route
-        path="/migrate/admin/newstaff"
+        path="/admin/newstaff"
         element={(
           <ProtectedRoute allowedRoles={['admin']}>
             <AdminNewStaffPage />
@@ -176,7 +187,7 @@ function App() {
         )}
       />
       <Route
-        path="/migrate/admin/equipment"
+        path="/admin/equipment"
         element={(
           <ProtectedRoute allowedRoles={['admin']}>
             <AdminEquipmentPage />
@@ -184,7 +195,7 @@ function App() {
         )}
       />
       <Route
-        path="/migrate/admin/dashboard"
+        path="/admin/dashboard"
         element={(
           <ProtectedRoute allowedRoles={['admin']}>
             <AdminDashboardPage />
@@ -192,7 +203,15 @@ function App() {
         )}
       />
       <Route
-        path="/migrate/admin/pharmacy"
+        path="/admin"
+        element={(
+          <ProtectedRoute allowedRoles={['admin']}>
+            <AdminDashboardPage />
+          </ProtectedRoute>
+        )}
+      />
+      <Route
+        path="/admin/pharmacy"
         element={(
           <ProtectedRoute allowedRoles={['admin']}>
             <AdminPharmacyPage />
@@ -200,7 +219,7 @@ function App() {
         )}
       />
       <Route
-        path="/migrate/admin/nurseallocate"
+        path="/admin/nurseallocate"
         element={(
           <ProtectedRoute allowedRoles={['admin']}>
             <AdminNurseAllocatePage />
@@ -208,7 +227,7 @@ function App() {
         )}
       />
       <Route
-        path="/migrate/admin/ai"
+        path="/admin/ai"
         element={(
           <ProtectedRoute allowedRoles={['admin']}>
             <AdminAiDashboardPage />
@@ -216,7 +235,7 @@ function App() {
         )}
       />
       <Route
-        path="/migrate/admin/nurse"
+        path="/admin/nurse"
         element={(
           <ProtectedRoute allowedRoles={['admin']}>
             <AdminNursePage />
@@ -224,7 +243,7 @@ function App() {
         )}
       />
       <Route
-        path="/migrate/admin/equipment/newequipment"
+        path="/admin/equipment/newequipment"
         element={(
           <ProtectedRoute allowedRoles={['admin']}>
             <AdminNewEquipmentPage />
@@ -232,7 +251,7 @@ function App() {
         )}
       />
       <Route
-        path="/migrate/admin/equipment/updateequipment"
+        path="/admin/equipment/updateequipment"
         element={(
           <ProtectedRoute allowedRoles={['admin']}>
             <AdminUpdateEquipmentPage />
@@ -240,7 +259,7 @@ function App() {
         )}
       />
       <Route
-        path="/migrate/nurse/allocation-form"
+        path="/nurse/allocation-form"
         element={(
           <ProtectedRoute allowedRoles={['admin']}>
             <NurseAllocationFormPage />
@@ -248,7 +267,7 @@ function App() {
         )}
       />
       <Route
-        path="/migrate/doctor/visitnavigation"
+        path="/doctor/visitnavigation"
         element={(
           <ProtectedRoute allowedRoles={['doctor']}>
             <DoctorVisitNavigationPage />
@@ -256,7 +275,7 @@ function App() {
         )}
       />
       <Route
-        path="/migrate/doctor/appointmentapprove"
+        path="/doctor/appointmentapprove"
         element={(
           <ProtectedRoute allowedRoles={['doctor']}>
             <DoctorAppointmentApprovePage />
@@ -264,7 +283,7 @@ function App() {
         )}
       />
       <Route
-        path="/migrate/doctor/dashboard"
+        path="/doctor/dashboard"
         element={(
           <ProtectedRoute allowedRoles={['doctor']}>
             <DoctorDashboardPage />
@@ -272,7 +291,15 @@ function App() {
         )}
       />
       <Route
-        path="/migrate/doctor/diagnosis"
+        path="/doctoradmin"
+        element={(
+          <ProtectedRoute allowedRoles={['doctor']}>
+            <DoctorDashboardPage />
+          </ProtectedRoute>
+        )}
+      />
+      <Route
+        path="/doctor/diagnosis"
         element={(
           <ProtectedRoute allowedRoles={['doctor']}>
             <DoctorDiagnosisPage />
@@ -280,7 +307,15 @@ function App() {
         )}
       />
       <Route
-        path="/migrate/doctor/prescription"
+        path="/doctoradmin/diagnosis"
+        element={(
+          <ProtectedRoute allowedRoles={['doctor']}>
+            <DoctorDiagnosisPage />
+          </ProtectedRoute>
+        )}
+      />
+      <Route
+        path="/doctor/prescription"
         element={(
           <ProtectedRoute allowedRoles={['doctor']}>
             <DoctorPrescriptionPage />
@@ -288,7 +323,15 @@ function App() {
         )}
       />
       <Route
-        path="/migrate/doctor/newprescription"
+        path="/doctoradmin/prescription"
+        element={(
+          <ProtectedRoute allowedRoles={['doctor']}>
+            <DoctorPrescriptionPage />
+          </ProtectedRoute>
+        )}
+      />
+      <Route
+        path="/doctor/newprescription"
         element={(
           <ProtectedRoute allowedRoles={['doctor']}>
             <DoctorNewPrescriptionPage />
@@ -296,7 +339,15 @@ function App() {
         )}
       />
       <Route
-        path="/migrate/patient/dashboard"
+        path="/doctoradmin/newprescription"
+        element={(
+          <ProtectedRoute allowedRoles={['doctor']}>
+            <DoctorNewPrescriptionPage />
+          </ProtectedRoute>
+        )}
+      />
+      <Route
+        path="/patient/dashboard"
         element={(
           <ProtectedRoute allowedRoles={['patient']}>
             <PatientDashboardPage />
@@ -304,7 +355,15 @@ function App() {
         )}
       />
       <Route
-        path="/migrate/patient/ai"
+        path="/patientdashboard"
+        element={(
+          <ProtectedRoute allowedRoles={['patient']}>
+            <PatientDashboardPage />
+          </ProtectedRoute>
+        )}
+      />
+      <Route
+        path="/patient/ai"
         element={(
           <ProtectedRoute allowedRoles={['patient']}>
             <PatientAiDashboardPage />
@@ -312,7 +371,7 @@ function App() {
         )}
       />
       <Route
-        path="/migrate/chat/setting"
+        path="/chat/setting"
         element={(
           <ProtectedRoute>
             <ChatSettingsPage />
@@ -320,7 +379,7 @@ function App() {
         )}
       />
       <Route
-        path="/migrate/chat"
+        path="/chat"
         element={(
           <ProtectedRoute>
             <ChatPage />
@@ -328,7 +387,7 @@ function App() {
         )}
       />
       <Route
-        path="/migrate/video-chat"
+        path="/video-chat"
         element={(
           <ProtectedRoute>
             <VideoChatPage />
@@ -341,3 +400,5 @@ function App() {
 }
 
 export default App;
+
+

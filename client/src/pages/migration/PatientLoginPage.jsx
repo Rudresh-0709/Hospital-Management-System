@@ -24,7 +24,7 @@ function PatientLoginPage() {
     }
 
     await refreshStatus();
-    navigate('/migrate/patient/dashboard');
+    navigate('/patient/dashboard');
   };
 
   return (
@@ -80,7 +80,7 @@ function PatientLoginPage() {
             </form>
 
             <div className="aux-links">
-              <Link to="/migrate">Back to migration home</Link>
+              <Link to="/portal">Back to migration home</Link>
             </div>
           </div>
         </div>
@@ -90,3 +90,5 @@ function PatientLoginPage() {
 }
 
 export default PatientLoginPage;
+
+

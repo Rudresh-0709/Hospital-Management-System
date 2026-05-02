@@ -23,7 +23,7 @@ function DoctorLoginPage() {
     }
 
     await refreshStatus();
-    navigate('/migrate/doctor/dashboard');
+    navigate('/doctor/dashboard');
   };
 
   return (
@@ -57,7 +57,7 @@ function DoctorLoginPage() {
               <button className="btn" type="submit" disabled={loading}>{loading ? 'Logging in...' : 'Login'}</button>
             </form>
             <div className="nav-row">
-              <Link to="/migrate">Back to migration home</Link>
+              <Link to="/portal">Back to migration home</Link>
             </div>
           </div>
         </section>
@@ -67,3 +67,5 @@ function DoctorLoginPage() {
 }
 
 export default DoctorLoginPage;
+
+

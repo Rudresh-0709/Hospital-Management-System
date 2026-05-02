@@ -179,10 +179,13 @@ function PatientAiDashboardPage() {
       <main className="patient-ai-main">
         <header className="patient-ai-topbar">
           <h3>Consultation Session</h3>
-          <div className="patient-ai-topbar-icons">
-            <button type="button" aria-label="Help">?</button>
-            <button type="button" aria-label="Settings">S</button>
-            <button type="button" aria-label="Account">U</button>
+          <div className="patient-ai-topbar-actions">
+            <button type="button" className="patient-ai-new-chat-inline" onClick={createNewChat}>New Chat</button>
+            <div className="patient-ai-topbar-icons">
+              <button type="button" aria-label="Help">?</button>
+              <button type="button" aria-label="Settings">S</button>
+              <button type="button" aria-label="Account">U</button>
+            </div>
           </div>
         </header>
 

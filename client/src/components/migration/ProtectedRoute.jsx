@@ -9,14 +9,16 @@ function ProtectedRoute({ children, allowedRoles = [] }) {
   }
 
   if (!authenticated) {
-    return <Navigate to="/migrate/login/admin" replace />;
+    return <Navigate to="/login/admin" replace />;
   }
 
   if (allowedRoles.length && !allowedRoles.includes(user?.role)) {
-    return <Navigate to="/migrate" replace />;
+    return <Navigate to="/portal" replace />;
   }
 
   return children;
 }
 
 export default ProtectedRoute;
+
+

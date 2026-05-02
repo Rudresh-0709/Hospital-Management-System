@@ -81,7 +81,7 @@ function DoctorPrescriptionPage() {
 
     setSuccess(response.data?.message || 'Prescription saved');
     setRows([blankMedicine()]);
-    setTimeout(() => navigate('/migrate/doctor/dashboard'), 700);
+    setTimeout(() => navigate('/doctor/dashboard'), 700);
   };
 
   return (
@@ -154,3 +154,4 @@ function DoctorPrescriptionPage() {
 }
 
 export default DoctorPrescriptionPage;
+

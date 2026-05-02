@@ -3,79 +3,79 @@ import { useAuth } from '../../context/AuthContext';
 import '../../styles/admin-dashboard-ejs.css';
 
 const sidebarItems = [
-  { label: 'Command Center', href: '/migrate/admin/dashboard', active: true },
-  { label: 'Patient Registry', href: '/migrate/admin/patients' },
-  { label: 'Staff Directory', href: '/migrate/admin/newstaff' },
-  { label: 'Inventory', href: '/migrate/admin/equipment' },
-  { label: 'Pharmacy', href: '/migrate/admin/pharmacy' },
-  { label: 'Analytics', href: '/migrate/dashboard' }
+  { label: 'Command Center', href: '/admin/dashboard', active: true },
+  { label: 'Patient Registry', href: '/admin/patients' },
+  { label: 'Staff Directory', href: '/admin/newstaff' },
+  { label: 'Inventory', href: '/admin/equipment' },
+  { label: 'Pharmacy', href: '/admin/pharmacy' },
+  { label: 'Analytics', href: '/dashboard' }
 ];
 
 const adminModules = [
   {
     title: 'New Patient',
     description: 'Initialize intake protocols and digital health record synchronization.',
-    href: '/migrate/admin/patients',
+    href: '/admin/patients',
     tag: 'Patients'
   },
   {
     title: 'Admit Patient',
     description: 'Assign ward, bed, and attending clinical staff members.',
-    href: '/migrate/admin/admit',
+    href: '/admin/admit',
     tag: 'Inpatient'
   },
   {
     title: 'Discharge Patient',
     description: 'Finalize billing, pharmacy handovers, and discharge summaries.',
-    href: '/migrate/admin/discharge',
+    href: '/admin/discharge',
     tag: 'Inpatient'
   },
   {
     title: 'Patient History',
     description: 'Timeline view of diagnostics, treatments, and interventions.',
-    href: '/migrate/admin/patienthistory',
+    href: '/admin/patienthistory',
     tag: 'Patients'
   },
   {
     title: 'Add Visitor',
     description: 'Register facility access for temporary visitor authorization.',
-    href: '/migrate/admin/newvisitor',
+    href: '/admin/newvisitor',
     tag: 'Visitors'
   },
   {
     title: 'Visitor List',
     description: 'Real-time log of all non-staff personnel within the north wing.',
-    href: '/migrate/admin/visit-history',
+    href: '/admin/visit-history',
     tag: 'Visitors'
   },
   {
     title: 'New Doctor',
     description: 'Credentialing and access provisioning for medical professionals.',
-    href: '/migrate/admin/newdoctor',
+    href: '/admin/newdoctor',
     tag: 'Staff'
   },
   {
     title: 'New Staff',
     description: 'Onboard nursing, technical, and administrative sanctuary personnel.',
-    href: '/migrate/admin/newstaff',
+    href: '/admin/newstaff',
     tag: 'Staff'
   },
   {
     title: 'Inventory',
     description: 'Supply chain oversight for medical equipment and surgical consumables.',
-    href: '/migrate/admin/equipment',
+    href: '/admin/equipment',
     tag: 'Reports'
   },
   {
     title: 'Visit QR',
     description: 'Generate encrypted gate-pass codes for scheduled visitor sessions.',
-    href: '/migrate/admin/visitqr',
+    href: '/admin/visitqr',
     tag: 'Visitors'
   },
   {
     title: 'Visit History',
     description: 'Audit trail of facility access events and security timestamps.',
-    href: '/migrate/admin/visit-history',
+    href: '/admin/visit-history',
     tag: 'Visitors'
   },
   {
@@ -109,11 +109,11 @@ function AdminDashboardPage() {
         </nav>
 
         <div className="sidebar-cta">
-          <a href="/migrate/admin/admit">+ Admit Patient</a>
+          <a href="/admin/admit">+ Admit Patient</a>
         </div>
 
         <div className="sidebar-footer">
-          <Link to="/migrate">System Status</Link>
+          <Link to="/portal">System Status</Link>
           <button type="button" onClick={logout}>Logout</button>
         </div>
       </aside>
@@ -193,3 +193,5 @@ function AdminDashboardPage() {
 }
 
 export default AdminDashboardPage;
+
+

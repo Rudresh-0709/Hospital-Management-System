@@ -55,7 +55,7 @@ ensurePatientFullNameColumn();
 const User = require('./models/userModel.js');
 const ChatMessage = require('./models/chatModel');
 const chatNamespace = io.of('/chat');
-const REACT_TEST_MODE = process.env.REACT_TEST_MODE !== 'false';
+const ENABLE_LEGACY_EJS = process.env.ENABLE_LEGACY_EJS === 'true';
 
 function getRoomId(userId1, userId2) {
     return [userId1, userId2].sort().join("_"); // Sort to keep consistent
@@ -786,8 +786,8 @@ app.get('/api/doctor/visitnavigation', (req, res) => {
     return res.status(200).json({
         doctor_name: req.session.doctor_name,
         links: {
-            appointmentApprove: '/migrate/doctor/appointmentapprove',
-            visits: '/migrate/doctor/dashboard',
+            appointmentApprove: '/doctor/appointmentapprove',
+            visits: '/doctoradmin',
         },
     });
 });
@@ -907,7 +907,7 @@ app.post('/api/doctor/diagnosis/submit', (req, res) => {
             diagnosis_id,
             patient_id: patient,
             patient_type,
-            redirect: `/migrate/doctor/prescription?diagnosis_id=${diagnosis_id}&patient_id=${patient}&patient_type=${patient_type}`,
+            redirect: `/doctoradmin/prescription?diagnosis_id=${diagnosis_id}&patient_id=${patient}&patient_type=${patient_type}`,
         });
     });
 });
@@ -1961,13 +1961,8 @@ app.get('/api/admin/ai/overview', (req, res) => {
 
 const chatRoutes = require('./routes/chat/chatroute');
 app.use('/chat', (req, res, next) => {
-    if (REACT_TEST_MODE && req.query.legacy !== '1') {
-        if (req.path === '/' || req.path === '') {
-            return res.redirect('/migrate/chat');
-        }
-        if (req.path === '/setting') {
-            return res.redirect('/migrate/chat/setting');
-        }
+    if (!ENABLE_LEGACY_EJS && (req.path === '/' || req.path === '' || req.path === '/setting')) {
+        return next();
     }
 
     return chatRoutes(req, res, next);
@@ -1977,91 +1972,7 @@ app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, 'public/react-home', 'index.html'));
 })
 
-app.get('/migrate/*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public/react-home', 'index.html'));
-})
-
-app.get('/react', (req, res) => {
-    res.redirect('/migrate');
-});
-
-app.get('/react/*', (req, res) => {
-    res.redirect(`/migrate/${req.params[0] || ''}`);
-});
-
-const legacyToMigrateMap = {
-    '/adminlogin': '/migrate/login/admin',
-    '/admin': '/migrate/admin/dashboard',
-    '/admin/patient': '/migrate/admin/patients',
-    '/admin/admit': '/migrate/admin/admit',
-    '/admin/discharge': '/migrate/admin/discharge',
-    '/admin/newvisitor': '/migrate/admin/newvisitor',
-    '/admin/patienthistory': '/migrate/admin/patienthistory',
-    '/admin/newdoctor': '/migrate/admin/newdoctor',
-    '/admin/newstaff': '/migrate/admin/newstaff',
-    '/admin/equipment': '/migrate/admin/equipment',
-    '/admin/equipment/newequipment': '/migrate/admin/equipment/newequipment',
-    '/admin/equipment/updateequipment': '/migrate/admin/equipment/updateequipment',
-    '/admin/pharmacy': '/migrate/admin/pharmacy',
-    '/admin/nurseallocate': '/migrate/admin/nurseallocate',
-    '/admin/nurse': '/migrate/admin/nurse',
-    '/admin/visit-history': '/migrate/admin/visit-history',
-    '/admin/visitqr': '/migrate/admin/visitqr',
-    '/admin/ai': '/migrate/admin/ai',
-    '/admin/doctorlogin': '/migrate/login/doctor',
-    '/doctor/visitnavigation': '/migrate/doctor/visitnavigation',
-    '/doctor/appointmentapprove': '/migrate/doctor/appointmentapprove',
-    '/doctoradmin': '/migrate/doctor/dashboard',
-    '/doctoradmin/diagnosis': '/migrate/doctor/diagnosis',
-    '/doctoradmin/prescription': '/migrate/doctor/prescription',
-    '/doctoradmin/newprescription': '/migrate/doctor/newprescription',
-    '/appointmentbook': '/migrate/appointmentbook',
-    '/patientlogin': '/migrate/login/patient',
-    '/patientdashboard': '/migrate/patient/dashboard',
-    '/patient/ai': '/migrate/patient/ai',
-    '/chat': '/migrate/chat',
-    '/chat/setting': '/migrate/chat/setting',
-    '/video-chat': '/migrate/video-chat',
-    '/nurse/allocation-form': '/migrate/nurse/allocation-form',
-};
-
-function withLegacyQuery(url) {
-    return url.includes('?') ? `${url}&legacy=1` : `${url}?legacy=1`;
-}
-
-app.get('/legacy/*', (req, res) => {
-    const rawPath = `/${req.params[0] || ''}`;
-    const search = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';
-    return res.redirect(withLegacyQuery(`${rawPath}${search}`));
-});
-
-app.use((req, res, next) => {
-    if (!REACT_TEST_MODE) {
-        return next();
-    }
-
-    if (req.method !== 'GET') {
-        return next();
-    }
-
-    if (req.query.legacy === '1') {
-        return next();
-    }
-
-    if (req.path.startsWith('/api/') || req.path.startsWith('/migrate') || req.path.startsWith('/react') || req.path.startsWith('/assets/')) {
-        return next();
-    }
-
-    const normalizedPath = req.path.length > 1 && req.path.endsWith('/') ? req.path.slice(0, -1) : req.path;
-    const mapped = legacyToMigrateMap[normalizedPath];
-    if (!mapped) {
-        return next();
-    }
-
-    const qs = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';
-    return res.redirect(`${mapped}${qs}`);
-});
-
+if (ENABLE_LEGACY_EJS) {
 app.get("/adminlogin", (req, res) => {
     res.render("adminpage/adminlogin");
 })
@@ -2927,7 +2838,20 @@ app.get('/patient/ai/chat/:session_uuid', (req, res) => {
             res.json({ chat_history: chat_history, session: sessions[0] });
         });
     });
-})
+});
+}
+
+app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api/') || req.path.startsWith('/uploads') || req.path.startsWith('/profile-pictures')) {
+        return next();
+    }
+
+    if (req.path === '/search-medicine' || req.path === '/get-total-amounts' || req.path === '/get-admitted-patients' || req.path === '/admitted-vs-discharged') {
+        return next();
+    }
+
+    return res.sendFile(path.join(__dirname, 'public/react-home', 'index.html'));
+});
 
 
 
