@@ -91,3 +91,5 @@ Current message: {state.user_input}"""
     print(f"DEBUG: Detected intent = {cleaned_response}")
     state.intent = cleaned_response
     return state
+    state.intent = cleaned_response
+    return state

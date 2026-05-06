@@ -112,7 +112,7 @@ function PatientAiDashboardPage() {
 
     setMessages((prev) => [
       ...prev,
-      { role: 'ai', text: response.data?.reply || response.data?.response || response.data?.answer || 'No response.' },
+      { role: 'ai', text: response.data?.reply || response.data?.message || response.data?.response || response.data?.answer || 'No response.' },
     ]);
   };
 

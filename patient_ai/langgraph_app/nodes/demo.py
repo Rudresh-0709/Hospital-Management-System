@@ -1,7 +1,7 @@
 from langgraph_app.state import HMAIState
 from langgraph_app.nodes.appointment_booking_node import handle_appointment
 from langgraph_app.nodes.intent_router_node import detect_intent
-from model_loader import load_llms,load_config
+from model_loader import load_llms, load_config
 
 load_config()
 load_llms()
@@ -17,6 +17,10 @@ test_queries = [
 for q in test_queries:
     print(f"\n====================\n👤 User: {q}")
     state = HMAIState(user_input=q, patient_id=39)
+    state.intent = detect_intent(state)
+    print("Detected intent:", state.intent)  # <-- add this line
+    updated_state = handle_appointment(state)
+    print("🤖 Response:", updated_state.final_response)
     state.intent = detect_intent(state)
     print("Detected intent:", state.intent)  # <-- add this line
     updated_state = handle_appointment(state)

@@ -1246,7 +1246,6 @@ app.get('/api/doctor/dashboard/overview', (req, res) => {
                     console.error('Error loading appointments:', appointmentError);
                     return res.status(500).json({ message: 'Failed to load appointments' });
                 }
-
                 const chartQuery = `
                     SELECT DATE(admission_date) AS admit_date, COUNT(*) AS patient_count
                     FROM admit
