@@ -2,7 +2,7 @@ const con = require("../models/db");
 
 const insertDoctorQuery = `
   INSERT INTO doctors (doctor_name, speciality, doctor_in, doctor_out, doctor_password)
-  VALUE (?, ?, ?, ?, ?)
+  VALUES (?, ?, ?, ?, ?)
 `;
 
 function normalizeDoctorPayload(payload = {}) {
@@ -11,7 +11,7 @@ function normalizeDoctorPayload(payload = {}) {
     speciality: typeof payload.speciality === 'string' ? payload.speciality.trim() : '',
     doctor_in: typeof payload.doctor_in === 'string' ? payload.doctor_in.trim() : '',
     doctor_out: typeof payload.doctor_out === 'string' ? payload.doctor_out.trim() : '',
-    doctor_password: typeof payload.doctor_password === 'string' ? payload.doctor_password : '',
+    doctor_password: typeof payload.doctor_password === 'string' ? payload.doctor_password.trim() : '',
   };
 }
 
@@ -33,7 +33,7 @@ function createDoctor(payload, callback) {
   const { doctor_name, speciality, doctor_in, doctor_out, doctor_password } = validation.doctor;
   return con.query(insertDoctorQuery, [doctor_name, speciality, doctor_in, doctor_out, doctor_password], (error, result) => {
     if (error) {
-      return callback({ statusCode: 500, message: 'Failed to add doctor', error });
+      return callback({ statusCode: 500, message: 'Failed to add doctor' });
     }
 
     return callback(null, { result, doctor: validation.doctor });

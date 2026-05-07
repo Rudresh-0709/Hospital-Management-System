@@ -645,30 +645,38 @@ app.get('/api/admin/newdoctor/overview', (req, res) => {
 });
 
 const developerSeedDoctors = [
-    { doctor_name: 'Dr. Aisha Sharma', speciality: 'Cardiology', doctor_in: '09:00', doctor_out: '17:00', doctor_password: 'DocAisha#2026' },
-    { doctor_name: 'Dr. Arjun Mehta', speciality: 'Orthopedics', doctor_in: '10:00', doctor_out: '18:00', doctor_password: 'DocArjun#2026' },
-    { doctor_name: 'Dr. Neha Iyer', speciality: 'Dermatology', doctor_in: '08:00', doctor_out: '16:00', doctor_password: 'DocNeha#2026' },
-    { doctor_name: 'Dr. Kabir Singh', speciality: 'Neurology', doctor_in: '09:30', doctor_out: '17:30', doctor_password: 'DocKabir#2026' },
-    { doctor_name: 'Dr. Sana Khan', speciality: 'Pediatrics', doctor_in: '08:30', doctor_out: '16:30', doctor_password: 'DocSana#2026' },
-    { doctor_name: 'Dr. Rohan Patil', speciality: 'ENT', doctor_in: '11:00', doctor_out: '19:00', doctor_password: 'DocRohan#2026' },
-    { doctor_name: 'Dr. Priya Nair', speciality: 'Gynecology', doctor_in: '09:00', doctor_out: '17:00', doctor_password: 'DocPriya#2026' },
-    { doctor_name: 'Dr. Vikram Rao', speciality: 'General Medicine', doctor_in: '07:30', doctor_out: '15:30', doctor_password: 'DocVikram#2026' },
-    { doctor_name: 'Dr. Ishita Das', speciality: 'Psychiatry', doctor_in: '12:00', doctor_out: '20:00', doctor_password: 'DocIshita#2026' },
-    { doctor_name: 'Dr. Manav Joshi', speciality: 'Oncology', doctor_in: '10:30', doctor_out: '18:30', doctor_password: 'DocManav#2026' },
-    { doctor_name: 'Dr. Kavya Menon', speciality: 'Radiology', doctor_in: '08:00', doctor_out: '16:00', doctor_password: 'DocKavya#2026' },
-    { doctor_name: 'Dr. Aditya Verma', speciality: 'Urology', doctor_in: '09:00', doctor_out: '17:00', doctor_password: 'DocAditya#2026' },
-    { doctor_name: 'Dr. Meera Kapoor', speciality: 'Endocrinology', doctor_in: '10:00', doctor_out: '18:00', doctor_password: 'DocMeera#2026' },
-    { doctor_name: 'Dr. Harshil Shah', speciality: 'Pulmonology', doctor_in: '07:00', doctor_out: '15:00', doctor_password: 'DocHarshil#2026' },
-    { doctor_name: 'Dr. Tanvi Kulkarni', speciality: 'Nephrology', doctor_in: '11:30', doctor_out: '19:30', doctor_password: 'DocTanvi#2026' },
-    { doctor_name: 'Dr. Nikhil Bansal', speciality: 'Gastroenterology', doctor_in: '08:30', doctor_out: '16:30', doctor_password: 'DocNikhil#2026' },
-    { doctor_name: 'Dr. Pooja Chatterjee', speciality: 'Ophthalmology', doctor_in: '09:30', doctor_out: '17:30', doctor_password: 'DocPooja#2026' },
-    { doctor_name: 'Dr. Sameer Malhotra', speciality: 'Anesthesiology', doctor_in: '06:30', doctor_out: '14:30', doctor_password: 'DocSameer#2026' },
-    { doctor_name: 'Dr. Ritu Arora', speciality: 'Pathology', doctor_in: '08:00', doctor_out: '16:00', doctor_password: 'DocRitu#2026' },
-    { doctor_name: 'Dr. Farhan Ali', speciality: 'Emergency Medicine', doctor_in: '14:00', doctor_out: '22:00', doctor_password: 'DocFarhan#2026' },
+    { doctor_name: 'Dr. Aisha Sharma', speciality: 'Cardiology', doctor_in: '09:00', doctor_out: '17:00' },
+    { doctor_name: 'Dr. Arjun Mehta', speciality: 'Orthopedics', doctor_in: '10:00', doctor_out: '18:00' },
+    { doctor_name: 'Dr. Neha Iyer', speciality: 'Dermatology', doctor_in: '08:00', doctor_out: '16:00' },
+    { doctor_name: 'Dr. Kabir Singh', speciality: 'Neurology', doctor_in: '09:30', doctor_out: '17:30' },
+    { doctor_name: 'Dr. Sana Khan', speciality: 'Pediatrics', doctor_in: '08:30', doctor_out: '16:30' },
+    { doctor_name: 'Dr. Rohan Patil', speciality: 'ENT', doctor_in: '11:00', doctor_out: '19:00' },
+    { doctor_name: 'Dr. Priya Nair', speciality: 'Gynecology', doctor_in: '09:00', doctor_out: '17:00' },
+    { doctor_name: 'Dr. Vikram Rao', speciality: 'General Medicine', doctor_in: '07:30', doctor_out: '15:30' },
+    { doctor_name: 'Dr. Ishita Das', speciality: 'Psychiatry', doctor_in: '12:00', doctor_out: '20:00' },
+    { doctor_name: 'Dr. Manav Joshi', speciality: 'Oncology', doctor_in: '10:30', doctor_out: '18:30' },
+    { doctor_name: 'Dr. Kavya Menon', speciality: 'Radiology', doctor_in: '08:00', doctor_out: '16:00' },
+    { doctor_name: 'Dr. Aditya Verma', speciality: 'Urology', doctor_in: '09:00', doctor_out: '17:00' },
+    { doctor_name: 'Dr. Meera Kapoor', speciality: 'Endocrinology', doctor_in: '10:00', doctor_out: '18:00' },
+    { doctor_name: 'Dr. Harshil Shah', speciality: 'Pulmonology', doctor_in: '07:00', doctor_out: '15:00' },
+    { doctor_name: 'Dr. Tanvi Kulkarni', speciality: 'Nephrology', doctor_in: '11:30', doctor_out: '19:30' },
+    { doctor_name: 'Dr. Nikhil Bansal', speciality: 'Gastroenterology', doctor_in: '08:30', doctor_out: '16:30' },
+    { doctor_name: 'Dr. Pooja Chatterjee', speciality: 'Ophthalmology', doctor_in: '09:30', doctor_out: '17:30' },
+    { doctor_name: 'Dr. Sameer Malhotra', speciality: 'Anesthesiology', doctor_in: '06:30', doctor_out: '14:30' },
+    { doctor_name: 'Dr. Ritu Arora', speciality: 'Pathology', doctor_in: '08:00', doctor_out: '16:00' },
+    { doctor_name: 'Dr. Farhan Ali', speciality: 'Emergency Medicine', doctor_in: '14:00', doctor_out: '22:00' },
 ];
 
 function canUseDoctorSeedEndpoint() {
     return process.env.ENABLE_DOCTOR_SEEDING === 'true' && process.env.NODE_ENV !== 'production' && !!process.env.SEED_TOKEN;
+}
+
+function buildSeedDoctorPayload(doctor) {
+    const seededPassword = process.env.DEV_SEED_DOCTOR_PASSWORD || '';
+    return {
+        ...doctor,
+        doctor_password: doctor?.doctor_password || seededPassword,
+    };
 }
 
 app.post('/api/admin/newdoctor', (req, res) => {
@@ -678,9 +686,7 @@ app.post('/api/admin/newdoctor', (req, res) => {
 
     return createDoctor(req.body, (error) => {
         if (error) {
-            if (error.statusCode >= 500) {
-                console.error('Error adding doctor:', error.error || error);
-            }
+            console.error('Error adding doctor:', error);
             return res.status(error.statusCode || 500).json({ message: error.message || 'Failed to add doctor' });
         }
 
@@ -693,30 +699,35 @@ app.post('/api/admin/seed/doctors', (req, res) => {
         return res.status(404).json({ message: 'Not found' });
     }
 
-    const token = req.get('x-seed-token') || req.body?.seed_token;
+    const token = req.get('x-seed-token');
     if (token !== process.env.SEED_TOKEN) {
         return res.status(403).json({ message: 'Invalid seed token' });
     }
 
-    const seedDoctors = Array.isArray(req.body?.doctors) && req.body.doctors.length > 0 ? req.body.doctors : developerSeedDoctors;
+    const isCustomDoctorList = Array.isArray(req.body?.doctors) && req.body.doctors.length > 0;
+    const seedDoctors = isCustomDoctorList ? req.body.doctors : developerSeedDoctors;
+    if (!isCustomDoctorList && !process.env.DEV_SEED_DOCTOR_PASSWORD) {
+        return res.status(400).json({ message: 'Set DEV_SEED_DOCTOR_PASSWORD to seed the default doctor list' });
+    }
+    const doctorsToSeed = seedDoctors.map(buildSeedDoctorPayload);
     let inserted = 0;
     const failures = [];
 
     const seedNext = (index) => {
-        if (index >= seedDoctors.length) {
+        if (index >= doctorsToSeed.length) {
             return res.status(200).json({
                 message: 'Doctor seeding complete',
-                total: seedDoctors.length,
+                total: doctorsToSeed.length,
                 inserted,
                 failed: failures.length,
                 failures,
             });
         }
 
-        return createDoctor(seedDoctors[index], (error) => {
+        return createDoctor(doctorsToSeed[index], (error) => {
             if (error) {
                 failures.push({
-                    doctor_name: seedDoctors[index]?.doctor_name || `Doctor-${index + 1}`,
+                    doctor_name: doctorsToSeed[index]?.doctor_name || `Doctor-${index + 1}`,
                     message: error.message || 'Failed to add doctor',
                 });
             } else {

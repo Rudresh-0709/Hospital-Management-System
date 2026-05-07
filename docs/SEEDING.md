@@ -46,7 +46,7 @@ curl -X POST http://localhost:3000/api/admin/seed/doctors \
   -d '{}'
 ```
 
-This seeds ~20 realistic dummy doctors. You can also pass a custom list:
+This seeds 20 realistic dummy doctors. You can also pass a custom list:
 
 ```json
 {
@@ -61,3 +61,9 @@ This seeds ~20 realistic dummy doctors. You can also pass a custom list:
   ]
 }
 ```
+
+## Password behavior
+
+- For the built-in default list, set `DEV_SEED_DOCTOR_PASSWORD` and that password is used for all seeded doctors.
+- For custom payload seeding, each doctor can include `doctor_password` directly in the request.
+- If default list seeding is attempted without `DEV_SEED_DOCTOR_PASSWORD`, the endpoint returns `400`.
