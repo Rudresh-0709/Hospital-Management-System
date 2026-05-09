@@ -7,7 +7,7 @@ import '../../styles/patient-dashboard-ejs.css';
 
 const navItems = [
   { name: 'Dashboard', active: true },
-  { name: 'Appointments' },
+  { name: 'Appointments', to: '/appointmentbook' },
   { name: 'Medications' },
   { name: 'Lab Results' },
   { name: 'Billing' },
@@ -200,7 +200,13 @@ function PatientDashboardPage() {
 
         <nav className="pd-menu" aria-label="Patient menu">
           {navItems.map((item) => (
-            <a href="#" key={item.name} className={item.active ? 'active' : ''}>{item.name}</a>
+            item.to ? (
+              <Link key={item.name} to={item.to} className={item.active ? 'active' : ''}>
+                {item.name}
+              </Link>
+            ) : (
+              <a href="#" key={item.name} className={item.active ? 'active' : ''}>{item.name}</a>
+            )
           ))}
         </nav>
 

@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
@@ -58,7 +59,23 @@ function AdminShell({ title, children }) {
     },
   ];
 
-  const isGroupActive = (links) => links.some((link) => location.pathname.startsWith(link.to));
+  const [openGroup, setOpenGroup] = useState(null);
+
+  const handleToggle = (groupTitle) => (e) => {
+    e.preventDefault();
+    setOpenGroup((prev) => (prev === groupTitle ? null : groupTitle));
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (!e.target.closest('.migrate-shell-nav-group')) {
+        setOpenGroup(null);
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
 
   return (
     <div className="migrate-ejs migrate-shell">
@@ -77,14 +94,15 @@ function AdminShell({ title, children }) {
 
       <nav className="migrate-shell-nav" aria-label="Form pages navigation">
         {navGroups.map((group) => (
-          <details key={group.title} className="migrate-shell-nav-group" open={isGroupActive(group.links)}>
-            <summary>{group.title}</summary>
+          <details key={group.title} className="migrate-shell-nav-group" open={openGroup === group.title}>
+            <summary onClick={handleToggle(group.title)}>{group.title}</summary>
             <div className="migrate-shell-nav-links">
               {group.links.map((item) => (
                 <NavLink
                   key={item.to}
                   to={item.to}
                   className={({ isActive }) => (isActive ? 'active' : '')}
+                  onClick={() => setOpenGroup(null)}
                 >
                   {item.label}
                 </NavLink>

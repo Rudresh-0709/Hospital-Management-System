@@ -30,7 +30,6 @@ function ensurePatientFullNameColumn() {
         if (columns && columns.length > 0) {
             return;
         }
-
         const addColumnQuery = `
             ALTER TABLE patients
             ADD COLUMN full_name VARCHAR(255)

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import AdminShell from '../../components/migration/AdminShell';
 import { addEquipment, getEquipmentOverview, updateEquipment } from '../../services/adminApi';
-import '../../styles/equipment-ejs.css';
+import '../../styles/modern-form-migrate.css';
 
 function AdminEquipmentPage() {
   const [loading, setLoading] = useState(true);
@@ -45,6 +45,8 @@ function AdminEquipmentPage() {
     return equipments.filter((eq) => String(eq.equipment_name || '').toLowerCase().includes(term));
   }, [equipments, search]);
 
+  const totalCount = useMemo(() => equipments.reduce((sum, eq) => sum + (eq.count || 0), 0), [equipments]);
+
   const onAddEquipment = async (event) => {
     event.preventDefault();
     setSavingAdd(true);
@@ -84,112 +86,125 @@ function AdminEquipmentPage() {
 
   return (
     <AdminShell title="Hospital Equipments">
-      <section className="card equipment-card">
-        {error && <p className="error">{error}</p>}
-        {success && <p className="success">{success}</p>}
+      <div className="modern-form-page">
+        <div className="form-main">
+          <div className="form-header">
+            <div className="form-header-content">
+              <h1 className="form-title">Equipment Overview</h1>
+              <p className="form-subtitle">Manage hospital equipment inventory — add new items or update existing counts.</p>
+            </div>
+          </div>
 
-        <div className="toolbar">
-          <h3 className="card-title card-title-tight">Equipment List</h3>
-          <input
-            className="field field-tight"
-            placeholder="Search equipment"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+          {error && <div className="form-alert error"><span className="form-alert-icon">!</span><span>{error}</span></div>}
+          {success && <div className="form-alert success"><span className="form-alert-icon">✓</span><span>{success}</span></div>}
+          {loading && <div className="form-alert info"><span className="form-alert-icon">i</span><span>Loading equipment data...</span></div>}
+
+          <section className="form-section">
+            <div className="form-section-header"><h3 className="form-section-title">Add New Equipment</h3></div>
+            <form onSubmit={onAddEquipment}>
+              <div className="form-field-row">
+                <div>
+                  <label className="form-label required" htmlFor="add_equipment_name">Equipment Name</label>
+                  <input id="add_equipment_name" className="form-input" placeholder="e.g. Ventilator" value={addForm.equipment_name} onChange={(e) => setAddForm({ ...addForm, equipment_name: e.target.value })} required />
+                </div>
+                <div>
+                  <label className="form-label required" htmlFor="add_equipment_count">Quantity</label>
+                  <input id="add_equipment_count" className="form-input" type="number" min={1} value={addForm.count} onChange={(e) => setAddForm({ ...addForm, count: Number(e.target.value) || 1 })} required />
+                </div>
+              </div>
+              <div className="form-button-group right">
+                <button className="form-button success" type="submit" disabled={savingAdd}>{savingAdd ? 'Adding...' : 'Add Equipment'}</button>
+              </div>
+            </form>
+          </section>
+
+          <section className="form-section">
+            <div className="form-section-header"><h3 className="form-section-title">Update Equipment Count</h3></div>
+            <form onSubmit={onUpdateEquipment}>
+              <div className="form-field-row">
+                <div>
+                  <label className="form-label required" htmlFor="update_equipment_name">Select Equipment</label>
+                  <select id="update_equipment_name" className="form-select" value={updateForm.equipment_name} onChange={(e) => setUpdateForm({ ...updateForm, equipment_name: e.target.value })} required>
+                    {equipments.map((eq, idx) => (
+                      <option key={`${eq.equipment_name}-${idx}`} value={eq.equipment_name}>{eq.equipment_name} (current: {eq.count})</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="form-label required" htmlFor="update_equipment_count">New Quantity</label>
+                  <input id="update_equipment_count" className="form-input" type="number" min={1} value={updateForm.count} onChange={(e) => setUpdateForm({ ...updateForm, count: Number(e.target.value) || 1 })} required />
+                </div>
+              </div>
+              <div className="form-button-group right">
+                <button className="form-button primary" type="submit" disabled={savingUpdate}>{savingUpdate ? 'Updating...' : 'Update Equipment'}</button>
+              </div>
+            </form>
+          </section>
         </div>
 
-        {loading && <p className="muted">Loading equipments...</p>}
+        <aside className="form-aside">
+          <section className="form-section">
+            <div className="form-section-header"><h3 className="form-section-title">Inventory Stats</h3></div>
+            <div className="form-summary-grid">
+              <div className="form-summary-card"><div className="form-summary-label">Types</div><div className="form-summary-value">{equipments.length}</div></div>
+              <div className="form-summary-card secondary"><div className="form-summary-label">Total Units</div><div className="form-summary-value">{totalCount}</div></div>
+            </div>
+          </section>
 
-        {!loading && (
-          <div className="table-wrap">
-            <table className="equipment-table">
-              <thead>
-                <tr>
-                  <th>Equipment Name</th>
-                  <th>Count</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredEquipments.map((equipment, idx) => (
-                  <tr key={`${equipment.equipment_name}-${idx}`}>
-                    <td>{equipment.equipment_name}</td>
-                    <td>{equipment.count}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            {!filteredEquipments.length && <p className="muted mt-12">No matching equipment found.</p>}
-          </div>
-        )}
-      </section>
+          <section className="form-section">
+            <div className="form-section-header"><h3 className="form-section-title">Equipment List</h3></div>
+            <input
+              className="form-input"
+              placeholder="Search equipment..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
 
-      <section className="card equipment-form-card">
-        <h3 className="card-title">Add New Equipment</h3>
-        <form onSubmit={onAddEquipment}>
-          <div className="split-grid">
-            <div>
-              <label className="field-label" htmlFor="add_equipment_name">Equipment Name</label>
-              <input
-                id="add_equipment_name"
-                className="field"
-                value={addForm.equipment_name}
-                onChange={(e) => setAddForm({ ...addForm, equipment_name: e.target.value })}
-                required
-              />
-            </div>
-            <div>
-              <label className="field-label" htmlFor="add_equipment_count">Quantity</label>
-              <input
-                id="add_equipment_count"
-                className="field"
-                type="number"
-                min={1}
-                value={addForm.count}
-                onChange={(e) => setAddForm({ ...addForm, count: Number(e.target.value) || 1 })}
-                required
-              />
-            </div>
-          </div>
-          <button className="btn" type="submit" disabled={savingAdd}>{savingAdd ? 'Saving...' : 'Add Equipment'}</button>
-        </form>
-      </section>
+            {!loading && (
+              <div style={{ overflowY: 'auto', marginTop: '12px', maxHeight: '400px' }}>
+                <table className="form-table">
+                  <thead>
+                    <tr>
+                      <th>Equipment</th>
+                      <th>Count</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredEquipments.map((eq, idx) => (
+                      <tr key={`${eq.equipment_name}-${idx}`}>
+                        <td style={{ fontWeight: 600 }}>{eq.equipment_name}</td>
+                        <td>
+                          <span style={{
+                            display: 'inline-block',
+                            padding: '3px 10px',
+                            borderRadius: '6px',
+                            fontSize: '13px',
+                            fontWeight: 700,
+                            background: eq.count > 20 ? '#d1fae5' : eq.count > 5 ? '#fef3c7' : '#fee2e2',
+                            color: eq.count > 20 ? '#0ea05e' : eq.count > 5 ? '#f59e0b' : '#dc2626',
+                          }}>
+                            {eq.count}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {!filteredEquipments.length && <p className="muted" style={{ marginTop: 12, textAlign: 'center' }}>No matching equipment.</p>}
+              </div>
+            )}
+          </section>
+        </aside>
 
-      <section className="card equipment-form-card">
-        <h3 className="card-title">Update Equipment</h3>
-        <form onSubmit={onUpdateEquipment}>
-          <div className="split-grid">
-            <div>
-              <label className="field-label" htmlFor="update_equipment_name">Equipment Name</label>
-              <select
-                id="update_equipment_name"
-                className="field"
-                value={updateForm.equipment_name}
-                onChange={(e) => setUpdateForm({ ...updateForm, equipment_name: e.target.value })}
-                required
-              >
-                {equipments.map((equipment, idx) => (
-                  <option key={`${equipment.equipment_name}-select-${idx}`} value={equipment.equipment_name}>
-                    {equipment.equipment_name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="field-label" htmlFor="update_equipment_count">Quantity</label>
-              <input
-                id="update_equipment_count"
-                className="field"
-                type="number"
-                min={1}
-                value={updateForm.count}
-                onChange={(e) => setUpdateForm({ ...updateForm, count: Number(e.target.value) || 1 })}
-                required
-              />
-            </div>
+        <aside className="form-sidebar">
+          <div className="form-sidebar-section">
+            <div className="form-sidebar-title">Equipment</div>
+            <div className="form-sidebar-item">🩺 Add new items</div>
+            <div className="form-sidebar-item">🔄 Update counts</div>
+            <div className="form-sidebar-item">📦 Track inventory</div>
           </div>
-          <button className="btn" type="submit" disabled={savingUpdate}>{savingUpdate ? 'Saving...' : 'Update Equipment'}</button>
-        </form>
-      </section>
+        </aside>
+      </div>
     </AdminShell>
   );
 }

@@ -95,7 +95,7 @@ function App() {
       <Route path="/login/admin" element={<AdminLoginPage />} />
       <Route path="/adminlogin" element={<AdminLoginPage />} />
       <Route path="/login/doctor" element={<DoctorLoginPage />} />
-      <Route path="/admin/doctorlogin" element={<DoctorLoginPage />} />
+      <Route path="/doctorlogin" element={<DoctorLoginPage />} />
       <Route path="/login/patient" element={<PatientLoginPage />} />
       <Route path="/patientlogin" element={<PatientLoginPage />} />
       <Route
