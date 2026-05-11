@@ -1,3 +1,13 @@
+export async function getAdminAnalytics() {
+  const response = await fetch('/api/admin/analytics', {
+    method: 'GET',
+    credentials: 'include',
+  });
+
+  const data = await response.json();
+  return { ok: response.ok, status: response.status, data };
+}
+
 export async function getAdminPatientsOverview() {
   const response = await fetch('/api/admin/patients/overview', {
     method: 'GET',
@@ -8,10 +18,38 @@ export async function getAdminPatientsOverview() {
   return { ok: response.ok, status: response.status, data };
 }
 
+export async function createNewPatient(payload) {
+  const response = await fetch('/api/admin/patients/create', {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const data = await response.json();
+  return { ok: response.ok, status: response.status, data };
+}
+
 export async function getAdminAdmitOverview() {
   const response = await fetch('/api/admin/admit/overview', {
     method: 'GET',
     credentials: 'include',
+  });
+
+  const data = await response.json();
+  return { ok: response.ok, status: response.status, data };
+}
+
+export async function admitPatient(payload) {
+  const response = await fetch('/api/admin/admit/create', {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
   });
 
   const data = await response.json();

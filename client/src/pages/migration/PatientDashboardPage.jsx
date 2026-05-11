@@ -185,6 +185,11 @@ function PatientDashboardPage() {
   const emergencyRelationship = payload.emergencyContact?.relationship || 'Contact';
   const emergencyPhone = payload.emergencyContact?.emergency_contact || 'Not available';
 
+  const handleLogout = async () => {
+    await logout();
+    window.location.href = '/';
+  };
+
   return (
     <div className="migrate-patient-dashboard modern-pd">
       <aside className="pd-sidebar">
@@ -213,6 +218,7 @@ function PatientDashboardPage() {
         <div className="pd-side-bottom">
           <a href="#">Settings</a>
           <Link to="/patient/ai" className="chat-btn">Chat with Agent</Link>
+          <button type="button" onClick={handleLogout} style={{ marginTop: '16px', width: '100%', padding: '10px', background: 'transparent', color: '#ba1a1a', border: '1px solid #ba1a1a', borderRadius: '6px', cursor: 'pointer' }}>Logout</button>
         </div>
       </aside>
 
@@ -413,11 +419,6 @@ function PatientDashboardPage() {
             </section>
           </>
         )}
-
-        <div className="pd-bottom-tools">
-          <button type="button" onClick={logout}>Logout</button>
-        </div>
-
       </div>
     </div>
   );

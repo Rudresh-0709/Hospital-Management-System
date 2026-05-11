@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import AdminShell from '../../components/migration/AdminShell';
 import { addEquipment, getEquipmentOverview, updateEquipment } from '../../services/adminApi';
+import Toast from '../../components/migration/Toast';
 import '../../styles/modern-form-migrate.css';
 
 function AdminEquipmentPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [toast, setToast] = useState({ type: '', text: '' });
   const [equipments, setEquipments] = useState([]);
   const [search, setSearch] = useState('');
 
@@ -51,17 +52,17 @@ function AdminEquipmentPage() {
     event.preventDefault();
     setSavingAdd(true);
     setError('');
-    setSuccess('');
+    setToast({ type: '', text: '' });
 
     const response = await addEquipment(addForm);
     setSavingAdd(false);
 
     if (!response.ok) {
-      setError(response.data?.message || 'Failed to add equipment');
+      setToast({ type: 'error', text: response.data?.message || 'Failed to add equipment' });
       return;
     }
 
-    setSuccess(response.data?.message || 'Equipment added successfully.');
+    setToast({ type: 'success', text: response.data?.message || 'Equipment added successfully.' });
     setAddForm({ equipment_name: '', count: 1 });
     await loadEquipments();
   };
@@ -70,22 +71,29 @@ function AdminEquipmentPage() {
     event.preventDefault();
     setSavingUpdate(true);
     setError('');
-    setSuccess('');
+    setToast({ type: '', text: '' });
 
     const response = await updateEquipment(updateForm);
     setSavingUpdate(false);
 
     if (!response.ok) {
-      setError(response.data?.message || 'Failed to update equipment');
+      setToast({ type: 'error', text: response.data?.message || 'Failed to update equipment' });
       return;
     }
 
-    setSuccess(response.data?.message || 'Equipment updated successfully.');
+    setToast({ type: 'success', text: response.data?.message || 'Equipment updated successfully.' });
     await loadEquipments();
   };
 
   return (
     <AdminShell title="Hospital Equipments">
+      {toast.text && (
+        <Toast
+          type={toast.type}
+          message={toast.text}
+          onClose={() => setToast({ type: '', text: '' })}
+        />
+      )}
       <div className="modern-form-page">
         <div className="form-main">
           <div className="form-header">
@@ -95,8 +103,7 @@ function AdminEquipmentPage() {
             </div>
           </div>
 
-          {error && <div className="form-alert error"><span className="form-alert-icon">!</span><span>{error}</span></div>}
-          {success && <div className="form-alert success"><span className="form-alert-icon">✓</span><span>{success}</span></div>}
+          {!loading && error && <div className="form-alert error"><span className="form-alert-icon">!</span><span>{error}</span></div>}
           {loading && <div className="form-alert info"><span className="form-alert-icon">i</span><span>Loading equipment data...</span></div>}
 
           <section className="form-section">

@@ -18,6 +18,26 @@ export async function getPendingAppointments() {
   return { ok: response.ok, status: response.status, data };
 }
 
+export async function getAllAppointments() {
+  const response = await fetch('/api/doctor/appointments/all', {
+    method: 'GET',
+    credentials: 'include',
+  });
+
+  const data = await response.json();
+  return { ok: response.ok, status: response.status, data };
+}
+
+export async function getAppointmentDetails(appointment_id) {
+  const response = await fetch(`/api/doctor/appointments/${appointment_id}/details`, {
+    method: 'GET',
+    credentials: 'include',
+  });
+
+  const data = await response.json();
+  return { ok: response.ok, status: response.status, data };
+}
+
 export async function approveAppointment(appointment_id) {
   const response = await fetch('/api/doctor/appointments/approve', {
     method: 'POST',

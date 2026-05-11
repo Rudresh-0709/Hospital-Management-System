@@ -195,8 +195,136 @@ app.use((req, res, next) => {
     delete req.session.flashMessage;  // Clear the message after displaying it
     next();
 });
-
 app.use('/api/auth', authApiRoute);
+
+app.get('/api/admin/analytics', (req, res) => {
+    if (!req.session.admin_id) {
+        return res.status(401).json({ message: 'Admin authentication required' });
+    }
+
+    const queries = {
+        totalPatients: 'SELECT COUNT(*) AS count FROM patients',
+        admittedPatients: 'SELECT COUNT(*) AS count FROM admit WHERE discharge_date IS NULL',
+        dischargedPatients: 'SELECT COUNT(*) AS count FROM admit WHERE discharge_date IS NOT NULL',
+        totalRooms: 'SELECT COUNT(*) AS count FROM rooms',
+        availableRooms: 'SELECT COUNT(*) AS count FROM rooms WHERE is_occupied = 0',
+        occupiedRooms: 'SELECT COUNT(*) AS count FROM rooms WHERE is_occupied = 1',
+        totalDoctors: 'SELECT COUNT(*) AS count FROM doctors',
+        doctorsBySpeciality: 'SELECT speciality, COUNT(*) AS count FROM doctors GROUP BY speciality',
+        totalEquipment: 'SELECT COUNT(*) AS count FROM equipments',
+        equipmentItems: 'SELECT equipment_name, count FROM equipments ORDER BY count DESC LIMIT 10',
+        totalPrescriptions: 'SELECT COUNT(*) AS count FROM prescriptions',
+        recentAdmissions: `SELECT DATE(admission_date) AS date, COUNT(*) AS count 
+            FROM admit 
+            WHERE admission_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) 
+            GROUP BY DATE(admission_date) 
+            ORDER BY date ASC`,
+    };
+
+    const results = {};
+    const queryKeys = Object.keys(queries);
+    let completed = 0;
+    let hasErrored = false;
+
+    queryKeys.forEach((key) => {
+        con.query(queries[key], (error, rows) => {
+            if (hasErrored) return;
+            if (error) {
+                console.error(`Analytics query error (${key}):`, error);
+                // Non-critical: set to default instead of failing
+                results[key] = key.endsWith('s') || key.includes('Items') || key.includes('Speciality') || key.includes('Admissions') ? [] : 0;
+            } else {
+                if (Array.isArray(rows) && rows.length === 1 && rows[0].count !== undefined && !key.includes('Items') && !key.includes('Speciality') && !key.includes('Admissions')) {
+                    results[key] = rows[0].count;
+                } else {
+                    results[key] = rows;
+                }
+            }
+            completed++;
+            if (completed === queryKeys.length) {
+                return res.status(200).json(results);
+            }
+        });
+    });
+});
+
+app.post('/api/admin/patients/create', (req, res) => {
+    if (!req.session.admin_id) {
+        return res.status(401).json({ message: 'Admin authentication required' });
+    }
+
+    const {
+        first_name, last_name, dob, gender, contact_number, email, address,
+        emergency_name, relationship, emergency_contact,
+        reason_for_admission, doctor_assigned, ward_preference, room_number, password
+    } = req.body;
+
+    con.beginTransaction((transactionError) => {
+        if (transactionError) {
+            console.error("Transaction Error:", transactionError);
+            return res.status(500).json({ message: "An error occurred while starting the transaction." });
+        }
+
+        const patientQuery = `INSERT INTO patients (first_name, last_name, dob, gender, contact_number, email, address, password) 
+                               VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+        con.query(patientQuery, [first_name, last_name, dob, gender, contact_number, email, address, password], (patientError, patientResult) => {
+            if (patientError) {
+                return con.rollback(() => {
+                    console.error("Patient Insert Error:", patientError);
+                    return res.status(500).json({ message: "Error inserting patient details." });
+                });
+            }
+
+            const patient_id = patientResult.insertId;
+
+            const emergencyQuery = `INSERT INTO emergency (patient_id, emergency_name, relationship, emergency_contact) 
+                                     VALUES (?, ?, ?, ?)`;
+            con.query(emergencyQuery, [patient_id, emergency_name, relationship, emergency_contact], (emergencyError) => {
+                if (emergencyError) {
+                    return con.rollback(() => {
+                        console.error("Emergency Insert Error:", emergencyError);
+                        return res.status(500).json({ message: "Error inserting emergency details." });
+                    });
+                }
+
+                const admitQuery = `INSERT INTO admit (patient_id, reason_for_admission, doctor_assigned, ward_preference, room_number) 
+                                    VALUES (?, ?, ?, ?, ?)`;
+                con.query(admitQuery, [patient_id, reason_for_admission, doctor_assigned, ward_preference, room_number], (admitError) => {
+                    if (admitError) {
+                        return con.rollback(() => {
+                            console.error("Admit Insert Error:", admitError);
+                            return res.status(500).json({ message: "Error inserting admission details." });
+                        });
+                    }
+
+                    const roomQuery = `UPDATE rooms SET is_occupied = 1 WHERE room_number = ? AND ward_preference = ?`;
+                    con.query(roomQuery, [room_number, ward_preference], (roomError) => {
+                        if (roomError) {
+                            return con.rollback(() => {
+                                console.error("Room Update Error:", roomError);
+                                return res.status(500).json({ message: "Error updating room status." });
+                            });
+                        }
+
+                        con.commit((commitError) => {
+                            if (commitError) {
+                                return con.rollback(() => {
+                                    console.error("Commit Error:", commitError);
+                                    return res.status(500).json({ message: "Transaction commit failed." });
+                                });
+                            }
+
+                            return res.status(201).json({
+                                message: `Patient ${first_name} ${last_name} admitted successfully!`,
+                                patient_id,
+                            });
+                        });
+                    });
+                });
+            });
+        });
+    });
+});
 
 app.get('/api/admin/patients/overview', (req, res) => {
     if (!req.session.admin_id) {
@@ -229,6 +357,84 @@ app.get('/api/admin/patients/overview', (req, res) => {
                     doctors,
                     rooms,
                     message: req.flash('message'),
+                });
+            });
+        });
+    });
+});
+
+app.post('/api/admin/admit/create', (req, res) => {
+    if (!req.session.admin_id) {
+        return res.status(401).json({ message: 'Admin authentication required' });
+    }
+
+    const {
+        patient_id, contact_number, reason_for_admission,
+        doctor_assigned, ward_preference, room_number
+    } = req.body;
+
+    con.beginTransaction((transactionError) => {
+        if (transactionError) {
+            console.error("Transaction Error:", transactionError);
+            return res.status(500).json({ message: 'Error starting transaction.' });
+        }
+
+        let patientQuery = 'SELECT patient_id, email, first_name, last_name FROM patients WHERE patient_id = ? LIMIT 1';
+        let patientParams = [patient_id];
+
+        if (!patient_id && contact_number) {
+            patientQuery = 'SELECT patient_id, email, first_name, last_name FROM patients WHERE contact_number = ?';
+            patientParams = [contact_number];
+        }
+
+        con.query(patientQuery, patientParams, (err, patientResult) => {
+            if (err || patientResult.length === 0) {
+                return con.rollback(() => {
+                    console.error("Patient Fetch Error:", err || "Patient not found");
+                    return res.status(404).json({ message: 'Patient not found.' });
+                });
+            }
+
+            if (!patient_id && contact_number && patientResult.length > 1) {
+                return con.rollback(() => {
+                    return res.status(400).json({ message: 'Multiple patients found with this mobile number. Please use patient ID.' });
+                });
+            }
+
+            const resolvedPatient = patientResult[0];
+            const resolvedPatientId = resolvedPatient.patient_id;
+
+            const admitQuery = `INSERT INTO admit (patient_id, reason_for_admission, doctor_assigned, ward_preference, room_number) VALUES (?, ?, ?, ?, ?)`;
+            con.query(admitQuery, [resolvedPatientId, reason_for_admission, doctor_assigned, ward_preference, room_number], (admitErr) => {
+                if (admitErr) {
+                    return con.rollback(() => {
+                        console.error("Admit Insert Error:", admitErr);
+                        return res.status(500).json({ message: 'Error admitting patient.' });
+                    });
+                }
+
+                const roomQuery = `UPDATE rooms SET is_occupied = 1 WHERE room_number = ? AND ward_preference = ?`;
+                con.query(roomQuery, [room_number, ward_preference], (roomError) => {
+                    if (roomError) {
+                        return con.rollback(() => {
+                            console.error("Room Update Error:", roomError);
+                            return res.status(500).json({ message: 'Error updating room status.' });
+                        });
+                    }
+
+                    con.commit((commitErr) => {
+                        if (commitErr) {
+                            return con.rollback(() => {
+                                console.error("Commit Error:", commitErr);
+                                return res.status(500).json({ message: 'Transaction commit failed.' });
+                            });
+                        }
+
+                        return res.status(201).json({
+                            message: `Patient ${resolvedPatient.first_name} ${resolvedPatient.last_name} admitted successfully!`,
+                            patient_id: resolvedPatientId,
+                        });
+                    });
                 });
             });
         });
@@ -1134,6 +1340,62 @@ app.get('/api/doctor/appointments/pending', (req, res) => {
     });
 });
 
+app.get('/api/doctor/appointments/all', (req, res) => {
+    if (!req.session.doctor_name) {
+        return res.status(401).json({ message: 'Doctor authentication required' });
+    }
+
+    const query = `SELECT * FROM appointments WHERE doctor_name = ? ORDER BY appointment_date DESC, appointment_time DESC`;
+    con.query(query, [req.session.doctor_name], (err, results) => {
+        if (err) {
+            console.error('Error fetching all appointments:', err);
+            return res.status(500).json({ message: 'Error fetching appointments' });
+        }
+
+        const appointments = (results || []).map((appointment) => ({
+            ...appointment,
+            appointment_date: moment(appointment.appointment_date).format('ddd DD MMM YYYY'),
+            raw_date: appointment.appointment_date // keep raw date for sorting/filtering if needed
+        }));
+
+        return res.status(200).json({ appointments });
+    });
+});
+
+app.get('/api/doctor/appointments/:id/details', (req, res) => {
+    if (!req.session.doctor_name) {
+        return res.status(401).json({ message: 'Doctor authentication required' });
+    }
+    const appointment_id = req.params.id;
+
+    const diagnosisQuery = `SELECT * FROM diagnosis WHERE patient_id = ? AND patient_type = 'appointment'`;
+    con.query(diagnosisQuery, [appointment_id], (err, diagnosisResults) => {
+        if (err) {
+            console.error('Error fetching diagnosis:', err);
+            return res.status(500).json({ message: 'Error fetching details' });
+        }
+        
+        let diagnosis = diagnosisResults.length > 0 ? diagnosisResults[0] : null;
+        
+        const presQuery = `
+            SELECT p.*, pm.medicine_name, pm.dosage, pm.time_of_intake 
+            FROM prescriptions p 
+            LEFT JOIN prescription_medicines pm ON p.prescription_id = pm.prescription_id 
+            WHERE p.appointment_id = ?
+        `;
+        con.query(presQuery, [appointment_id], (err2, presResults) => {
+            if (err2) {
+                console.error('Error fetching prescription:', err2);
+                return res.status(500).json({ message: 'Error fetching details' });
+            }
+            return res.status(200).json({ 
+                diagnosis: diagnosis, 
+                prescriptions: presResults || [] 
+            });
+        });
+    });
+});
+
 app.post('/api/doctor/appointments/approve', (req, res) => {
     if (!req.session.doctor_name) {
         return res.status(401).json({ message: 'Doctor authentication required' });
@@ -1841,7 +2103,6 @@ app.get('/api/admin/pharmacy/overview', (req, res) => {
         });
     });
 });
-
 app.get('/api/admin/nurseallocate/overview', (req, res) => {
     if (!req.session.admin_id) {
         return res.status(401).json({ message: 'Admin authentication required' });

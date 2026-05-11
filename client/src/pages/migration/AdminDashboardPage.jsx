@@ -1,5 +1,11 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { getAdminAnalytics } from '../../services/adminApi';
+import {
+  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
+  PieChart, Pie, Cell, Legend,
+} from 'recharts';
 import '../../styles/admin-dashboard-ejs.css';
 
 const sidebarItems = [
@@ -8,7 +14,7 @@ const sidebarItems = [
   { label: 'Staff Directory', href: '/admin/newstaff' },
   { label: 'Inventory', href: '/admin/equipment' },
   { label: 'Pharmacy', href: '/admin/pharmacy' },
-  { label: 'Analytics', href: '/dashboard' }
+  { label: 'Admin AI', href: '/admin/ai' }
 ];
 
 const adminModules = [
@@ -86,8 +92,46 @@ const adminModules = [
   }
 ];
 
+const PIE_COLORS = ['#0d8a72', '#e74c3c'];
+const BAR_COLORS = ['#0d8a72', '#14a38b', '#1abc9c', '#26d4a5', '#41e8b7', '#72f0cb', '#a3f7dd'];
+
 function AdminDashboardPage() {
   const { user, logout } = useAuth();
+  const [analytics, setAnalytics] = useState(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await getAdminAnalytics();
+        if (res.ok) setAnalytics(res.data);
+      } catch (err) {
+        console.error('Failed to load analytics:', err);
+      } finally {
+        setAnalyticsLoading(false);
+      }
+    })();
+  }, []);
+
+  const bedOccupancyData = analytics ? [
+    { name: 'Available', value: analytics.availableRooms || 0 },
+    { name: 'Occupied', value: analytics.occupiedRooms || 0 },
+  ] : [];
+
+  const specialityData = analytics?.doctorsBySpeciality?.map(d => ({
+    name: d.speciality || 'General',
+    count: d.count,
+  })) || [];
+
+  const equipmentData = analytics?.equipmentItems?.map(e => ({
+    name: e.equipment_name,
+    count: e.count,
+  })) || [];
+
+  const admissionsData = analytics?.recentAdmissions?.map(a => ({
+    date: new Date(a.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    admissions: a.count,
+  })) || [];
 
   return (
     <div className="migrate-admin-dashboard sanctuary-layout">
@@ -164,6 +208,181 @@ function AdminDashboardPage() {
           </div>
         </section>
 
+        {/* ═══════════ ANALYTICS PANEL ═══════════ */}
+        <section className="analytics-panel">
+          <div className="analytics-panel-header">
+            <h4>Live Analytics</h4>
+            <span className="analytics-live-badge">● Live</span>
+          </div>
+
+          {analyticsLoading ? (
+            <div className="analytics-loading">Loading analytics data...</div>
+          ) : !analytics ? (
+            <div className="analytics-loading">Unable to load analytics.</div>
+          ) : (
+            <>
+              {/* ── Stat Cards ── */}
+              <div className="analytics-stat-cards">
+                <div className="a-stat-card a-stat-patients">
+                  <div className="a-stat-icon">👥</div>
+                  <div className="a-stat-info">
+                    <span className="a-stat-value">{analytics.totalPatients}</span>
+                    <span className="a-stat-label">Total Patients</span>
+                  </div>
+                  <div className="a-stat-sub">
+                    <span className="a-sub-admitted">{analytics.admittedPatients} admitted</span>
+                    <span className="a-sub-discharged">{analytics.dischargedPatients} discharged</span>
+                  </div>
+                </div>
+
+                <div className="a-stat-card a-stat-rooms">
+                  <div className="a-stat-icon">🏥</div>
+                  <div className="a-stat-info">
+                    <span className="a-stat-value">{analytics.totalRooms}</span>
+                    <span className="a-stat-label">Rooms / Beds</span>
+                  </div>
+                  <div className="a-stat-sub">
+                    <span className="a-sub-available">{analytics.availableRooms} available</span>
+                    <span className="a-sub-occupied">{analytics.occupiedRooms} occupied</span>
+                  </div>
+                </div>
+
+                <div className="a-stat-card a-stat-doctors">
+                  <div className="a-stat-icon">🩺</div>
+                  <div className="a-stat-info">
+                    <span className="a-stat-value">{analytics.totalDoctors}</span>
+                    <span className="a-stat-label">Doctors</span>
+                  </div>
+                  <div className="a-stat-sub">
+                    <span>{specialityData.length} specialities</span>
+                  </div>
+                </div>
+
+                <div className="a-stat-card a-stat-equipment">
+                  <div className="a-stat-icon">⚙️</div>
+                  <div className="a-stat-info">
+                    <span className="a-stat-value">{analytics.totalEquipment}</span>
+                    <span className="a-stat-label">Equipment Types</span>
+                  </div>
+                  <div className="a-stat-sub">
+                    <span>Inventory tracked</span>
+                  </div>
+                </div>
+
+                <div className="a-stat-card a-stat-pharmacy">
+                  <div className="a-stat-icon">💊</div>
+                  <div className="a-stat-info">
+                    <span className="a-stat-value">{analytics.totalPrescriptions}</span>
+                    <span className="a-stat-label">Prescriptions</span>
+                  </div>
+                  <div className="a-stat-sub">
+                    <span>Total issued</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* ── Charts Row ── */}
+              <div className="analytics-charts-row">
+                {/* 7-Day Admissions */}
+                <div className="analytics-chart-card">
+                  <h5>7-Day Admissions</h5>
+                  {admissionsData.length > 0 ? (
+                    <ResponsiveContainer width="100%" height={220}>
+                      <BarChart data={admissionsData}>
+                        <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#5f7274' }} axisLine={false} tickLine={false} />
+                        <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: '#5f7274' }} axisLine={false} tickLine={false} />
+                        <Tooltip
+                          contentStyle={{ background: '#f3f5f7', border: '1px solid #d9dee2', borderRadius: 10, fontSize: 13 }}
+                        />
+                        <Bar dataKey="admissions" fill="#0d8a72" radius={[6, 6, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <p className="no-chart-data">No recent admissions data</p>
+                  )}
+                </div>
+
+                {/* Bed Occupancy Pie */}
+                <div className="analytics-chart-card">
+                  <h5>Bed Occupancy</h5>
+                  {bedOccupancyData.some(d => d.value > 0) ? (
+                    <ResponsiveContainer width="100%" height={220}>
+                      <PieChart>
+                        <Pie
+                          data={bedOccupancyData}
+                          cx="50%" cy="50%"
+                          innerRadius={50} outerRadius={80}
+                          paddingAngle={4}
+                          dataKey="value"
+                          stroke="none"
+                        >
+                          {bedOccupancyData.map((entry, idx) => (
+                            <Cell key={entry.name} fill={PIE_COLORS[idx % PIE_COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Legend
+                          iconType="circle"
+                          wrapperStyle={{ fontSize: 12, fontFamily: "'Outfit', sans-serif" }}
+                        />
+                        <Tooltip
+                          contentStyle={{ background: '#f3f5f7', border: '1px solid #d9dee2', borderRadius: 10, fontSize: 13 }}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <p className="no-chart-data">No room data available</p>
+                  )}
+                </div>
+              </div>
+
+              {/* ── Second Charts Row ── */}
+              <div className="analytics-charts-row">
+                {/* Doctors by Speciality */}
+                <div className="analytics-chart-card">
+                  <h5>Doctors by Speciality</h5>
+                  {specialityData.length > 0 ? (
+                    <ResponsiveContainer width="100%" height={220}>
+                      <BarChart data={specialityData} layout="vertical">
+                        <XAxis type="number" allowDecimals={false} tick={{ fontSize: 11, fill: '#5f7274' }} axisLine={false} tickLine={false} />
+                        <YAxis type="category" dataKey="name" tick={{ fontSize: 11, fill: '#5f7274' }} axisLine={false} tickLine={false} width={110} />
+                        <Tooltip
+                          contentStyle={{ background: '#f3f5f7', border: '1px solid #d9dee2', borderRadius: 10, fontSize: 13 }}
+                        />
+                        <Bar dataKey="count" radius={[0, 6, 6, 0]}>
+                          {specialityData.map((_, idx) => (
+                            <Cell key={idx} fill={BAR_COLORS[idx % BAR_COLORS.length]} />
+                          ))}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <p className="no-chart-data">No doctor data available</p>
+                  )}
+                </div>
+
+                {/* Top Equipment */}
+                <div className="analytics-chart-card">
+                  <h5>Top Equipment (by count)</h5>
+                  {equipmentData.length > 0 ? (
+                    <ResponsiveContainer width="100%" height={220}>
+                      <BarChart data={equipmentData} layout="vertical">
+                        <XAxis type="number" allowDecimals={false} tick={{ fontSize: 11, fill: '#5f7274' }} axisLine={false} tickLine={false} />
+                        <YAxis type="category" dataKey="name" tick={{ fontSize: 11, fill: '#5f7274' }} axisLine={false} tickLine={false} width={120} />
+                        <Tooltip
+                          contentStyle={{ background: '#f3f5f7', border: '1px solid #d9dee2', borderRadius: 10, fontSize: 13 }}
+                        />
+                        <Bar dataKey="count" fill="#14a38b" radius={[0, 6, 6, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <p className="no-chart-data">No equipment data available</p>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
+        </section>
+
         <section className="modules-header">
           <h4>Operational Modules</h4>
           <div className="module-filters">
@@ -193,5 +412,3 @@ function AdminDashboardPage() {
 }
 
 export default AdminDashboardPage;
-
-

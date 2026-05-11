@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import AdminShell from '../../components/migration/AdminShell';
 import { getEquipmentOverview, updateEquipment } from '../../services/adminApi';
+import Toast from '../../components/migration/Toast';
 import '../../styles/modern-form-migrate.css';
 
 function AdminUpdateEquipmentPage() {
@@ -9,7 +10,7 @@ function AdminUpdateEquipmentPage() {
   const [form, setForm] = useState({ equipment_name: '', count: 1 });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [toast, setToast] = useState({ type: '', text: '' });
 
   useEffect(() => {
     async function load() {
@@ -35,22 +36,29 @@ function AdminUpdateEquipmentPage() {
     event.preventDefault();
     setSaving(true);
     setError('');
-    setSuccess('');
+    setToast({ type: '', text: '' });
 
     const response = await updateEquipment(form);
     setSaving(false);
 
     if (!response.ok) {
-      setError(response.data?.message || 'Failed to update equipment');
+      setToast({ type: 'error', text: response.data?.message || 'Failed to update equipment' });
       return;
     }
 
-    setSuccess(response.data?.message || 'Equipment updated successfully.');
+    setToast({ type: 'success', text: response.data?.message || 'Equipment updated successfully.' });
     setForm((prev) => ({ ...prev, count: 1 }));
   };
 
   return (
     <AdminShell title="Update Equipment">
+      {toast.text && (
+        <Toast
+          type={toast.type}
+          message={toast.text}
+          onClose={() => setToast({ type: '', text: '' })}
+        />
+      )}
       <div className="modern-form-page">
         <div className="form-main">
           <div className="form-header">
@@ -62,7 +70,6 @@ function AdminUpdateEquipmentPage() {
 
           {loading && <div className="form-alert info"><span className="form-alert-icon">i</span><span>Loading equipments...</span></div>}
           {!loading && error && <div className="form-alert error"><span className="form-alert-icon">!</span><span>{error}</span></div>}
-          {!loading && success && <div className="form-alert success"><span className="form-alert-icon">OK</span><span>{success}</span></div>}
 
           {!loading && (
             <section className="form-section">

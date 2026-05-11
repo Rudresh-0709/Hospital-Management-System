@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getDoctorDashboardOverview } from '../../services/doctorApi';
 import '../../styles/doctor-dashboard.css';
@@ -48,7 +48,7 @@ function DoctorDashboardPage() {
 
   const handleLogout = async () => {
     await logout();
-    navigate('/');
+    window.location.href = '/';
   };
 
   if (loading) return <div style={{ padding: 40, fontFamily: 'Inter, sans-serif' }}>Loading dashboard...</div>;
@@ -72,26 +72,22 @@ function DoctorDashboardPage() {
           </div>
 
           <nav className="dd-nav">
-            <a className="dd-nav-link active" href="#">
+            <Link className="dd-nav-link active" to="/doctor/dashboard">
               <span className="material-symbols-outlined">dashboard</span>
               <span>Dashboard</span>
-            </a>
-            <a className="dd-nav-link" href="#">
+            </Link>
+            <Link className="dd-nav-link" to="/doctor/patients">
               <span className="material-symbols-outlined">group</span>
               <span>Patients</span>
-            </a>
-            <a className="dd-nav-link" href="#">
+            </Link>
+            <Link className="dd-nav-link" to="/doctor/schedule">
               <span className="material-symbols-outlined">calendar_today</span>
               <span>Schedule</span>
-            </a>
-            <a className="dd-nav-link" href="#">
-              <span className="material-symbols-outlined">analytics</span>
-              <span>Reports</span>
-            </a>
-            <a className="dd-nav-link" href="#">
-              <span className="material-symbols-outlined">settings</span>
-              <span>Settings</span>
-            </a>
+            </Link>
+            <Link className="dd-nav-link" to="/doctor/chat">
+              <span className="material-symbols-outlined">chat</span>
+              <span>Chat</span>
+            </Link>
           </nav>
 
           <div className="dd-sidebar-bottom">

@@ -2,13 +2,14 @@ import { useEffect, useMemo, useState } from 'react';
 import AdminShell from '../../components/migration/AdminShell';
 import { dischargePatient, getAdminDischargeOverview } from '../../services/adminApi';
 import { getPatientFullName, getPatientSearchName } from '../../utils/patientName';
+import Toast from '../../components/migration/Toast';
 import '../../styles/modern-form-migrate.css';
 
 function AdminDischargePage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [toast, setToast] = useState({ type: '', text: '' });
   const [patients, setPatients] = useState([]);
   const [search, setSearch] = useState('');
   const [form, setForm] = useState({
@@ -62,23 +63,30 @@ function AdminDischargePage() {
 
     setSubmitting(true);
     setError('');
-    setSuccess('');
+    setToast({ type: '', text: '' });
 
     const response = await dischargePatient(form);
     setSubmitting(false);
 
     if (!response.ok) {
-      setError(response.data?.message || 'Failed to discharge patient');
+      setToast({ type: 'error', text: response.data?.message || 'Failed to discharge patient' });
       return;
     }
 
-    setSuccess(response.data?.message || 'Patient discharged successfully');
+    setToast({ type: 'success', text: response.data?.message || 'Patient discharged successfully' });
     setForm((prev) => ({ ...prev, reason_for_admission: '' }));
     await loadOverview();
   };
 
   return (
     <AdminShell title="Discharge Patient">
+      {toast.text && (
+        <Toast
+          type={toast.type}
+          message={toast.text}
+          onClose={() => setToast({ type: '', text: '' })}
+        />
+      )}
       <div className="modern-form-page">
         {/* Main Form Section */}
         <div className="form-main">
@@ -105,12 +113,7 @@ function AdminDischargePage() {
               <span>{error}</span>
             </div>
           )}
-          {!loading && success && (
-            <div className="form-alert success">
-              <span className="form-alert-icon">✓</span>
-              <span>{success}</span>
-            </div>
-          )}
+
 
           {!loading && patients.length > 0 && (
             <form onSubmit={onSubmit}>

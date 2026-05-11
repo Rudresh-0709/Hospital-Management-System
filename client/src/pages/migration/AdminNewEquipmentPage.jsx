@@ -1,34 +1,40 @@
 import { useState } from 'react';
 import AdminShell from '../../components/migration/AdminShell';
 import { addEquipment } from '../../services/adminApi';
+import Toast from '../../components/migration/Toast';
 import '../../styles/modern-form-migrate.css';
 
 function AdminNewEquipmentPage() {
   const [form, setForm] = useState({ equipment_name: '', count: 1 });
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [toast, setToast] = useState({ type: '', text: '' });
 
   const onSubmit = async (event) => {
     event.preventDefault();
     setSaving(true);
-    setError('');
-    setSuccess('');
+    setToast({ type: '', text: '' });
 
     const response = await addEquipment(form);
     setSaving(false);
 
     if (!response.ok) {
-      setError(response.data?.message || 'Failed to add equipment');
+      setToast({ type: 'error', text: response.data?.message || 'Failed to add equipment' });
       return;
     }
 
-    setSuccess(response.data?.message || 'Equipment added successfully.');
+    setToast({ type: 'success', text: response.data?.message || 'Equipment added successfully.' });
     setForm({ equipment_name: '', count: 1 });
   };
 
   return (
     <AdminShell title="Add New Equipment">
+      {toast.text && (
+        <Toast
+          type={toast.type}
+          message={toast.text}
+          onClose={() => setToast({ type: '', text: '' })}
+        />
+      )}
       <div className="modern-form-page">
         <div className="form-main">
           <div className="form-header">
@@ -38,8 +44,7 @@ function AdminNewEquipmentPage() {
             </div>
           </div>
 
-          {error && <div className="form-alert error"><span className="form-alert-icon">!</span><span>{error}</span></div>}
-          {success && <div className="form-alert success"><span className="form-alert-icon">OK</span><span>{success}</span></div>}
+
 
           <section className="form-section">
             <div className="form-section-header"><h3 className="form-section-title">Equipment Record</h3></div>

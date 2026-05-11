@@ -1,14 +1,22 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Phone, ChevronDown, User, Sparkles } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Phone, ChevronDown, User, Sparkles, LogOut } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import './Navbar.css';
 
 const Navbar = () => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isVisible, setIsVisible] = useState(true);
-    const [lastScrollY, setLastScrollY] = useState(0);
+    const { authenticated, loading, logout } = useAuth();
+    const navigate = useNavigate();
 
     const toggleDropdown = () => {
         setIsDropdownOpen(!isDropdownOpen);
+    };
+
+    const handleLogout = async () => {
+        await logout();
+        navigate('/');
     };
 
     useEffect(() => {
@@ -84,22 +92,29 @@ const Navbar = () => {
                         </div>
                     </div>
 
-                    {/* Login Dropdown */}
-                    <div className="login-dropdown">
-                        <button className="login-btn" onClick={toggleDropdown}>
-                            <User size={18} />
-                            Login Portal
-                            <ChevronDown size={16} />
+                    {/* Auth-aware: Logout when logged in, Login dropdown when not */}
+                    {!loading && authenticated ? (
+                        <button className="login-btn logout-btn" onClick={handleLogout}>
+                            <LogOut size={18} />
+                            Logout
                         </button>
+                    ) : (
+                        <div className="login-dropdown">
+                            <button className="login-btn" onClick={toggleDropdown}>
+                                <User size={18} />
+                                Login Portal
+                                <ChevronDown size={16} />
+                            </button>
 
-                        {isDropdownOpen && (
-                            <div className="dropdown-menu">
-                                <a href="/adminlogin" className="dropdown-item">Admin Login</a>
-                                <a href="/doctorlogin" className="dropdown-item">Doctor Login</a>
-                                <a href="/patientlogin" className="dropdown-item">Patient Login</a>
-                            </div>
-                        )}
-                    </div>
+                            {isDropdownOpen && (
+                                <div className="dropdown-menu">
+                                    <a href="/adminlogin" className="dropdown-item">Admin Login</a>
+                                    <a href="/doctorlogin" className="dropdown-item">Doctor Login</a>
+                                    <a href="/patientlogin" className="dropdown-item">Patient Login</a>
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
             </nav>
         </div>

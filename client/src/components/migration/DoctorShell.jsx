@@ -4,6 +4,11 @@ import { useAuth } from '../../context/AuthContext';
 function DoctorShell({ title, children }) {
   const { user, logout } = useAuth();
 
+  const handleLogout = async () => {
+    await logout();
+    window.location.href = '/';
+  };
+
   return (
     <div className="migrate-ejs doctor-migrate">
       <div className="page">
@@ -28,7 +33,7 @@ function DoctorShell({ title, children }) {
               <a href="/doctor/visitnavigation">Legacy Visit Navigation (EJS)</a>
               <a href="/doctor/appointmentapprove">Legacy Appointment Approval (EJS)</a>
               <a href="/doctoradmin">Legacy Doctor Dashboard (EJS)</a>
-              <button className="btn" onClick={logout}>Logout</button>
+              <button className="btn" onClick={handleLogout}>Logout</button>
             </div>
           </div>
           {children}

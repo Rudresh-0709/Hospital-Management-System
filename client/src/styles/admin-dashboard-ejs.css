@@ -416,6 +416,161 @@
   font-weight: 700;
 }
 
+/* ═══════════════════════════════════════════
+   ANALYTICS PANEL
+   ═══════════════════════════════════════════ */
+
+.migrate-admin-dashboard .analytics-panel {
+  margin-top: 28px;
+  border: 1px solid #d0dade;
+  border-radius: 16px;
+  background: linear-gradient(145deg, #f5f7f9 0%, #eef2f5 100%);
+  padding: 20px 24px 26px;
+}
+
+.migrate-admin-dashboard .analytics-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.migrate-admin-dashboard .analytics-panel-header h4 {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: #173e3f;
+  font-size: 0.78rem;
+}
+
+.migrate-admin-dashboard .analytics-live-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #0d8a72;
+  letter-spacing: 0.08em;
+  animation: livePulse 2s ease-in-out infinite;
+}
+
+@keyframes livePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.migrate-admin-dashboard .analytics-loading {
+  text-align: center;
+  color: #7a9a9c;
+  font-size: 0.9rem;
+  padding: 40px 0;
+}
+
+/* ── Stat Cards ── */
+
+.migrate-admin-dashboard .analytics-stat-cards {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.migrate-admin-dashboard .a-stat-card {
+  background: #ffffff;
+  border: 1px solid #dde3e7;
+  border-radius: 12px;
+  padding: 16px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-left: 4px solid #0d8a72;
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+
+.migrate-admin-dashboard .a-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(46, 72, 84, 0.1);
+}
+
+.migrate-admin-dashboard .a-stat-patients { border-left-color: #0d8a72; }
+.migrate-admin-dashboard .a-stat-rooms    { border-left-color: #3498db; }
+.migrate-admin-dashboard .a-stat-doctors  { border-left-color: #9b59b6; }
+.migrate-admin-dashboard .a-stat-equipment { border-left-color: #e67e22; }
+.migrate-admin-dashboard .a-stat-pharmacy { border-left-color: #e74c3c; }
+
+.migrate-admin-dashboard .a-stat-icon {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.migrate-admin-dashboard .a-stat-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.migrate-admin-dashboard .a-stat-value {
+  font-family: 'Montserrat Alternates', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #155859;
+  line-height: 1.1;
+}
+
+.migrate-admin-dashboard .a-stat-label {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #597475;
+  font-size: 0.62rem;
+  font-weight: 600;
+}
+
+.migrate-admin-dashboard .a-stat-sub {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.migrate-admin-dashboard .a-stat-sub span {
+  font-size: 0.68rem;
+  color: #6e8d8f;
+  font-weight: 500;
+}
+
+.migrate-admin-dashboard .a-sub-admitted { color: #0d8a72 !important; }
+.migrate-admin-dashboard .a-sub-discharged { color: #8e8e93 !important; }
+.migrate-admin-dashboard .a-sub-available { color: #0d8a72 !important; }
+.migrate-admin-dashboard .a-sub-occupied { color: #e74c3c !important; }
+
+/* ── Chart Cards ── */
+
+.migrate-admin-dashboard .analytics-charts-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.migrate-admin-dashboard .analytics-chart-card {
+  background: #ffffff;
+  border: 1px solid #dde3e7;
+  border-radius: 12px;
+  padding: 18px 16px;
+}
+
+.migrate-admin-dashboard .analytics-chart-card h5 {
+  margin: 0 0 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #173e3f;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.migrate-admin-dashboard .no-chart-data {
+  text-align: center;
+  color: #a0b4b6;
+  font-size: 0.85rem;
+  padding: 60px 0;
+  margin: 0;
+}
+
 @media (max-width: 1240px) {
   .migrate-admin-dashboard .admin-links-grid {
     grid-template-columns: repeat(3, minmax(180px, 1fr));
@@ -423,6 +578,10 @@
 
   .migrate-admin-dashboard .admin-dashboard-hero {
     grid-template-columns: 1fr;
+  }
+
+  .migrate-admin-dashboard .analytics-stat-cards {
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
@@ -447,6 +606,14 @@
   .migrate-admin-dashboard .admin-links-grid {
     grid-template-columns: repeat(2, minmax(180px, 1fr));
   }
+
+  .migrate-admin-dashboard .analytics-stat-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .migrate-admin-dashboard .analytics-charts-row {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 640px) {
@@ -469,5 +636,9 @@
   .migrate-admin-dashboard .admin-footer-note {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .migrate-admin-dashboard .analytics-stat-cards {
+    grid-template-columns: 1fr;
   }
 }

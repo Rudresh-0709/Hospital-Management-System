@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import AdminShell from '../../components/migration/AdminShell';
-import { getAdminPatientsOverview } from '../../services/adminApi';
+import { getAdminPatientsOverview, createNewPatient } from '../../services/adminApi';
 import { getPatientFullName, getPatientSearchName } from '../../utils/patientName';
+import Toast from '../../components/migration/Toast';
 import '../../styles/modern-form-migrate.css';
 
 function AdminPatientsPage() {
@@ -9,6 +10,8 @@ function AdminPatientsPage() {
   const [error, setError] = useState('');
   const [payload, setPayload] = useState({ patients: [], doctors: [], rooms: [], message: null });
   const [search, setSearch] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [flashMsg, setFlashMsg] = useState({ type: '', text: '' });
   const [newPatientForm, setNewPatientForm] = useState({
     first_name: '',
     last_name: '',
@@ -27,9 +30,43 @@ function AdminPatientsPage() {
     room_number: '',
   });
 
-  const flashText = Array.isArray(payload.message)
-    ? payload.message[0]
-    : payload.message || '';
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setSubmitting(true);
+    setFlashMsg({ type: '', text: '' });
+    try {
+      const res = await createNewPatient(newPatientForm);
+      if (res.ok) {
+        setFlashMsg({ type: 'success', text: res.data.message || 'Patient admitted successfully!' });
+        // Reset form
+        setNewPatientForm({
+          first_name: '', last_name: '', dob: '', gender: 'male',
+          contact_number: '', email: '', address: '', password: '',
+          emergency_name: '', relationship: '', emergency_contact: '',
+          reason_for_admission: '',
+          doctor_assigned: payload.doctors?.[0]?.doctor_name || '',
+          ward_preference: 'General',
+          room_number: payload.rooms?.[0]?.room_number || '',
+        });
+        // Refresh overview data
+        const updated = await getAdminPatientsOverview();
+        if (updated.ok) {
+          setPayload({
+            patients: updated.data.patients || [],
+            doctors: updated.data.doctors || [],
+            rooms: updated.data.rooms || [],
+            message: null,
+          });
+        }
+      } else {
+        setFlashMsg({ type: 'error', text: res.data.message || 'Failed to admit patient.' });
+      }
+    } catch (err) {
+      setFlashMsg({ type: 'error', text: 'Network error. Please try again.' });
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   useEffect(() => {
     async function fetchData() {
@@ -73,6 +110,13 @@ function AdminPatientsPage() {
 
   return (
     <AdminShell title="New Patient">
+      {flashMsg.text && (
+        <Toast
+          type={flashMsg.type}
+          message={flashMsg.text}
+          onClose={() => setFlashMsg({ type: '', text: '' })}
+        />
+      )}
       <div className="modern-form-page">
         <div className="form-main">
           <div className="form-header">
@@ -84,11 +128,10 @@ function AdminPatientsPage() {
 
           {loading && <div className="form-alert info"><span className="form-alert-icon">i</span><span>Loading patient overview...</span></div>}
           {!loading && error && <div className="form-alert error"><span className="form-alert-icon">!</span><span>{error}</span></div>}
-          {!!flashText && <div className="form-alert success"><span className="form-alert-icon">OK</span><span>{flashText}</span></div>}
 
           <section className="form-section">
             <div className="form-section-header"><h3 className="form-section-title">Registration Form</h3></div>
-            <form action="/new_patient" method="POST">
+            <form onSubmit={handleSubmit}>
               <div className="form-field-row">
                 <div>
                   <label className="form-label required" htmlFor="new_patient_first_name">First Name</label>
@@ -189,7 +232,7 @@ function AdminPatientsPage() {
               </div>
 
               <div className="form-button-group right">
-                <button className="form-button success" type="submit">Admit Patient</button>
+                <button className="form-button success" type="submit" disabled={submitting}>{submitting ? 'Admitting...' : 'Admit Patient'}</button>
               </div>
             </form>
           </section>

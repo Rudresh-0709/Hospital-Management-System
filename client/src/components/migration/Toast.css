@@ -1,0 +1,206 @@
+/* ═══════════════════════════════════════════
+   TOAST NOTIFICATION POPUP
+   ═══════════════════════════════════════════ */
+
+/* ── Container ── */
+.toast-overlay {
+  position: fixed;
+  top: 32px;
+  right: 32px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  pointer-events: none; /* Let clicks pass through the container to the app */
+}
+
+/* ── Popup Card ── */
+.toast-popup {
+  position: relative;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow:
+    0 12px 36px rgba(0, 0, 0, 0.12),
+    0 4px 12px rgba(0, 0, 0, 0.08);
+  padding: 20px 24px 20px 20px;
+  min-width: 300px;
+  max-width: 400px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  pointer-events: auto; /* Re-enable clicks on the toast itself */
+  animation: toastSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  overflow: hidden;
+  border: 1px solid rgba(0,0,0,0.04);
+}
+
+.toast-exit {
+  animation: toastSlideOut 0.35s ease forwards;
+}
+
+@keyframes toastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(40px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes toastSlideOut {
+  from {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(40px) scale(0.95);
+  }
+}
+
+/* ── Icon Circle ── */
+.toast-icon-circle {
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: toastIconPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s both;
+}
+
+@keyframes toastIconPop {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.toast-icon {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1;
+}
+
+.toast-icon-success {
+  background: linear-gradient(135deg, #0d8a72, #14b89a);
+  box-shadow: 0 4px 12px rgba(13, 138, 114, 0.25);
+}
+
+.toast-icon-error {
+  background: linear-gradient(135deg, #dc3545, #e74c3c);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.25);
+}
+
+.toast-icon-warning {
+  background: linear-gradient(135deg, #e67e22, #f39c12);
+  box-shadow: 0 4px 12px rgba(230, 126, 34, 0.25);
+}
+
+.toast-icon-info {
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.25);
+}
+
+/* ── Body ── */
+.toast-body {
+  flex: 1;
+  min-width: 0;
+  padding-top: 2px;
+}
+
+.toast-title {
+  margin: 0 0 4px;
+  font-family: 'Outfit', 'Inter', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1a2e35;
+  letter-spacing: -0.01em;
+}
+
+.toast-message {
+  margin: 0;
+  font-size: 0.88rem;
+  color: #5f7274;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+/* ── Close Button ── */
+.toast-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 0.8rem;
+  color: #a0b4b6;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toast-close:hover {
+  background: #f0f3f5;
+  color: #3d5557;
+}
+
+/* ── Progress Bar ── */
+.toast-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 4px;
+  border-radius: 0;
+  animation: toastProgress linear forwards;
+}
+
+@keyframes toastProgress {
+  from { width: 100%; }
+  to   { width: 0%; }
+}
+
+.toast-progress-success {
+  background: linear-gradient(90deg, #0d8a72, #14b89a);
+}
+
+.toast-progress-error {
+  background: linear-gradient(90deg, #dc3545, #e74c3c);
+}
+
+.toast-progress-warning {
+  background: linear-gradient(90deg, #e67e22, #f39c12);
+}
+
+.toast-progress-info {
+  background: linear-gradient(90deg, #3498db, #2980b9);
+}
+
+/* ── Responsive ── */
+@media (max-width: 500px) {
+  .toast-overlay {
+    top: 16px;
+    right: 16px;
+    left: 16px;
+    align-items: stretch;
+  }
+  
+  .toast-popup {
+    min-width: 0;
+    max-width: none;
+    margin: 0;
+  }
+}

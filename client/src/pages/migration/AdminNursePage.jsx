@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import AdminShell from '../../components/migration/AdminShell';
 import { addNurse, getAdminNurseFormData } from '../../services/adminApi';
+import Toast from '../../components/migration/Toast';
 import '../../styles/modern-form-migrate.css';
 
 function AdminNursePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [toast, setToast] = useState({ type: '', text: '' });
   const [formMeta, setFormMeta] = useState({ shifts: [], roles: [] });
   const [form, setForm] = useState({
     name: '',
@@ -45,14 +46,14 @@ function AdminNursePage() {
   const onSubmit = async (event) => {
     event.preventDefault();
     setError('');
-    setSuccess('');
+    setToast({ type: '', text: '' });
     const response = await addNurse(form);
     if (!response.ok) {
-      setError(response.data?.message || 'Failed to add nurse');
+      setToast({ type: 'error', text: response.data?.message || 'Failed to add nurse' });
       return;
     }
 
-    setSuccess(response.data?.message || 'Nurse hired successfully');
+    setToast({ type: 'success', text: response.data?.message || 'Nurse hired successfully' });
     setForm((prev) => ({
       ...prev,
       name: '',
@@ -65,6 +66,13 @@ function AdminNursePage() {
 
   return (
     <AdminShell title="New Nurse">
+      {toast.text && (
+        <Toast
+          type={toast.type}
+          message={toast.text}
+          onClose={() => setToast({ type: '', text: '' })}
+        />
+      )}
       <div className="modern-form-page">
         <div className="form-main">
           <div className="form-header">
@@ -76,7 +84,6 @@ function AdminNursePage() {
 
           {loading && <div className="form-alert info"><span className="form-alert-icon">i</span><span>Loading form...</span></div>}
           {!loading && error && <div className="form-alert error"><span className="form-alert-icon">!</span><span>{error}</span></div>}
-          {!loading && success && <div className="form-alert success"><span className="form-alert-icon">OK</span><span>{success}</span></div>}
 
           {!loading && (
             <section className="form-section">

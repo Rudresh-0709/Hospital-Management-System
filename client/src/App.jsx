@@ -28,6 +28,8 @@ import AdminEquipmentPage from './pages/migration/AdminEquipmentPage';
 import DoctorVisitNavigationPage from './pages/migration/DoctorVisitNavigationPage';
 import DoctorAppointmentApprovePage from './pages/migration/DoctorAppointmentApprovePage';
 import DoctorDashboardPage from './pages/migration/DoctorDashboardPage';
+import DoctorPatientsPage from './pages/migration/DoctorPatientsPage';
+import DoctorSchedulePage from './pages/migration/DoctorSchedulePage';
 import DoctorDiagnosisPage from './pages/migration/DoctorDiagnosisPage';
 import DoctorPrescriptionPage from './pages/migration/DoctorPrescriptionPage';
 import DoctorNewPrescriptionPage from './pages/migration/DoctorNewPrescriptionPage';
@@ -89,7 +91,14 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
-      <Route path="/appointmentbook" element={<AppointmentBookPage />} />
+      <Route
+        path="/appointmentbook"
+        element={(
+          <ProtectedRoute allowedRoles={['patient']}>
+            <AppointmentBookPage />
+          </ProtectedRoute>
+        )}
+      />
       <Route path="/portal" element={<MigrationHome />} />
       <Route path="/auth" element={<AuthMigrationPage />} />
       <Route path="/login/admin" element={<AdminLoginPage />} />
@@ -287,6 +296,22 @@ function App() {
         element={(
           <ProtectedRoute allowedRoles={['doctor']}>
             <DoctorDashboardPage />
+          </ProtectedRoute>
+        )}
+      />
+      <Route
+        path="/doctor/patients"
+        element={(
+          <ProtectedRoute allowedRoles={['doctor']}>
+            <DoctorPatientsPage />
+          </ProtectedRoute>
+        )}
+      />
+      <Route
+        path="/doctor/schedule"
+        element={(
+          <ProtectedRoute allowedRoles={['doctor']}>
+            <DoctorSchedulePage />
           </ProtectedRoute>
         )}
       />

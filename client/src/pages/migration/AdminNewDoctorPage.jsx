@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import AdminShell from '../../components/migration/AdminShell';
 import { createDoctor } from '../../services/adminApi';
+import Toast from '../../components/migration/Toast';
 import '../../styles/modern-form-migrate.css';
 
 const initialForm = {
@@ -14,29 +15,34 @@ const initialForm = {
 function AdminNewDoctorPage() {
   const [form, setForm] = useState(initialForm);
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [toast, setToast] = useState({ type: '', text: '' });
 
   const onSubmit = async (event) => {
     event.preventDefault();
     setSubmitting(true);
-    setError('');
-    setSuccess('');
+    setToast({ type: '', text: '' });
 
     const response = await createDoctor(form);
     setSubmitting(false);
 
     if (!response.ok) {
-      setError(response.data?.message || 'Failed to add doctor');
+      setToast({ type: 'error', text: response.data?.message || 'Failed to add doctor' });
       return;
     }
 
-    setSuccess(response.data?.message || 'Doctor added successfully.');
+    setToast({ type: 'success', text: response.data?.message || 'Doctor added successfully.' });
     setForm(initialForm);
   };
 
   return (
     <AdminShell title="New Doctor">
+      {toast.text && (
+        <Toast
+          type={toast.type}
+          message={toast.text}
+          onClose={() => setToast({ type: '', text: '' })}
+        />
+      )}
       <div className="modern-form-page">
         <div className="form-main">
           <div className="form-header">
@@ -46,8 +52,7 @@ function AdminNewDoctorPage() {
             </div>
           </div>
 
-          {error && <div className="form-alert error"><span className="form-alert-icon">!</span><span>{error}</span></div>}
-          {success && <div className="form-alert success"><span className="form-alert-icon">OK</span><span>{success}</span></div>}
+
 
           <section className="form-section">
             <div className="form-section-header">

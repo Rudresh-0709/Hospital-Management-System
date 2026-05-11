@@ -6,6 +6,7 @@ import {
   searchVisitorBadges,
 } from '../../services/adminApi';
 import { getPatientFullName, getPatientSearchName } from '../../utils/patientName';
+import Toast from '../../components/migration/Toast';
 import '../../styles/modern-form-migrate.css';
 
 function AdminNewVisitorPage() {
@@ -17,7 +18,7 @@ function AdminNewVisitorPage() {
   const [selectedBadge, setSelectedBadge] = useState('');
   const [search, setSearch] = useState('');
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [toast, setToast] = useState({ type: '', text: '' });
 
   const loadOverview = async () => {
     setLoading(true);
@@ -62,7 +63,7 @@ function AdminNewVisitorPage() {
     }
 
     setError('');
-    setSuccess('');
+    setToast({ type: '', text: '' });
 
     const response = await searchVisitorBadges(form);
     if (!response.ok) {
@@ -77,7 +78,7 @@ function AdminNewVisitorPage() {
     setBadges(nextBadges);
     setAdmitId(String(response.data.admit_id || ''));
     setSelectedBadge(nextBadges[0]?.badge_id ? String(nextBadges[0].badge_id) : '');
-    setSuccess(response.data?.message || 'Badges loaded');
+    setToast({ type: 'success', text: response.data?.message || 'Badges loaded' });
   };
 
   const onAssignBadge = async (event) => {
@@ -88,22 +89,29 @@ function AdminNewVisitorPage() {
     }
 
     setError('');
-    setSuccess('');
+    setToast({ type: '', text: '' });
     const response = await assignVisitorBadge({
       badge_id: selectedBadge,
       admit_id: admitId,
     });
 
     if (!response.ok) {
-      setError(response.data?.message || 'Failed to assign badge');
+      setToast({ type: 'error', text: response.data?.message || 'Failed to assign badge' });
       return;
     }
 
-    setSuccess(response.data?.message || 'Visit recorded successfully.');
+    setToast({ type: 'success', text: response.data?.message || 'Visit recorded successfully.' });
   };
 
   return (
     <AdminShell title="New Visitor">
+      {toast.text && (
+        <Toast
+          type={toast.type}
+          message={toast.text}
+          onClose={() => setToast({ type: '', text: '' })}
+        />
+      )}
       <div className="modern-form-page">
         <div className="form-main">
           <div className="form-header">
@@ -115,7 +123,6 @@ function AdminNewVisitorPage() {
 
           {loading && <div className="form-alert info"><span className="form-alert-icon">i</span><span>Loading active patients...</span></div>}
           {!loading && error && <div className="form-alert error"><span className="form-alert-icon">!</span><span>{error}</span></div>}
-          {!loading && success && <div className="form-alert success"><span className="form-alert-icon">OK</span><span>{success}</span></div>}
 
           {!loading && patients.length > 0 && (
             <section className="form-section">

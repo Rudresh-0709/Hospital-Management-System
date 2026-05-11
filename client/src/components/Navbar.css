@@ -164,6 +164,15 @@
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
 }
 
+.logout-btn {
+    background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%) !important;
+    box-shadow: 0 4px 15px rgba(231, 76, 60, 0.25);
+}
+
+.logout-btn:hover {
+    box-shadow: 0 6px 20px rgba(231, 76, 60, 0.35) !important;
+}
+
 .dropdown-menu {
     position: absolute;
     top: 140%;

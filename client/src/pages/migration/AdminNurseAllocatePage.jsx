@@ -12,9 +12,8 @@ import '../../styles/modern-form-migrate.css';
 function AdminNurseAllocatePage() {
   const [searchParams] = useSearchParams();
   const preselectedAdmitId = searchParams.get('admit_id') || '';
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [toast, setToast] = useState({ type: '', text: '' });
   const [patients, setPatients] = useState([]);
   const [selectedAdmitId, setSelectedAdmitId] = useState('');
   const [selectedPatientName, setSelectedPatientName] = useState('');
@@ -34,7 +33,7 @@ function AdminNurseAllocatePage() {
 
     setPatients(response.data.patients || []);
     if (response.data.flashMessage) {
-      setSuccess(response.data.flashMessage);
+      setToast({ type: 'success', text: response.data.flashMessage });
     }
     setLoading(false);
   };
@@ -54,7 +53,7 @@ function AdminNurseAllocatePage() {
     setSelectedPatientName(patientName);
     setLoadingNurses(true);
     setError('');
-    setSuccess('');
+    setToast({ type: '', text: '' });
 
     const response = await getAvailableNurses(admitId);
     setLoadingNurses(false);
@@ -71,11 +70,11 @@ function AdminNurseAllocatePage() {
   const onAllocate = async (nurseid) => {
     const response = await assignNurse({ admit_id: selectedAdmitId, nurseid });
     if (!response.ok) {
-      setError(response.data?.message || 'Failed to allocate nurse');
+      setToast({ type: 'error', text: response.data?.message || 'Failed to allocate nurse' });
       return;
     }
 
-    setSuccess(response.data?.message || 'Nurse allocated successfully!');
+    setToast({ type: 'success', text: response.data?.message || 'Nurse allocated successfully!' });
     setNurses([]);
     setSelectedAdmitId('');
     setSelectedPatientName('');
@@ -84,6 +83,13 @@ function AdminNurseAllocatePage() {
 
   return (
     <AdminShell title="Nurse Allocation">
+      {toast.text && (
+        <Toast
+          type={toast.type}
+          message={toast.text}
+          onClose={() => setToast({ type: '', text: '' })}
+        />
+      )}
       <div className="modern-form-page">
         <div className="form-main">
           <div className="form-header">
@@ -94,7 +100,6 @@ function AdminNurseAllocatePage() {
           </div>
 
           {error && <div className="form-alert error"><span className="form-alert-icon">!</span><span>{error}</span></div>}
-          {success && <div className="form-alert success"><span className="form-alert-icon">✓</span><span>{success}</span></div>}
           {loading && <div className="form-alert info"><span className="form-alert-icon">i</span><span>Loading patients...</span></div>}
 
           {!loading && (

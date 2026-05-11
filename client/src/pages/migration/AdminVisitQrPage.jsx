@@ -1,20 +1,19 @@
 import { useState } from 'react';
 import AdminShell from '../../components/migration/AdminShell';
 import { decodeVisitQrImage } from '../../services/adminApi';
+import Toast from '../../components/migration/Toast';
 import '../../styles/modern-form-migrate.css';
 
 function AdminVisitQrPage() {
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
-  const [status, setStatus] = useState('');
-  const [statusType, setStatusType] = useState('');
+  const [toast, setToast] = useState({ type: '', text: '' });
   const [processing, setProcessing] = useState(false);
 
   const onFileChange = (e) => {
     const selected = e.target.files?.[0] || null;
     setFile(selected);
-    setStatus('');
-    setStatusType('');
+    setToast({ type: '', text: '' });
     if (selected) {
       const reader = new FileReader();
       reader.onloadend = () => setPreview(reader.result);
@@ -26,32 +25,35 @@ function AdminVisitQrPage() {
 
   const processQr = async () => {
     if (!file) {
-      setStatus('Please select a QR code image first.');
-      setStatusType('warning');
+      setToast({ type: 'warning', text: 'Please select a QR code image first.' });
       return;
     }
 
     setProcessing(true);
-    setStatus('');
-    setStatusType('');
+    setToast({ type: '', text: '' });
 
     const response = await decodeVisitQrImage(file);
     setProcessing(false);
 
     if (!response.ok) {
-      setStatus(response.data?.message || 'Error decoding QR code.');
-      setStatusType('error');
+      setToast({ type: 'error', text: response.data?.message || 'Error decoding QR code.' });
       return;
     }
 
-    setStatus(response.data?.message || 'Visit recorded successfully.');
-    setStatusType('success');
+    setToast({ type: 'success', text: response.data?.message || 'Visit recorded successfully.' });
     setFile(null);
     setPreview(null);
   };
 
   return (
     <AdminShell title="QR Visit">
+      {toast.text && (
+        <Toast
+          type={toast.type}
+          message={toast.text}
+          onClose={() => setToast({ type: '', text: '' })}
+        />
+      )}
       <div className="modern-form-page">
         <div className="form-main">
           <div className="form-header">
@@ -60,10 +62,6 @@ function AdminVisitQrPage() {
               <p className="form-subtitle">Upload a visitor badge QR code to log the visit automatically.</p>
             </div>
           </div>
-
-          {statusType === 'success' && <div className="form-alert success"><span className="form-alert-icon">✓</span><span>{status}</span></div>}
-          {statusType === 'error' && <div className="form-alert error"><span className="form-alert-icon">!</span><span>{status}</span></div>}
-          {statusType === 'warning' && <div className="form-alert warning"><span className="form-alert-icon">⚠</span><span>{status}</span></div>}
 
           <section className="form-section">
             <div className="form-section-header"><h3 className="form-section-title">Upload QR Code</h3></div>

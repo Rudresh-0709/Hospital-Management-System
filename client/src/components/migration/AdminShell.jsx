@@ -77,6 +77,11 @@ function AdminShell({ title, children }) {
     return () => document.removeEventListener('click', handleClickOutside);
   }, []);
 
+  const handleLogout = async () => {
+    await logout();
+    window.location.href = '/'; // Ensure full redirect to clear all states and go home
+  };
+
   return (
     <div className="migrate-ejs migrate-shell">
       <div className="migrate-shell-topbar">
@@ -88,7 +93,7 @@ function AdminShell({ title, children }) {
           <span>
             {user?.name || 'Unknown'} ({user?.role || 'n/a'})
           </span>
-          <button className="btn" type="button" onClick={logout}>Logout</button>
+          <button className="btn" type="button" onClick={handleLogout}>Logout</button>
         </div>
       </div>
 
@@ -110,6 +115,12 @@ function AdminShell({ title, children }) {
             </div>
           </details>
         ))}
+        
+        <div style={{ marginTop: 'auto', padding: '16px' }}>
+            <button className="btn" type="button" onClick={handleLogout} style={{ width: '100%', background: 'transparent', color: '#ba1a1a', border: '1px solid #ba1a1a' }}>
+              Logout
+            </button>
+        </div>
       </nav>
 
       <div className="migrate-shell-titlebar">

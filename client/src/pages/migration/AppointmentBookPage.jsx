@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import { bookAppointment, getAppointmentFormData } from '../../services/appointmentApi';
 import { getPatientDashboardOverview } from '../../services/patientApi';
 import { getPatientFullName } from '../../utils/patientName';
+import Toast from '../../components/migration/Toast';
 import '../../styles/patient-dashboard-ejs.css';
 import '../../styles/modern-form-migrate.css';
 
@@ -19,7 +20,7 @@ const navItems = [
 function AppointmentBookPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [toast, setToast] = useState({ type: '', text: '' });
   const [doctors, setDoctors] = useState([]);
   const [patientData, setPatientData] = useState(null);
   const [form, setForm] = useState({
@@ -75,14 +76,14 @@ function AppointmentBookPage() {
   const onSubmit = async (event) => {
     event.preventDefault();
     setError('');
-    setSuccess('');
+    setToast({ type: '', text: '' });
     const response = await bookAppointment(form);
     if (!response.ok) {
-      setError(response.data?.message || 'Failed to submit appointment');
+      setToast({ type: 'error', text: response.data?.message || 'Failed to submit appointment' });
       return;
     }
 
-    setSuccess(response.data?.message || 'Appointment request submitted successfully');
+    setToast({ type: 'success', text: response.data?.message || 'Appointment request submitted successfully' });
     setForm((prev) => ({
       ...prev,
       appointee_name: '',
@@ -96,6 +97,13 @@ function AppointmentBookPage() {
 
   return (
     <div className="migrate-patient-dashboard modern-pd">
+      {toast.text && (
+        <Toast
+          type={toast.type}
+          message={toast.text}
+          onClose={() => setToast({ type: '', text: '' })}
+        />
+      )}
       <aside className="pd-sidebar">
         <div className="pd-brand">Clinical Sanctuary</div>
 
@@ -155,13 +163,6 @@ function AppointmentBookPage() {
               <div className="form-alert error">
                 <span className="form-alert-icon">✕</span>
                 <span>{error}</span>
-              </div>
-            )}
-
-            {success && (
-              <div className="form-alert success">
-                <span className="form-alert-icon">✓</span>
-                <span>{success}</span>
               </div>
             )}
 
