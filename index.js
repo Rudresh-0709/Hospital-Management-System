@@ -146,7 +146,7 @@ const adminloginroute = require('./routes/adminloginroute')
 const admitroute = require('./routes/admitroute');
 const dischargeroute = require('./routes/dischargeroute');
 const visitroute = require('./routes/newvisitroute');
-const newdoctorroute = require("./routes/newdoctorroute");
+const { createDoctor, handleNewDoctor } = require("./routes/newdoctorroute");
 const updateeqroute = require('./routes/eqroute/updateeqroute');
 const neweqroute = require('./routes/eqroute/neweqroute');
 const newstaffroute = require('./routes/staffroute');
@@ -849,29 +849,101 @@ app.get('/api/admin/newdoctor/overview', (req, res) => {
     return res.status(200).json({ message: req.flash('message') });
 });
 
+const developerSeedDoctors = [
+    { doctor_name: 'Dr. Aisha Sharma', speciality: 'Cardiology', doctor_in: '09:00', doctor_out: '17:00' },
+    { doctor_name: 'Dr. Arjun Mehta', speciality: 'Orthopedics', doctor_in: '10:00', doctor_out: '18:00' },
+    { doctor_name: 'Dr. Neha Iyer', speciality: 'Dermatology', doctor_in: '08:00', doctor_out: '16:00' },
+    { doctor_name: 'Dr. Kabir Singh', speciality: 'Neurology', doctor_in: '09:30', doctor_out: '17:30' },
+    { doctor_name: 'Dr. Sana Khan', speciality: 'Pediatrics', doctor_in: '08:30', doctor_out: '16:30' },
+    { doctor_name: 'Dr. Rohan Patil', speciality: 'ENT', doctor_in: '11:00', doctor_out: '19:00' },
+    { doctor_name: 'Dr. Priya Nair', speciality: 'Gynecology', doctor_in: '09:00', doctor_out: '17:00' },
+    { doctor_name: 'Dr. Vikram Rao', speciality: 'General Medicine', doctor_in: '07:30', doctor_out: '15:30' },
+    { doctor_name: 'Dr. Ishita Das', speciality: 'Psychiatry', doctor_in: '12:00', doctor_out: '20:00' },
+    { doctor_name: 'Dr. Manav Joshi', speciality: 'Oncology', doctor_in: '10:30', doctor_out: '18:30' },
+    { doctor_name: 'Dr. Kavya Menon', speciality: 'Radiology', doctor_in: '08:00', doctor_out: '16:00' },
+    { doctor_name: 'Dr. Aditya Verma', speciality: 'Urology', doctor_in: '09:00', doctor_out: '17:00' },
+    { doctor_name: 'Dr. Meera Kapoor', speciality: 'Endocrinology', doctor_in: '10:00', doctor_out: '18:00' },
+    { doctor_name: 'Dr. Harshil Shah', speciality: 'Pulmonology', doctor_in: '07:00', doctor_out: '15:00' },
+    { doctor_name: 'Dr. Tanvi Kulkarni', speciality: 'Nephrology', doctor_in: '11:30', doctor_out: '19:30' },
+    { doctor_name: 'Dr. Nikhil Bansal', speciality: 'Gastroenterology', doctor_in: '08:30', doctor_out: '16:30' },
+    { doctor_name: 'Dr. Pooja Chatterjee', speciality: 'Ophthalmology', doctor_in: '09:30', doctor_out: '17:30' },
+    { doctor_name: 'Dr. Sameer Malhotra', speciality: 'Anesthesiology', doctor_in: '06:30', doctor_out: '14:30' },
+    { doctor_name: 'Dr. Ritu Arora', speciality: 'Pathology', doctor_in: '08:00', doctor_out: '16:00' },
+    { doctor_name: 'Dr. Farhan Ali', speciality: 'Emergency Medicine', doctor_in: '14:00', doctor_out: '22:00' },
+];
+
+function canUseDoctorSeedEndpoint() {
+    return process.env.ENABLE_DOCTOR_SEEDING === 'true' && process.env.NODE_ENV !== 'production' && !!process.env.SEED_TOKEN;
+}
+
+function buildSeedDoctorPayload(doctor) {
+    const seededPassword = process.env.DEV_SEED_DOCTOR_PASSWORD || '';
+    return {
+        ...doctor,
+        doctor_password: doctor?.doctor_password || seededPassword,
+    };
+}
+
 app.post('/api/admin/newdoctor', (req, res) => {
     if (!req.session.admin_id) {
         return res.status(401).json({ message: 'Admin authentication required' });
     }
 
-    const { doctor_name, speciality, doctor_in, doctor_out, doctor_password } = req.body;
-    if (!doctor_name || !speciality || !doctor_in || !doctor_out || !doctor_password) {
-        return res.status(400).json({ message: 'All doctor fields are required' });
-    }
-
-    const insertDoctorQuery = `
-        INSERT INTO doctors (doctor_name, speciality, doctor_in, doctor_out, doctor_password)
-        VALUE (?, ?, ?, ?, ?)
-    `;
-
-    con.query(insertDoctorQuery, [doctor_name, speciality, doctor_in, doctor_out, doctor_password], (error) => {
+    return createDoctor(req.body, (error) => {
         if (error) {
             console.error('Error adding doctor:', error);
-            return res.status(500).json({ message: 'Failed to add doctor' });
+            return res.status(error.statusCode || 500).json({ message: error.message || 'Failed to add doctor' });
         }
 
         return res.status(200).json({ message: 'Doctor added successfully.' });
     });
+});
+
+app.post('/api/admin/seed/doctors', (req, res) => {
+    if (!canUseDoctorSeedEndpoint()) {
+        return res.status(404).json({ message: 'Not found' });
+    }
+
+    const token = req.get('x-seed-token');
+    if (token !== process.env.SEED_TOKEN) {
+        return res.status(403).json({ message: 'Invalid seed token' });
+    }
+
+    const isCustomDoctorList = Array.isArray(req.body?.doctors) && req.body.doctors.length > 0;
+    const seedDoctors = isCustomDoctorList ? req.body.doctors : developerSeedDoctors;
+    if (!isCustomDoctorList && !process.env.DEV_SEED_DOCTOR_PASSWORD) {
+        return res.status(400).json({ message: 'Set DEV_SEED_DOCTOR_PASSWORD to seed the default doctor list' });
+    }
+    const doctorsToSeed = seedDoctors.map(buildSeedDoctorPayload);
+    let inserted = 0;
+    const failures = [];
+
+    const seedNext = (index) => {
+        if (index >= doctorsToSeed.length) {
+            return res.status(200).json({
+                message: 'Doctor seeding complete',
+                total: doctorsToSeed.length,
+                inserted,
+                failed: failures.length,
+                failures,
+            });
+        }
+
+        return createDoctor(doctorsToSeed[index], (error) => {
+            if (error) {
+                failures.push({
+                    doctor_name: doctorsToSeed[index]?.doctor_name || `Doctor-${index + 1}`,
+                    message: error.message || 'Failed to add doctor',
+                });
+            } else {
+                inserted += 1;
+            }
+
+            return seedNext(index + 1);
+        });
+    };
+
+    return seedNext(0);
 });
 
 app.post('/api/admin/newstaff', (req, res) => {
@@ -3123,7 +3195,7 @@ app.post("/admit_patient", admitroute);
 app.post("/discharge_patient", dischargeroute);
 app.post("/search_badges", visitroute);
 app.post("/assign_badge", visitroute);
-app.post("/new_doctor", newdoctorroute);
+app.post("/new_doctor", handleNewDoctor);
 app.post("/add_equipment", neweqroute);
 app.post("/update_equipment", updateeqroute);
 app.post("/add_staff", newstaffroute);
